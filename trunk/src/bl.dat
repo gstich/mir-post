@@ -1,0 +1,8 @@
+&INPUT 
+t1 = 720
+tf = 730
+nx = 256
+ny = 256
+nz = 32
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dm'
+/
