@@ -1,0 +1,15 @@
+&span_vars
+ix1 = 400
+ixn = 400
+iy1 = 20
+iyn = 20
+/
+
+&INPUT 
+t1 = 941
+tf = 941
+nx = 512
+ny = 128
+nz = 128
+jobdir = '/Users/bolson/WORK/visit_sand'
+/

@@ -2,7 +2,8 @@
 
 
 SUBROUTINE read_input
-  USE globals
+  USE globals, ONLY: t1,tf,nx,ny,nz,ax,ay,az,px,py,pz
+  USE globals, ONLY: flen,jobdir,invprocmap,procmap,proc
   IMPLICIT NONE
   INTEGER :: funit,ioUnit
   CHARACTER(LEN=flen) ::  inputFile           ! input file tmp
@@ -67,32 +68,9 @@ SUBROUTINE read_input
   
 
   procmap = procmap_3d
-
   
 
-  tloop = tf-t1+1
-
-
 END SUBROUTINE read_input
-
-
-
-SUBROUTINE print_map
-  USE sumdata
-  IMPLICIT NONE
-
-  PRINT*,"Global index ranges"
-  PRINT*,'Iproc: (',i1g,',',ifg,')'
-  PRINT*,'Jproc: (',j1g,',',jfg,')'
-  PRINT*,'Kproc: (',k1g,',',kfg,')'
-
-  PRINT*,"Proc index ranges"
-  PRINT*,'Iproc: (',i1p,',',ifp,')'
-  PRINT*,'Jproc: (',j1p,',',jfp,')'
-  PRINT*,'Kproc: (',k1p,',',kfp,')'
-
-END SUBROUTINE print_map
-
 
 
 
@@ -107,8 +85,8 @@ END SUBROUTINE viz_name
 
 
 SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
-  USE globals, ONLY: flen, varDIM, invprocmap,ax,ay,az,zero,one
-  USE post_routines
+  USE globals, ONLY: flen, varDIM, DIM, invprocmap,ax,ay,az,zero,one
+  USE block
   IMPLICIT NONE
   CHARACTER(LEN=flen), INTENT(IN) :: vizdir
   INTEGER, DIMENSION(6) :: procIJK
@@ -121,7 +99,7 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
 
   CHARACTER(LEN=flen) :: procdir
   INTEGER :: i,j,k,p,v
-  INTEGER :: punit=23
+  INTEGER :: punit=27
   INTEGER :: ig,jg,kg
   INTEGER :: i1p,ifp,j1p,jfp,k1p,kfp
 
@@ -135,10 +113,13 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
   k1p = procIJK(5)
   kfp = procIJK(6)
 
+
   ! Loop only over PROCS in pertainate range
   DO i=i1p,ifp
      DO j=j1p,jfp
         DO k=k1p,kfp
+           
+
            
            ! Global indices on corner of proc grid
            ig = i*ax + 1
@@ -161,21 +142,17 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
            !! Get the grid data as well
            WRITE(procdir,'(2A,I6.6)') TRIM(vizdir),'/../grid/p',p
            OPEN(UNIT=punit,FILE=TRIM(procdir),FORM='UNFORMATTED',STATUS='OLD')
-           DO v=varDIM+1,varDIM+3
+           DO v=varDIM+1,DIM
               READ(punit) iodata(:,:,:,v)
            END DO
            CLOSE(punit)
            
-           
-
+           !! Call the main kernal on the chunk of data
            CALL block_ops(iodata,corner,stride,Gdata,FUNK)
-           
 
         END DO
      END DO
   END DO
-
-
 
 END SUBROUTINE proc_loop
 
