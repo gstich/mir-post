@@ -22,7 +22,7 @@
 
 
 PROGRAM post
-  USE post_routines 
+  USE operators
   USE globals, ONLY: flen,varDIM,ax,ay,az,nx,ny,nz,t1,jobdir
   !USE sumdata, ONLY: out,gout
   IMPLICIT NONE
@@ -42,10 +42,10 @@ PROGRAM post
   varDIM = 12
 
  
-  stride(1,1) = 128
+  stride(1,1) = 100
   stride(1,2) = 150
   stride(2,1) = 1
-  stride(2,2) = 32
+  stride(2,2) = 64
   ALLOCATE(vars(9))
   vars = (/ 1,2,3,4,5,6,7,8,9 /)
   ALLOCATE(output( ny , SIZE(vars)+3) )

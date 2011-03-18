@@ -1,0 +1,15 @@
+&length_vars
+iy1 = 50
+iyn = 78
+iz1 = 1
+izn = 64
+/
+
+&INPUT 
+t1 = 941
+tf = 941
+nx = 512
+ny = 128
+nz = 128
+jobdir = '/Users/bolson/WORK/visit_sand'
+/
