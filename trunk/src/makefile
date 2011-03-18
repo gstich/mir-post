@@ -1,14 +1,16 @@
-CC=	ifort
-#CC=	gfortran
- 
-SOURCE=	post_miranda.f90
+f90=	ifort
+#f90=	gfortran
+
+flags = -O3
+
+SOURCE=	globals.o interfaces.o lines.o driver.o block_ops.o post_miranda.o
 EXE=	mir-post
 
 $(EXE) :$(SOURCE) 
-	$(CC)  $(SOURCE) $(CFLAGS) -o $(EXE) 
+	$(f90)  $(SOURCE) $(flags) -o $(EXE) 
 
-main.o: post_miranda.f90
-	$(CC)  $(CFLAGS) -c post_miranda.f90
+%.o: %.f90
+	$(f90) $(flags) -c $<
 
 clean : 
-	rm -f *.log $(EXE) *~ *.o *.mod
+	rm -f *.log $(EXE) *.o *.mod
