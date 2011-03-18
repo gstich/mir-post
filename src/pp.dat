@@ -1,8 +1,8 @@
 &INPUT 
 t1 = 920
 tf = 920
-nx = 768
-ny = 256
-nz = 256
-jobdir = '/p/lscratchd/olson45/nozzle/nozzle3Dm'
+nx = 512
+ny = 128
+nz = 128
+jobdir = '/Users/bolson/WORK/visit_sand'
 /
