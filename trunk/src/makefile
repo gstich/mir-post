@@ -8,7 +8,10 @@ PROBS= yplus length span
 
 warn :
 	@echo "Please select a case to compile:"
-	@echo "  - $(PROBS)"
+	@echo "  "
+	@echo "Case are: $(PROBS)"
+	@echo "  "
+	@echo "Also : all, clean, cleanall"
 
 all : $(PROBS)
 
