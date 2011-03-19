@@ -39,7 +39,6 @@ PROGRAM post
 
 
   CALL read_input
-  varDIM = 12
 
  
   stride(1,1) = 100
@@ -51,7 +50,7 @@ PROGRAM post
   ALLOCATE(output( ny , SIZE(vars)+3) )
 
   CALL viz_name(jobdir,941,vfile)
-  CALL SUBSUM3IK(stride,vars,output,vfile)
+  CALL SUBSUM3IK(stride,output,vfile)
 
   !! Dump the unscaled values
   WRITE(ofile,'(A,I4.4)') 'Uwall.',t1
