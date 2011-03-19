@@ -1,8 +1,0 @@
-&INPUT 
-t1 = 920
-tf = 920
-nx = 512
-ny = 128
-nz = 128
-jobdir = '/Users/bolson/WORK/visit_sand'
-/
