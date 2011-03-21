@@ -6,10 +6,10 @@ izn = 64
 /
 
 &INPUT 
-t1 = 941
-tf = 941
-nx = 512
-ny = 128
-nz = 128
-jobdir = '/Users/bolson/WORK/visit_sand'
+t1 = 2124
+tf = 2124
+nx = 256
+ny = 256
+nz = 64
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
 /
