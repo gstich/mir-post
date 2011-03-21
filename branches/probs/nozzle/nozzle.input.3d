@@ -1,0 +1,99 @@
+&nozzle_vars
+  init_type = '3D'            ! Select the type of initialization used ['2D' -or- '3D']
+  restart_dir = '/p/lscratchd/olson45/nozzle/nozzle3Dm/res_init'
+  Tinitial = 3.0D2	      ! Ambient Initial temperature [K]
+  Pinitial = 1.0D6	      ! Ambient Initial pressure at top of domain [Ba]
+  del_BL = 0.1d0             ! Boundary Layer thickness
+  Re_BL = 50.0d3               ! Reynolds number BL
+  rcy_pt_g = 200 !185              ! Global recycling point location
+  init_stats = .TRUE.        ! Flush time statistics?
+  BL_flag = .FALSE.
+  Ifil = .FALSE.
+  filmax = 100
+/
+
+&INPUT
+! I/O=================================================================================================================
+  bigdir = '/p/lscratchd'   ! root directory for I/O (user_name automatically append to it)
+  subdir = 'nozzle'        ! sub directory for I/O: <bigdir>/<user_name>/<subdir>
+  runid  = '3Dm'         ! appended to jobname: <bigdir>/<user_name>/<subdir>/<jobname><runid>
+  stats = 10                ! number of timesteps between statistics computations (0 for none)
+  ndumps = 301              ! number of restart dumps per run
+  nsteps = 500             ! number of time steps between restart dumps
+  tviz = 1.0D-6             ! time between visualization dumps
+  stoprun = 2000.0D-6           ! time at which to stop simulation
+  !time_step_fixed = .TRUE.
+  !dtfixed = 5.0d-9
+! TIMESTEP CONTROL====================================================================================================
+  CFLnum = 1.0D0            ! Courant-Friedrichs-Lewy stability number
+  safemu = 2.0D-1           ! viscous stability
+  safebulk = 1.0D-1         ! shock stability
+  safektc = 2.0D-1          ! conductive stability
+  safeDiff = 2.0D-1         ! diffusive stability
+  safelim = 1.1D0           ! limit on dt increase (dt_max=dt/dGtold)
+  ramp = 1.0D-3             ! reduction factor for initial timetep (dt_initial=ramp*dtCFL)
+! PARALLELIZATION====================================================================================================
+  px = 32                    ! number of x processors
+  py = 8                    ! number of y processors
+  pz = 8                    ! number of z processors
+! GRID===============================================================================================================
+  nx = 768                 ! number of x grid points
+  ny = 256                  ! number of y grid points
+  nz = 256                    ! number of z grid points
+  dx = 0.5D-2               ! grid spacing in x
+  dy = 0.5D-2               ! grid spacing in y
+  dz = 0.5D-2               ! grid spacing in z
+  x1 = 0.0D0                ! location of x1 boundary
+  y1 = 0.0D0                ! location of y1 boundary
+  z1 = 0.0D0                ! location of z1 boundary
+  curvlin = .TRUE.	    ! curvilinear coordinate transformation?
+  dirB = .TRUE.
+! BOUNDARY CONDITIONS================================================================================================
+  spherical = .FALSE.       ! impose interpolation function for octant of sphere?
+  periodicx = .FALSE.       ! periodic in x?
+  periodicy = .FALSE.       ! periodic in y?
+  periodicz = .TRUE.       ! periodic in z?
+  bx1 = 'NONE'              ! boundary condition at x1: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL"
+  bxn = 'FREE'              ! boundary condition at xn: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL"
+  by1 = 'NONE'              ! boundary condition at y1: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL"
+  byn = 'NONE'              ! boundary condition at yn: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL"
+  bz1 = 'NONE'              ! boundary condition at z1: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL", "PFLO", "PINF", "SLIP"
+  bzn = 'NONE'              ! boundary condition at zn: "CNST", "EXTP", "FREE", "NONE", "SYMM", "WALL", "PFLO", "PINF", "SLIP"
+! FILTERS============================================================================================================
+  sharp = .TRUE.            ! use sharp spectral filters? (usually .true.)
+  lfilfreq = 1              ! 0=no LHS filtering, 1=filter LHS (conserved variables)
+  lfilter = 1               ! LHS filter type: 1-7=weak-strong
+  rfilter = 3               ! RHS filter type: 1-7=weak-strong
+  gfilter = 6               ! smoothing filter for artificial transport coefficients: 6=Gaussian
+! ARTIFICIAL PROPERTIES==============================================================================================
+  !artvisc = 2               ! 0=no artificial viscosity, 1=hyperviscosity
+  !artcond = 1               ! 0=no artificial conductivity, 1=hyperconductivity
+  !artdiff = 1               ! 0=no artificial diffusivity, 1=hyperdiffusivity
+  !Tfloor = 100.0D0
+  Cm = 1.0D-2               ! artificial shear viscosity coefficient
+  Cb = 1.0D0                ! artificial bulk viscosity coefficient
+  Ck = 5.0D-1                ! artificial thermal conductivity coefficient
+  !Cd = 1.0D2,3.0D-3,0.0D0   ! artificial diffusivity coefficients
+! COMPRESSIBLE CASE=============================================================================================================
+  compressible = .TRUE.     ! compressible=.TRUE., incompressible=.FALSE.
+  viscous = .TRUE.         ! compute viscosity?             (currently with LEOS only, valid for kT > 1ev)
+  conductive = .FALSE.      ! compute thermal conductivity?  (currently with LEOS only, valid for kT > 1ev)
+  condsolver = 'EXPLICIT'   ! thermal (electron) conduction solver: "EXPLICIT", "IMPLICIT"
+! DIFFUSION=====================================================================================================================
+  diffusive = .FALSE.       ! compute species diffusivities? (currently with LEOS only, valid for kT > 1ev)
+  difftype = 'FICK'         ! Fickian "FICK", Binary "BNRY" or Stefan-Maxwell "FULL"
+  diffpres = .FALSE.        ! include pressure diffusion?
+  difftemp = .FALSE.        ! include temperature diffusion?
+  enthalpyflux = .FALSE.    ! include diffusive enthalpy flux in energy equation?
+! MATERIALS=====================================================================================================================
+  fluidprops = 2 
+  ns = 1                    ! number of species
+  species(1) = 2260         ! Air
+! EQUATION OF STATE=============================================================================================================
+  eostype = 'GAMMA'         ! equation of state: "CASES", "GAMMA", "IDEAL", "TABLE", "FLASH"
+  gamma = 1.4D0   ! cp/cv for "GAMMA" EOS
+! GRAVITY=============================================================================================================
+  accelx = 0.0D0            ! x component of frame acceleration if gravitational = .false.
+  accely = 0.0D0            ! y component of frame acceleration if gravitational = .false.
+  accelz = 0.0D0           ! z component of frame acceleration if gravitational = .false.
+/
