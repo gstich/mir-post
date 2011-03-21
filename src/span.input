@@ -1,15 +1,15 @@
 &span_vars
-ix1 = 400
-ixn = 400
-iy1 = 20
-iyn = 20
+ix1 = 193
+ixn = 220
+iy1 = 32
+iyn = 32
 /
 
 &INPUT 
-t1 = 941
-tf = 941
-nx = 512
-ny = 128
-nz = 128
-jobdir = '/Users/bolson/WORK/visit_sand'
+t1 = 2000
+tf = 2217
+nx = 256
+ny = 256
+nz = 64
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
 /
