@@ -22,12 +22,12 @@ MODULE nozzle_data
   !! For the Recycling rescaling routines
   DOUBLE PRECISION 	:: del_BL       = 1.0d-1 
   DOUBLE PRECISION 	:: Re_BL        = 1.0d4
-  DOUBLE PRECISION 	:: mu_0        = 1.0D0      
-  DOUBLE PRECISION 	:: Pr          = 0.7D0    
+  DOUBLE PRECISION 	:: BLalpha      = 1.0D0      
+  DOUBLE PRECISION 	:: mu_0         = 1.0D0      
+  DOUBLE PRECISION 	:: Pr           = 0.7D0    
   INTEGER        	:: rcy_pt_g     = 100  
-  DOUBLE PRECISION 	:: Len_BL        = 4.0d0
+  DOUBLE PRECISION 	:: Len_BL       = 4.0d0
   INTEGER               :: nvar         = 4
-  !DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: uave,vave,wave,Tave
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: Qave
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: yp_r,yp_i,yp_o
   DOUBLE PRECISION :: simtime_old
@@ -73,7 +73,7 @@ SUBROUTINE prob_inputs(fileName)
 
   ! Uncomment to define a namelist
   NAMELIST /nozzle_vars/ Tinitial,Pinitial,del_BL,Re_BL,Pr,rcy_pt_g,init_type,restart_dir,init_stats,BL_flag,&
-      & gridfile, Ifil,filmax
+      & gridfile, Ifil,filmax,BLalpha
 
   ! Uncomment to open and read a namelist file
   OPEN(UNIT=inputUnit,FILE=TRIM(fileName),FORM='FORMATTED',STATUS='OLD')
@@ -1028,8 +1028,11 @@ SUBROUTINE inflow_rcy_v2(rho,u,v,w,e) !!,rcy_pt_g,del_BL,Len_BL,U_in)
       ! alpha = (del_rec/del_inl) where del is the BL thickness.. > 1
       ! beta = u_tau_inl / u_tau_rec where u_tau is the friction velocity
       ! Equation from Smits and Dussauge for TBL growth
-      !alpha = (( one + (Len_BL)/del_BL * .27d0**(six/five)*Re_BL**(-one/five) )**(five/six)) 
-      alpha = one
+      IF (BLalpha == 0) THEN   !! Use input alpha unless its zero, then use this relation
+         alpha = (( one + (Len_BL)/del_BL * .27d0**(six/five)*Re_BL**(-one/five) )**(five/six)) 
+      ELSE
+         alpha = BLalpha
+      END IF
       beta =  alpha**(one/ten)
 
 
