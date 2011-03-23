@@ -27,10 +27,10 @@ cleanall :
 post :$(SOURCE) post_miranda.o
 	$(f90) $(SOURCE) post_miranda.o $(flags) -o post_ex
 
-yplus :$(SOURCE) yplus.o
+yplus :$(SOURCE) cases/yplus.o
 	$(f90) $(SOURCE) yplus.o $(flags) -o yplus_ex
 
-length :$(SOURCE) length.o
+length :$(SOURCE) cases/length.o
 	$(f90) $(SOURCE) length.o $(flags) -o length_ex
 
 span :$(SOURCE) cases/span.o
