@@ -73,6 +73,41 @@ INTERFACE SUBSUM3IJ
 END INTERFACE
 
 
+  INTERFACE PLANE_IK
+     SUBROUTINE PLANE_IK(stride,prof2D,file)
+       USE globals, ONLY: flen
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
+       INTEGER, DIMENSION(2,2) :: stride
+       CHARACTER(LEN=flen) :: file
+     END SUBROUTINE PLANE_IK
+  END INTERFACE
+
+  INTERFACE PLANE_JK
+     SUBROUTINE PLANE_JK(stride,prof2D,file)
+       USE globals, ONLY: flen
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
+       INTEGER, DIMENSION(2,2) :: stride
+       CHARACTER(LEN=flen) :: file
+     END SUBROUTINE PLANE_JK
+  END INTERFACE
+
+  INTERFACE PLANE_IJ
+     SUBROUTINE PLANE_IJ(stride,prof2D,file)
+       USE globals, ONLY: flen
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
+       INTEGER, DIMENSION(2,2) :: stride
+       CHARACTER(LEN=flen) :: file
+     END SUBROUTINE PLANE_IJ
+  END INTERFACE
+
+
+
 !!$
 !!$INTERFACE PLAN_AVE
 !!$   SUBROUTINE PLAN_AVE(direction,vars,plane2D)

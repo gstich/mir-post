@@ -2,7 +2,7 @@
 
 
 SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
-  USE globals, ONLY: varDIM,coordDIM,DIM,flen,zero,one,ax,ay,az
+  USE globals, ONLY: varDIM,coordDIM,DIM,flen,zero,one,ax,ay,az,nx,ny,nz
   IMPLICIT NONE
   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(IN) :: iodata
   INTEGER, DIMENSION(3), INTENT(IN) :: corner
@@ -12,6 +12,7 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
 
   REAL(KIND=4), DIMENSION(varDIM) :: temp
   REAL(KIND=4), DIMENSION(coordDIM) :: gtemp
+  DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: dpdum
   DOUBLE PRECISION :: ddum
   INTEGER :: i,j,k,v
   INTEGER :: irngL,irngU,jrngL,jrngU,krngL,krngU
@@ -91,55 +92,59 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
         END DO
      END DO
 
+  CASE('PLANE_IK')
+     
+     ALLOCATE(dpdum(ax,az,DIM))
+
+     !! Set the index box size for the averaging kernal
+     j1g = stride(1,1)
+     jfg = stride(1,2)
+     
+     jrngL = max(j1g-jg+1,1)
+     jrngU = min(jfg-jg+1,ay)
+
+     DO j = jrngL,jrngU
+        dpdum = DBLE(iodata( : , j , : , :))
+        Gdata(ig:ig+ax-1,1,kg:kg+az-1,:) = Gdata(ig:ig+ax-1,1,kg:kg+az-1,:) + dpdum
+     END DO
+
+
+  CASE('PLANE_JK')
+     
+     ALLOCATE(dpdum(ay,az,DIM))
+
+     !! Set the index box size for the averaging kernal
+     i1g = stride(1,1)
+     ifg = stride(1,2)
+     
+     irngL = max(i1g-ig+1,1)
+     irngU = min(ifg-ig+1,ax)
+
+     DO i = irngL,irngU
+        dpdum = DBLE(iodata( i , : , : , :))
+        Gdata(1,jg:jg+ay-1,kg:kg+az-1,:) = Gdata(1,jg:jg+ay-1,kg:kg+az-1,:) + dpdum
+     END DO
+
+  CASE('PLANE_IJ')
+     
+     ALLOCATE(dpdum(ax,ay,DIM))
+
+     !! Set the index box size for the averaging kernal
+     k1g = stride(1,1)
+     kfg = stride(1,2)
+     
+     krngL = max(k1g-kg+1,1)
+     krngU = min(kfg-kg+1,az)
+
+     DO k = krngL,krngU
+        dpdum = DBLE(iodata( : , : , k , :))
+        Gdata(ig:ig+ax-1,jg:jg+ay-1,1,:) = Gdata(ig:ig+ax-1,jg:jg+ay-1,1,:) + dpdum
+     END DO
+
+
+
   END SELECT
 
 
-
-
-!!$
-!!$  IF(fSS3IJ) THEN
-!!$     irngL = max(i1g-ig+1,1)
-!!$     irngU = min(ifg-ig+1,ax)
-!!$
-!!$     jrngL = max(j1g-jg+1,1)
-!!$     jrngU = min(jfg-jg+1,ay)
-!!$     
-!!$     print*,irngL,irngU,jrngL,jrngU
-!!$
-!!$     DO k = 1,az
-!!$        DO v = 1,varDIM
-!!$           temp(v) = SUM(iodata( irngL:irngU , jrngL:jrngU , k , v) )
-!!$        END DO
-!!$        out(kg+k-1,:) = out(kg+k-1,:) + temp
-!!$        DO v = 1,3
-!!$           gtemp(v) = SUM(grid( irngL:irngU , jrngL:jrngU ,k , v) )
-!!$        END DO
-!!$        gout(kg+k-1,:) = gout(kg+k-1,:) + gtemp
-!!$     END DO
-!!$  END IF
-
-!  IF(PLNAVE) THEN
-
-
-     !! Reduce 3d data to a plane and add to global 2d array
-!     IF(z) THEN
-!        DO i=1,ax
-!           DO j=1,ay
-!              iig = ig+i-1
-!              jjg = jg+j-1
-!              DO v=1,varDIM
-!                 pout(iig,jjg,:) = pout(iig,jjg,:) + SUM(iodata(i,j,:,v))
-!              END DO
-!              DO v=1,3
-!                 pgrid(iig,jjg,:) = pgrid(iig,jjg,:) + SUM(grid(i,j,:,v))
-!              END DO
-!!           END DO
-!        END DO
-!     END IF
-
-
-
-
- ! END IF
 
 END SUBROUTINE block_ops

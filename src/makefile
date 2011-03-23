@@ -3,7 +3,7 @@ f90=	ifort
 
 flags = 
 
-SOURCE=	globals.o interfaces.o lines.o driver.o block_ops.o 
+SOURCE=	globals.o interfaces.o lines.o planes.o driver.o block_ops.o 
 PROBS= yplus length span
 
 warn :
@@ -33,5 +33,5 @@ yplus :$(SOURCE) yplus.o
 length :$(SOURCE) length.o
 	$(f90) $(SOURCE) length.o $(flags) -o length_ex
 
-span :$(SOURCE) span.o
+span :$(SOURCE) cases/span.o
 	$(f90) $(SOURCE) span.o $(flags) -o span_ex

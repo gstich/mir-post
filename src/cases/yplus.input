@@ -1,13 +1,13 @@
 &yplus_vars
-ix1 = 100
-ixn = 128
+ix1 = 128
+ixn = 230
 iz1 = 1
 izn = 64
 /
 
 &INPUT 
-t1 = 2124
-tf = 2124
+t1 = 2850
+tf = 2854
 nx = 256
 ny = 256
 nz = 64
