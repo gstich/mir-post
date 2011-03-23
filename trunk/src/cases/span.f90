@@ -25,7 +25,7 @@ PROGRAM span
   INTEGER :: i,j,k
   INTEGER, DIMENSION(2,2) :: stride
 
-  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: output
+  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: output,plane2d
   CHARACTER(LEN=flen) :: ofile
   CHARACTER(LEN=flen) :: vfile
   CHARACTER(LEN=flen) :: inputFile
@@ -59,7 +59,7 @@ PROGRAM span
   stride(2,1) = iy1
   stride(2,2) = iyn
   
-  tfreq = 10
+  tfreq = 1
   nviz=tf-t1+1
   nviz = nviz / tfreq
 
@@ -100,13 +100,83 @@ PROGRAM span
   DO i=1,nz/2
      WRITE(33,'(1ES12.4)') corr(i)
   END DO
-
   CLOSE(33)
 
+
+  !ALLOCATE(plane2d(nx,nz))
+  CALL get_plane(vfile,1,1,4)
 
 
 
 END PROGRAM span
+
+SUBROUTINE get_plane(vfile,j1,jf,var)
+  USE operators
+  USE globals
+  USE span_data
+  IMPLICIT NONE
+  INTEGER :: j1, jf, var
+  CHARACTER(LEN=flen), INTENT(IN) :: vfile
+  !DOUBLE PRECISION, DIMENSION(nx,nz), INTENT(OUT) :: plane2d
+
+  INTEGER :: i, j,iv, ounit
+  INTEGER, DIMENSION(2,2) :: stride
+  DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: output
+  CHARACTER(LEN=flen) :: ofile
+  INTEGER, DIMENSION(:), ALLOCATABLE :: vars
+  CHARACTER(LEN=flen) :: cvars
+  
+!!$  stride(1,1) = j1
+!!$  stride(1,2) = jf
+!!$
+!!$  ALLOCATE(output(nx,nz,DIM))
+!!$  CALL PLANE_IK(stride,output,vfile)
+  
+  stride(1,1) = j1
+  stride(1,2) = jf
+
+  ALLOCATE(output(nx,ny,DIM))
+  CALL PLANE_IJ(stride,output,vfile)
+  
+  
+  ofile = 'plane.tec'
+  ALLOCATE(vars(6))
+  vars = (/ u, v, w, rho, p, T /)
+  cvars = ' "u","v","w","rho","p","T" '
+  CALL write_tec(ofile,output,nx,ny,6,vars,cvars)
+
+END SUBROUTINE get_plane
+
+SUBROUTINE write_tec(ofile,data,n1,n2,nV,vars,cvars)
+  USE globals
+  IMPLICIT NONE
+  
+  CHARACTER(LEN=flen), INTENT(IN) :: ofile
+  INTEGER, INTENT(IN) :: n1,n2,nV  
+  DOUBLE PRECISION, DIMENSION(n1,n2,DIM) :: data
+  INTEGER, DIMENSION(nV) :: vars
+  CHARACTER(LEN=flen) :: cvars
+  
+  INTEGER :: i,j,iv,iiv
+  INTEGER :: ounit = 25
+  
+  OPEN(UNIT=ounit,FILE=ofile,FORM='FORMATTED',STATUS='UNKNOWN')
+  WRITE(ounit,*) ' VARIABLES = "X", "Y", "Z",',TRIM(cvars)
+  WRITE(ounit,*) ' ZONE I=', n1, ', J=', n2, ', F=POINT'
+  
+  DO j=1,n2
+     DO i=1,n1
+        WRITE(ounit,*) data(i,j,x_c),data(i,j,y_c),data(i,j,z_c)
+        DO iv=1,nV
+           iiv = vars(iv)
+           WRITE(ounit,*) data(i,j,iiv)
+        END DO
+     END DO
+  END DO
+
+
+
+END SUBROUTINE write_tec
 
 
 
