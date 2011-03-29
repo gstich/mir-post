@@ -32,10 +32,10 @@ SUBROUTINE read_input
   !  Get Overall Domain size and figure out the extruded direction
   PRINT*,'2D Domain size:  nx=',nx,'ny=',ny,'nz=',nz
 
-  IF(nx == 1 .OR. ny == 1 .OR. nz == 1) THEN
-     PRINT*,'ERROR: This is 2D set, enter 3d set'
-     STOP
-  END IF
+  !IF(nx == 1 .OR. ny == 1 .OR. nz == 1) THEN
+  !   PRINT*,'ERROR: This is 2D set, enter 3d set'
+  !   STOP
+  !END IF
 
   
   !  Read in the procmap 

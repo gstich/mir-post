@@ -34,7 +34,7 @@ PROGRAM yplus
   CHARACTER(LEN=flen) :: vfile
   CHARACTER(LEN=flen) :: inputFile
 
-  DOUBLE PRECISION :: dudy,tauw,mu_0,rho_w,rho_0,del,utau,off,dUp
+  DOUBLE PRECISION :: dudy,tauw,mu_0,mu_w,rho_w,rho_0,del,utau,off,dUp
   INTEGER :: nviz,iviz,funit=34
   NAMELIST /yplus_vars/ ix1,ixn,iz1,izn
 
@@ -91,14 +91,15 @@ PROGRAM yplus
   rho_w = output(1,rho)
   rho_0 = output(ny/2,rho)
   mu_0 = output(ny/2,mu)
+  mu_w = output(1,mu)
 
   dudy = ( output(2,u) - output(1,u) )/ ( output(2,y_c) - output(1,y_c) )
-  tauw = mu_0 * dudy
+  tauw = mu_w * dudy
   utau = sqrt( tauw / rho_w )
   print*,'U_tau',utau
 
   !! Scale y
-  del = mu_0 / ( rho_w * utau )
+  del = mu_w / ( rho_w * utau )
   output(:,y_c) = output(:,y_c) / del
   off = output(1,y_c)
   output(:,y_c) = output(:,y_c) - off
