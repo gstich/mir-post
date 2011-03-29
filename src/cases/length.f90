@@ -90,7 +90,7 @@ PROGRAM length
   OPEN(UNIT=33,FILE='xprofile.dat',FORM='FORMATTED',STATUS='UNKNOWN')
   WRITE(33,*) '# X, U, rho, P, T'
   DO i=1,nx
-     WRITE(33,'(5ES12.4)') output(i,x_c),output(i,u),output(i,y_c),output(i,p),output(i,T)
+     WRITE(33,'(5ES12.4)') output(i,x_c),output(i,u),output(i,rho),output(i,p),output(i,T)
   END DO
 
   CLOSE(33)

@@ -1,15 +1,15 @@
 &length_vars
-iy1 = 50
-iyn = 78
+iy1 = 128
+iyn = 128
 iz1 = 1
 izn = 64
 /
 
 &INPUT 
-t1 = 941
-tf = 941
-nx = 512
-ny = 128
-nz = 128
-jobdir = '/Users/bolson/WORK/visit_sand'
+t1 = 4102
+tf = 4102
+nx = 256
+ny = 256
+nz = 64
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
 /
