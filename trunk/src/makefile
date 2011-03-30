@@ -35,3 +35,6 @@ length :$(SOURCE) cases/length.o
 
 span :$(SOURCE) cases/span.o
 	$(f90) $(SOURCE) span.o $(flags) -o span_ex
+
+span_flc :$(SOURCE) cases/span_flc.o
+	$(f90) $(SOURCE) span_flc.o $(flags) -o span_flc_ex
