@@ -1,0 +1,13 @@
+&span_flc_vars
+iz1 = 1        ! Z-index left bound on averaging volume
+izn = 100      ! Z-index right bound on averaging volume
+/
+
+&INPUT 
+t1 = 2800
+tf = 2801
+nx = 256
+ny = 256
+nz = 64
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
+/
