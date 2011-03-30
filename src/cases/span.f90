@@ -2,8 +2,7 @@
 !  Stanford University
 !  March. 4th, 2011
 
-!  Description: Compute the mean velocity profiles for a turbulent boundary layer
-!       and make the appropriate scaling in y+ and u_tau units
+!  Description: Compute the span averaged variables
 MODULE span_data
   SAVE
   
