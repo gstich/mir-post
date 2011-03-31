@@ -66,7 +66,7 @@ $ggEXEC -v noz.prm
 #  also include the papam_nozzle.f90 file that was used to generate the current mesh
 TARFILE=rrdep_$(date +%Y.%m.%d_%H.%M.%S).tgz
 mkdir rr_dep
-cp nozzle.grid nozzle_init.tec nozzle.inflow rr_nozzle.f90 rr_dep
+cp nozzle.grid nozzle_init.tec nozzle.inflow $1 rr_dep
 mv rr_dep/nozzle_init.tec rr_dep/nozzle.init
 tar cvzf $TARFILE rr_dep
 rm -rf rr_dep
