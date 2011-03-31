@@ -29,7 +29,7 @@ DOUBLE PRECISION , PARAMETER :: gam = 1.4d0                ! Ratio of specific h
 DOUBLE PRECISION , PARAMETER :: len = 117.0d0              ! Length of nozzle (throat to exit)
 DOUBLE PRECISION , PARAMETER :: noz_x = 0.0d0              ! X-location of throat
 DOUBLE PRECISION , PARAMETER :: noz_y = throat/two         ! Y-location of throat
-DOUBLE PRECISION , PARAMETER :: inlet_x = 50.0d0          ! X-location of inlet (relative-up from noz_x)
+DOUBLE PRECISION , PARAMETER :: inlet_x = 25.0d0          ! X-location of inlet (relative-up from noz_x)
 DOUBLE PRECISION , PARAMETER :: inlet_y = 0.0d0           ! Y-location of inlet (relative-left from noz_y)
 
 !  Segment parameters - Outer Boundaries
@@ -38,8 +38,8 @@ DOUBLE PRECISION , PARAMETER :: R3 = 0.25d0*noz_y            ! Radius of turn fo
 DOUBLE PRECISION , PARAMETER :: R5=1.5d1*Aratio*two*noz_y  ! Radius of background mesh
 
 !  Grid Parameters
-INTEGER , PARAMETER          :: nx = 768                    ! Number of points in /xi direction
-INTEGER , PARAMETER          :: ny = 256                    ! Number of points in /eta direction
+INTEGER , PARAMETER          :: nx = 1024                    ! Number of points in /xi direction
+INTEGER , PARAMETER          :: ny = 384                    ! Number of points in /eta direction
 DOUBLE PRECISION             :: wall  = 0.08d0              ! Zoom factor at wall in uniform spacing (overwritten by wall_raw)
 DOUBLE PRECISION , PARAMETER :: wall_raw  = 7.0d-3          ! Raw spacing in [mm] .. this value will set wall
 LOGICAL, PARAMETER           :: rwall_on = .TRUE.           ! Use raw to set wall? or not?

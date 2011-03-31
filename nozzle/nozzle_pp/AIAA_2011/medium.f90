@@ -29,7 +29,7 @@ DOUBLE PRECISION , PARAMETER :: gam = 1.4d0                ! Ratio of specific h
 DOUBLE PRECISION , PARAMETER :: len = 117.0d0              ! Length of nozzle (throat to exit)
 DOUBLE PRECISION , PARAMETER :: noz_x = 0.0d0              ! X-location of throat
 DOUBLE PRECISION , PARAMETER :: noz_y = throat/two         ! Y-location of throat
-DOUBLE PRECISION , PARAMETER :: inlet_x = 50.0d0          ! X-location of inlet (relative-up from noz_x)
+DOUBLE PRECISION , PARAMETER :: inlet_x = 25.0d0          ! X-location of inlet (relative-up from noz_x)
 DOUBLE PRECISION , PARAMETER :: inlet_y = 0.0d0           ! Y-location of inlet (relative-left from noz_y)
 
 !  Segment parameters - Outer Boundaries
