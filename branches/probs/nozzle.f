@@ -22,11 +22,11 @@ MODULE nozzle_data
   !! For the Recycling rescaling routines
   DOUBLE PRECISION 	:: del_BL       = 1.0d-1 
   DOUBLE PRECISION 	:: Re_BL        = 1.0d4
-  DOUBLE PRECISION 	:: BLalpha      = 1.0D0      
+  DOUBLE PRECISION 	:: BLalpha      = 1.5D0      
   DOUBLE PRECISION 	:: mu_0         = 1.0D0      
   DOUBLE PRECISION 	:: Pr           = 0.7D0    
   INTEGER        	:: rcy_pt_g     = 100  
-  DOUBLE PRECISION 	:: Len_BL       = 4.0d0
+  DOUBLE PRECISION 	:: Len_BL       = 4.0d0  !! Only used to get BL_alpha based on Urban and Knight... better to set explicitly
   INTEGER               :: nvar         = 4
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: Qave
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: yp_r,yp_i,yp_o
@@ -760,7 +760,7 @@ SUBROUTINE prob_geom()
   !! Make sure everyone waits till script if finished 
   CALL MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 
-  ! Make sure Jacobian is 2d
+  ! Make sure Jacobian is 2d... extruded mesh
   nz_tmp = nz
   nz = 1
   CALL get_jacobian()
@@ -1513,3 +1513,29 @@ sumY = SUMproc(tmpD)
 yproc = INT(sumY)
 
 END SUBROUTINE
+
+
+SUBROUTINE get_2d_y(var,plane)
+      USE globals, ONLY: ax,ay,az,ix,iy,iz
+      USE inputs, ONLY: nx,ny,nz
+      USE interfaces, ONLY: SUBSUM3YZ
+      IMPLICIT NONE
+      DOUBLE PRECISION, DIMENSION(ax,ay,az), INTENT(IN) :: var
+      DOUBLE PRECISION, DIMENSION(nx,ny) ,INTENT(OUT)   :: plane
+      
+      DOUBLE PRECISION, DIMENSION(ax,1,az) :: xlineL
+      DOUBLE PRECISION, DIMENSION(nx) :: xlineG
+      INTEGER :: i
+
+      DO i=1,ny
+         ii = MOD( (i-1), ay ) + 1
+         
+         xlineL = 0.0D0
+         IF( iy(ii) == i ) xlineL = var(:,ii,:)
+           
+         xlineG = SUBSUM3YZ(xlineL)
+         plane(:,i) = xlineG
+      END DO
+
+END SUBROUTINE
+      
