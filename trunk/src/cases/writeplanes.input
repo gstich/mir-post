@@ -1,11 +1,11 @@
-&span_flc_vars
+&writeplanes_vars
 iz1 = 1        ! Z-index left bound on averaging volume
 izn = 100      ! Z-index right bound on averaging volume
 /
 
 &INPUT 
 t1 = 3600
-tf = 3700
+tf = 3900
 nx = 256
 ny = 256
 nz = 64

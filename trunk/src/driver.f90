@@ -104,6 +104,7 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
   INTEGER :: i1p,ifp,j1p,jfp,k1p,kfp
 
   INTEGER, DIMENSION(3) :: corner
+  INTEGER :: count,total
 
   !ALLOCATE(iodata(ax,ay,ax,varDIM))
   i1p = procIJK(1)
@@ -113,13 +114,14 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
   k1p = procIJK(5)
   kfp = procIJK(6)
 
-
+  total = (ifp-i1p+1)*(jfp-j1p+1)*(kfp-k1p+1)
+  count = 0
   ! Loop only over PROCS in pertainate range
   DO i=i1p,ifp
      DO j=j1p,jfp
         DO k=k1p,kfp
            
-
+           count = count + 1
            
            ! Global indices on corner of proc grid
            ig = i*ax + 1
@@ -132,7 +134,7 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
 
 
            WRITE(procdir,'(2A,I6.6)') TRIM(vizdir),'/p',p
-           print*,'proc read',p,ig,jg,kg
+           !print*,'proc read',p,ig,jg,kg
            OPEN(UNIT=punit,FILE=TRIM(procdir),FORM='UNFORMATTED',STATUS='OLD')
            DO v=1,varDIM
               READ(punit) iodata(:,:,:,v)
@@ -149,7 +151,8 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
            
            !! Call the main kernal on the chunk of data
            CALL block_ops(iodata,corner,stride,Gdata,FUNK)
-
+           
+           !CALL status_bar(count,total)
         END DO
      END DO
   END DO
@@ -157,3 +160,16 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
 END SUBROUTINE proc_loop
 
 
+SUBROUTINE status_bar(i,II)
+  INTEGER, INTENT(IN) :: i, II
+
+  REAL :: percent
+
+  percent = real(100)*real(i)/real(II)
+  
+  IF( MOD(real(i),real(II)/50.0) < 1 ) THEN
+     WRITE(6,'(A)',ADVANCE='NO')'='
+     FLUSH 6
+  END IF
+
+END SUBROUTINE status_bar
