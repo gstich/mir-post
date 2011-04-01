@@ -17,60 +17,75 @@ INTEGER, DIMENSION(:,:), ALLOCATABLE :: procmap_2d, procmap_3d
 DOUBLE PRECISION :: blend,mode
 DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: iodata_2da,iodata_2db,iodata_3d,iodata_2dtmp
 
-INTEGER :: i,j,k,p,ext,varDIM
-
-CHARACTER(LEN=flen), PARAMETER :: jobdir2d = '/Volumes/Macintosh HD 2/bolson/miranda_runs/papamoschou/nozzle_new'       
-INTEGER, PARAMETER :: nx = 256
-INTEGER, PARAMETER :: ny = 1024
-INTEGER, PARAMETER :: nz = 1
-INTEGER :: px_2d, py_2d, pz_2d  ! Read this from the 2d file
-INTEGER, PARAMETER :: res1 = 25
-INTEGER, PARAMETER :: res2 = 26
-
-CHARACTER(LEN=flen), PARAMETER :: jobdir3d = '/Volumes/Macintosh HD 2/bolson/miranda_runs/papamoschou/3d'    
-INTEGER, PARAMETER :: nx3 = nx
-INTEGER, PARAMETER :: ny3 = ny
-INTEGER, PARAMETER :: nz3 = 480
-INTEGER, PARAMETER :: px_3d = 8
-INTEGER, PARAMETER :: py_3d = 32
-INTEGER, PARAMETER :: pz_3d = 15
+INTEGER :: i,j,k,p,ext,varDIM,funit
 
 
+INTEGER :: nx, ny, nz
+INTEGER :: nx3,ny3,nz3
 INTEGER :: ax_2d, ay_2d, az_2d
 INTEGER :: ax_3d, ay_3d, az_3d
+INTEGER :: px_2d, py_2d, pz_2d
+INTEGER :: px_3d, py_3d, pz_3d
 INTEGER :: proc2d,proc3d,in3d
+
 CHARACTER(LEN=flen)  comments
-CHARACTER(LEN=flen)  ans
 CHARACTER(LEN=flen)  iodir2d             ! 2d restart and viz directories
-
-
+CHARACTER(LEN=flen)  jobdir2d            ! 2d job path
+INTEGER, DIMENSION(2) :: resnum          ! Restart numbers to use for blending
 CHARACTER(LEN=flen)  iodir3d             ! 3d restart and viz directories
-!CHARACTER(LEN=flen)  jobdir3d            ! 3d job path
+CHARACTER(LEN=flen)  jobdir3d            ! 3d job path
+CHARACTER(LEN=flen)  inputFile           ! input file tmp
+CHARACTER(LEN=7)  mkdir                  ! mkdir
 INTEGER, PARAMETER :: io2Unit=12,io3Unit=13
+NAMELIST /INPUT/ nx,ny,nz,nx3,ny3,nz3,jobdir2d,resnum,jobdir3d,px_3d,py_3d,pz_3d
+
 
 varDIM=8
-mode = 1.0d0     ! Number of modes fluctuating between restart dumps
+mode = 8.0d0     ! Number of modes fluctuating between restart dumps
 
-!  Echo a warning to make sure that the 3d directories already exists
-PRINT*,'Before procedeing, make sure that the output directory,/path/to/3d_dir/init_res, exists'
+! Check to make sure an input file was given
+IF (iargc() .EQ. 0) STOP 'Usage: ./exec inputfile'
+CALL GETARG(1,inputFile)
+
+! Read in namelist file and use to read in grid and setup
+! arrays for the solver
+funit=11
+OPEN(UNIT=funit,FILE=TRIM(inputFile),FORM='FORMATTED',STATUS='OLD')
+  READ(UNIT=funit,NML=INPUT)
+CLOSE(funit)
 
 
 !  Get Overall Domain size and figure out the extruded direction
-PRINT*,'Input domain size (2d): nx, ny, nz (nA, nB, nC)'
-PRINT*,'nx=',nx,'ny=',ny,'nz=',nz
+PRINT*,'2D Domain size:  nx=',nx,'ny=',ny,'nz=',nz
 
+IF(nx .ne. 1 .and. ny .ne. 1 .and. nz .ne. 1) THEN
+   PRINT*,'ERROR: This is 3D set, enter 2d set'
+   STOP
+ELSE
+   IF(nx==1) THEN
+      PRINT*,'Enter 3d nx=';!READ*,nx3;
+      ny3=ny;nz3=nz;ext=1
+   ELSE IF(ny==1) THEN
+      PRINT*,'Enter 3d ny=';!READ*,ny3;
+      nx3=nx;nz3=nz;ext=2
+   ELSE IF(nz==1) THEN
+      PRINT*,'Enter 3d nz=';!READ*,nz3;
+      ny3=ny;nx3=nx;ext=3
+   END IF
+END IF
+
+PRINT*,'3D Domain size:  nx=',nx3,'ny=',ny3,'nz=',nz3
 
 !  Get the 2d-file location & restart files
-PRINT*,"2d Path set to",jobdir2d
-PRINT*,"Restart numbers to use in 2d extrusion:",res1, res2
+PRINT*,"2d Path: ",jobdir2d
 
 
 !  Read in the procmap data for 2D case
 WRITE(iodir2d,'(2A)') TRIM(jobdir2d),'/procmap'
 OPEN(UNIT=io2Unit,FILE=TRIM(iodir2d),FORM='FORMATTED',STATUS='UNKNOWN')
 READ(io2Unit,*) pz_2d, py_2d, px_2d
-PRINT*,'For 2d case: px=',px_2d,'py=',py_2d,'pz=',pz_2d
 READ(io2Unit,*) comments
+print*,px_2d,py_2d,pz_2d
 proc2d = px_2d*py_2d*pz_2d
 ax_2d = nx/px_2d;ay_2d = ny/py_2d;az_2d = nz/pz_2d
 ALLOCATE(procmap_2d(proc2d,4))
@@ -84,13 +99,9 @@ CLOSE(io2Unit)
 
 !  Set the procmap for the 3d grid
 !  Get the 3d-file location
-PRINT*,"3d Path set to",jobdir3d
-PRINT*,"Ensure that",jobdir3d,"exists" 
-PRINT*,'For 3d case: px=',px_3d,'py=',py_3d,'pz=',pz_3d
-
-PRINT*,'Ready for file write?: ( y or n)'
-READ*,ans
-IF (ans .eq. 'n') STOP
+!PRINT*,"Enter the path of the 3d data directory: '/full/path/here'"
+!READ*, jobdir3d
+PRINT*,"3d Path: ",jobdir3d
 
 proc3d = px_3d*py_3d*pz_3d
 ax_3d = nx3/px_3d;ay_3d = ny3/py_3d;az_3d = nz3/pz_3d
@@ -109,8 +120,6 @@ DO k=1,pz_3d
    END DO
 END DO
 
-
-
 ALLOCATE(iodata_2dtmp(ax_2d,ay_2d,az_2d,varDIM))
 ALLOCATE(iodata_2da(nx,ny,nz,varDIM))
 ALLOCATE(iodata_2db(nx,ny,nz,varDIM))
@@ -127,7 +136,7 @@ DO k=1,az_2d;iz1(k)=k;END DO
 !  Read in both 2d data sets
 !    set-a
 DO p=1,proc2d
-  WRITE(iodir2d,'(2A,I4.4)') TRIM(jobdir2d),'/res',res1
+  WRITE(iodir2d,'(2A,I4.4)') TRIM(jobdir2d),'/res',resnum(1)
   WRITE(iodir2d,'(2A,I6.6)') TRIM(iodir2d),'/p',p-1
   OPEN(UNIT=io2Unit,FILE=TRIM(iodir2d),FORM='UNFORMATTED',STATUS='OLD',action='read')
     READ(io2Unit) iodata_2dtmp
@@ -140,7 +149,7 @@ END DO
 
 !    set-b
 DO p=1,proc2d
-  WRITE(iodir2d,'(2A,I4.4)') TRIM(jobdir2d),'/res',res2
+  WRITE(iodir2d,'(2A,I4.4)') TRIM(jobdir2d),'/res',resnum(2)
   WRITE(iodir2d,'(2A,I6.6)') TRIM(iodir2d),'/p',p-1
   OPEN(UNIT=io2Unit,FILE=TRIM(iodir2d),FORM='UNFORMATTED',STATUS='OLD',action='read')
     READ(io2Unit) iodata_2dtmp
@@ -150,7 +159,6 @@ DO p=1,proc2d
   iz = iz1 + procmap_2d(p,4)*az_2d
   iodata_2db(ix,iy,iz,:) = iodata_2dtmp  
 END DO
-
 
 !  Blend and send to the individual 3D procs
 DEALLOCATE(ix,iy,iz,ix1,iy1,iz1)
@@ -166,14 +174,25 @@ DO i=1,ax_3d;ix1(i)=i;END DO
 DO j=1,ay_3d;iy1(j)=j;END DO
 DO k=1,az_3d;iz1(k)=k;END DO
 
+
+
 !  For each proc, blend solutions together and write the restart file
+mkdir = "mkdir '"
+WRITE(iodir3d,'(2A,I4.4)') mkdir, TRIM(jobdir3d)
+WRITE(iodir3d,'(2A,I4.4)') TRIM(iodir3d),"'"
+CALL system(iodir3d)
+
+WRITE(iodir3d,'(2A,I4.4)') mkdir, TRIM(jobdir3d)
+WRITE(iodir3d,'(2A,I4.4)') TRIM(iodir3d),"/res_init'"
+CALL system(iodir3d)
+
 DO p=1,proc3d
-   WRITE(iodir3d,'(2A,I4.4)') TRIM(jobdir3d),'/init_res'
+   WRITE(iodir3d,'(2A,I4.4)') TRIM(jobdir3d),'/res_init'
    WRITE(iodir3d,'(2A,I6.6)') TRIM(iodir3d),'/p',p-1
    ix = ix1 + procmap_3d(p,2)*ax_3d
-   iy = iz1 + procmap_3d(p,3)*ay_3d
-   iz = iy1 + procmap_3d(p,4)*az_3d
-   
+   iy = iy1 + procmap_3d(p,3)*ay_3d
+   iz = iz1 + procmap_3d(p,4)*az_3d
+
    !  Get blending function 
    DO k=1,az_3d
       blend = (one + cos( mode*two*pi*dble(iz(k)-1)/dble(nz3-1) ))/two
