@@ -9,5 +9,6 @@ tf = 3900
 nx = 256
 ny = 256
 nz = 64
-jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
+#jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
+jobdir = '/Users/bolson/WORK/visit_sand'
 /
