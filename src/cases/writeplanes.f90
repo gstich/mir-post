@@ -54,10 +54,10 @@ PROGRAM writeplanes
   CLOSE(funit)
 
 
-  tfreq = 10
+  tfreq = 1
   nviz=tf-t1+1
   nviz = nviz / tfreq
-
+ 
   !! Initialize the data arrays
   ALLOCATE(pmean(nx,ny,DIM))
   ALLOCATE(pave(nx,ny,DIM))
