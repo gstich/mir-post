@@ -1,14 +1,13 @@
 &writeplanes_vars
 iz1 = 1        ! Z-index left bound on averaging volume
-izn = 100      ! Z-index right bound on averaging volume
+izn = 128      ! Z-index right bound on averaging volume
 /
 
 &INPUT 
-t1 = 3600
-tf = 3900
-nx = 256
-ny = 256
-nz = 64
-#jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
-jobdir = '/Users/bolson/WORK/visit_sand'
+t1 = 0000
+tf = 0242
+nx = 512
+ny = 128
+nz = 128
+jobdir = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d'
 /
