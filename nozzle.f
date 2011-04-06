@@ -1,12 +1,15 @@
 ! you must re-define this module name to be unique across all problems
 MODULE nozzle_data
+  USE mpi
   SAVE
   ! ---------------------------------------------------------------------------
   ! Place Problem dependent state data here, similar to inputs.f and globals.f
   ! ---------------------------------------------------------------------------  
   CHARACTER(LEN=30) 	:: init_type    = '2D'
   CHARACTER(LEN=90) 	:: restart_dir  = '/path/to/directory'
-  CHARACTER(LEN=30) 	:: gridfile    = 'nozzle.grid'
+  CHARACTER(LEN=90) 	:: gridfile    = 'nozzle.grid'
+  CHARACTER(LEN=90) 	:: flowfile    = 'nozzle.inflow'
+  CHARACTER(LEN=90) 	:: initfile    = 'nozzle.init'
   DOUBLE PRECISION 	:: Pinitial     = 1.01d6 
   DOUBLE PRECISION 	:: Tinitial     = 300.0d0
   ! Not set in Namelist, these variables are read in and used to set the inflow BC
@@ -39,6 +42,7 @@ MODULE nozzle_data
   !! Stuff to save for RR communication
   INTEGER, DIMENSION(:,:,:,:,:), ALLOCATABLE :: MAP
   INTEGER, DIMENSION(:), ALLOCATABLE :: pmapID
+  INTEGER :: rstat(MPI_STATUS_SIZE)
 
   LOGICAL :: pdonor,precv
   INTEGER :: idonor,irecv
@@ -73,7 +77,7 @@ SUBROUTINE prob_inputs(fileName)
 
   ! Uncomment to define a namelist
   NAMELIST /nozzle_vars/ Tinitial,Pinitial,del_BL,Re_BL,Pr,rcy_pt_g,init_type,restart_dir,init_stats,BL_flag,&
-      & gridfile, Ifil,filmax,BLalpha
+      & gridfile,flowfile,initfile, Ifil,filmax,BLalpha
 
   ! Uncomment to open and read a namelist file
   OPEN(UNIT=inputUnit,FILE=TRIM(fileName),FORM='FORMATTED',STATUS='OLD')
@@ -85,7 +89,7 @@ SUBROUTINE prob_inputs(fileName)
   
   ! Read the inflow boundary conditions                                     
   in_unit = 26
-  OPEN(UNIT=in_unit, file='nozzle.inflow')
+  OPEN(UNIT=in_unit, file=TRIM(flowfile))
   READ(in_unit,*) NPR,P_in,rho_in,Mach
   CLOSE(in_unit)
 
@@ -115,7 +119,9 @@ END SUBROUTINE prob_inputs
   DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: Gplane,Lplane
   DOUBLE PRECISION :: Rgas,delX
   DOUBLE PRECISION, DIMENSION(1) :: randT
-  INTEGER :: i
+  INTEGER :: i,funit
+  CHARACTER(LEN=90) :: flipfile,fform
+  LOGICAL :: fexist
 
   ! Some prob constants which are input dependent
   Rgas = Runiv/molwts(1)                        ! Specific Gas constant
@@ -149,19 +155,40 @@ END SUBROUTINE prob_inputs
   irecv  = 1
   CALL setup_maps(MAP,pmapID,pdonor,idonor,precv,irecv,yproc)
 
-  !! RR boundary layer
-  !flippy = .TRUE.                      ! Set the flip flag
-  flippy = .FALSE.                      ! Set the flip flag
-  tflow = Len_BL/U_in                  ! Flow through time on the BL
-  tiid = .25d0                         ! Range in Tflow units of IID RN
-  randT = 0.0D0                        ! Init the RN
-  CALL set_time_seed(1)                ! Clock based RN seed
-  IF (xyzcom_id==0) CALL ran1(randT)    ! Get the RN on master
-  randT(1) = SUMproc(randT(1))               ! Send procs the RN
-  tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
-  tflip = tflip + simtime              ! Get the absolute value of flip time
-  
-  IF(xyzcom_id==0) print*,tflow,Len_BL
+     
+  !! Setup the BL flip counter here...
+  CALL flip_BL(.TRUE.)
+
+
+  ! Handle the flipping of the BL
+  !funit = 35
+  !fform = '(L,1D25.15)'
+  !WRITE(flipfile,'(2A)') TRIM(jobdir),'/flippy.dat'
+  !INQUIRE(FILE=flipfile,EXIST=fexist)
+
+  !IF(fexist) THEN  !! If file exists, read from last state
+  !    OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='OLD',ACTION='READ')
+  !    READ(funit,TRIM(fform)) flippy,tflip
+  !    CLOSE(funit)
+  !ELSE  !! Otherwise, generate the fist time period and save to file
+  !    flippy = .FALSE.          ! Set the flip flag
+  !    tflow = Len_BL/U_in       ! Flow through time on the BL
+  !    tiid = .25d0              ! Range in Tflow units of IID RN
+  !    randT = 0.0D0             ! Init the RN
+  !    CALL set_time_seed(1)     ! Clock based RN seed
+  !    IF (xyzcom_id==0) CALL ran1(randT) ! Get the RN on master
+  !    randT(1) = SUMproc(randT(1)) ! Send procs the RN
+  !    tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
+  !    tflip = tflip + simtime   ! Get the absolute value of flip time
+  !    
+  !    IF(xyzcom_id==0) THEN
+  !       OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='NEW',ACTION='WRITE')
+  !       WRITE(funit,TRIM(fform)) flippy,tflip
+  !       CLOSE(funit)
+  !    END IF
+
+  !END IF
+
 
   !! Print out the map
   IF(world_id == master ) THEN
@@ -196,7 +223,81 @@ END SUBROUTINE prob_inputs
  END SUBROUTINE prob_setup
 
 
+SUBROUTINE flip_BL(init)
+  USE globals
+  USE constants
+  USE nozzle_data
+  USE interfaces, ONLY:  SUMproc, ran1,set_time_seed
+  USE mpi
+  IMPLICIT NONE
+  LOGICAL, INTENT(IN) :: init
+  INTEGER :: i,ios,funit
+  CHARACTER(LEN=90) :: flipfile,fform
+  LOGICAL :: fexist
+  DOUBLE PRECISION, DIMENSION(1) :: randT
 
+  ! Handle the flipping of the BL
+  funit = 35
+  fform = '(L,1D25.15)'
+  WRITE(flipfile,'(2A)') TRIM(jobdir),'/flippy.dat'
+  INQUIRE(FILE=flipfile,EXIST=fexist)
+
+  tflow = Len_BL/U_in       ! Flow through time on the BL
+  tiid = .25d0              ! Range in Tflow units of IID RN
+
+
+  IF(init) THEN
+      IF(fexist) THEN           !! If file exists, read from last state
+         OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='OLD',ACTION='READ')
+         DO
+            READ(funit,TRIM(fform),IOSTAT=ios) flippy,tflip
+            IF(ios /=0) EXIT
+         END DO
+         CLOSE(funit)
+      ELSE                      !! Otherwise, generate the fist time period and save to file.. INITIALIZE
+         flippy = .FALSE.       ! Set the flip flag
+         randT = 0.0D0          ! Init the RN
+         CALL set_time_seed(1)  ! Clock based RN seed
+         IF (xyzcom_id==0) CALL ran1(randT) ! Get the RN on master
+         randT(1) = SUMproc(randT(1)) ! Send procs the RN
+         tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
+         tflip = tflip + simtime ! Get the absolute value of flip time
+         
+         IF(xyzcom_id==0) THEN
+            OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='NEW',ACTION='WRITE')
+            WRITE(funit,TRIM(fform)) flippy,tflip
+            CLOSE(funit)
+         END IF
+         
+      END IF
+      
+  ELSE
+
+      !! RR boundary layer
+      IF(step .NE. step_old) THEN ! Only if we are on 1st step of RK-scheme
+         IF( simtime .GT. tflip) THEN ! Are we beyond the last period?
+            flippy = .NOT. flippy ! Set the flip flag
+            IF (xyzcom_id==0) print*,"Flipping BL ",flippy ! echos stuff
+            randT = 0.0D0       ! Init the RN
+            IF (xyzcom_id==0) CALL ran1(randT) ! Get the RN on master
+            randT(1) = SUMproc(randT(1)) ! Send procs the RN
+            tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
+            tflip = tflip + simtime ! Get the absolute value of flip time
+            
+            IF(xyzcom_id==0) THEN
+               OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='OLD',POSITION='APPEND',ACTION='WRITE')
+               WRITE(funit,TRIM(fform)) flippy,tflip
+               CLOSE(funit)
+            END IF
+            
+            CALL MPI_BARRIER(xyzcom,mpierr)
+         END IF
+      END IF
+      step_old = step
+      
+  END IF
+
+END SUBROUTINE flip_BL
 
 ! -----------------------------------------------------------------------------
 ! prob_init
@@ -223,7 +324,7 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
   INTEGER :: in_unit,i,j,k,re_unit  
   DOUBLE PRECISION :: Mflow,Pflow,Gam,mwt,thick,x0,y0,jump,dumy
   INTEGER :: nxp,nyp
-  CHARACTER(LEN=30) :: comments,filename
+  CHARACTER(LEN=90) :: comments,filename
 
   SELECT CASE(init_type)
 
@@ -231,9 +332,9 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
          !  Read serial ASCII file in .tec format to initialize the flow
          !  This file is generated solving the Quasi-1D Nozzle Area Equations
          !  All procs read in file then keep their chunks (init.tec is 2d)
-         filename = 'nozzle.init'
+         filename = TRIM(initfile)
          in_unit = 20
-         OPEN(UNIT=in_unit,FILE=filename,STATUS='OLD')
+         OPEN(UNIT=in_unit,FILE=TRIM(filename),STATUS='OLD')
          READ(in_unit,*) comments
          READ(in_unit,*) comments
          DO J=1,ny
@@ -278,9 +379,9 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
          Y = one
 
          !! Add noise in the BL to trip the BL
-         IF(BL_flag) THEN
-            CALL random_BL(u,v,w)
-         END IF
+         !IF(BL_flag) THEN
+         !   CALL random_BL(u,v,w)
+         !END IF
 
       CASE('3D')
          !  Another option here to read in a restart file as the initialization of the flow field.
@@ -332,8 +433,9 @@ END SUBROUTINE prob_init
 ! -----------------------------------------------------------------------------------
 SUBROUTINE prob_stats(simtime,rho,u,v,w,e,Y,p,T,c)
   use mpi
-  USE globals, ONLY : flen
-
+  USE globals, ONLY : flen,jobdir
+  USE nozzle_data, ONLY: BL_flag 
+ 
   IMPLICIT NONE
   DOUBLE PRECISION, INTENT(IN) :: simtime
   DOUBLE PRECISION, DIMENSION(:,:,:), INTENT(IN) :: rho,u,v,w,e
@@ -342,12 +444,29 @@ SUBROUTINE prob_stats(simtime,rho,u,v,w,e,Y,p,T,c)
   DOUBLE PRECISION, DIMENSION(:,:,:), INTENT(IN) :: p,T,c
 
   INTEGER, PARAMETER :: statsUnit=20
-  CHARACTER(LEN=flen) :: statsFile
+  CHARACTER(LEN=flen) :: statsFile,command
+  INTEGER :: ios
 
   ! construct name of stats file
   !WRITE(statsFile,'(2A)') TRIM(jobdir),'/statistics'
 
 
+  
+  ! See if the BL file exists.. if it doesn't, do nothing.  Otherwise, perturb the BL
+  WRITE(statsfile,'(2A)') TRIM(jobdir),'/BL.dat'
+  OPEN(UNIT=statsUnit,FILE=statsfile,FORM='FORMATTED',STATUS='OLD',IOSTAT=ios)
+  CLOSE(statsUnit)
+
+  ! ios=29 for non-existant file
+  ! ios=0 for existant file, turn on the BL flag and delete the file
+  IF(ios==0) THEN
+      BL_flag = .TRUE.
+      CALL MPI_BARRIER(MPI_COMM_WORLD,mpierr)
+      WRITE(command,'(2A)') 'rm -f ', TRIM(statsFile)
+      IF(xyzcom_id==0) CALL SYSTEM(command)
+  END IF
+
+  
 END SUBROUTINE prob_stats
 
 
@@ -374,48 +493,83 @@ SUBROUTINE prob_plots(plotdir)
   DOUBLE PRECISION, DIMENSION(nx) :: p_dwn,p_up,p_cen,xbar
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: rhop,up,vp,wp,pp
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: tmp0,tmp1,box
+  
+  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: u2d,v2d,w2d,p2d,rho2d,x2d,y2d
 
   ! Get the x0 value
-  x0 = 0.0D0
-  IF(ix(1)==1 .AND. iy(1)==1 .AND. iz(1)==1) x0 = x_c(1,1,1)
-  x0 = SUMproc(x0)
+  !x0 = 0.0D0
+  !IF(ix(1)==1 .AND. iy(1)==1 .AND. iz(1)==1) x0 = x_c(1,1,1)
+  !x0 = SUMproc(x0)
 
   ! Mean statistics for incoming BL
-  x_a = x0 + 0.9D0 * Len_BL
-  x_b = x0 + Len_BL
-  z_a = 0.0d0 
-  z_b = z_a + DBLE(nz-1)*dz
+  !x_a = x0 + 0.9D0 * Len_BL
+  !x_b = x0 + Len_BL
+  !z_a = 0.0d0 
+  !z_b = z_a + DBLE(nz-1)*dz
   
   ! Smooth box will give smoother profiles
-  WHERE (x_c >= x_a .and. x_c <= x_b .and. z_c >= z_a .and. z_c <= z_a)
-      box = 1.0d0
-  ELSEWHERE
-      box = 0.0d0
-  END WHERE
+  !WHERE (x_c >= x_a .and. x_c <= x_b .and. z_c >= z_a .and. z_c <= z_a)
+  !    box = 1.0d0
+  !ELSEWHERE
+  !    box = 0.0d0
+  !END WHERE
   !CALL filter(gfilter,box,tmp0)
   !CALL filter(gfilter,tmp0,box)
   !where (box > 1.0d0) box = 1.0d0
   !where (box < 0.0d0) box = 0.0d0
 
-  ubar = SUBSUM3XZ(u*box)/SUBSUM3XZ(box)
-  vbar = SUBSUM3XZ(v*box)/SUBSUM3XZ(box)
-  wbar = SUBSUM3XZ(w*box)/SUBSUM3XZ(box)
-  rhobar = SUBSUM3XZ(rho*box)/SUBSUM3XZ(box)
-  pbar = SUBSUM3XZ(p*box)/SUBSUM3XZ(box)
-  ybar = SUBSUM3XZ(y_c*box)/SUBSUM3XZ(box)
+  !ubar = SUBSUM3XZ(u*box)/SUBSUM3XZ(box)
+  !vbar = SUBSUM3XZ(v*box)/SUBSUM3XZ(box)
+  !wbar = SUBSUM3XZ(w*box)/SUBSUM3XZ(box)
+  !rhobar = SUBSUM3XZ(rho*box)/SUBSUM3XZ(box)
+  !pbar = SUBSUM3XZ(p*box)/SUBSUM3XZ(box)
+  !ybar = SUBSUM3XZ(y_c*box)/SUBSUM3XZ(box)
 
 
 ! master cpu writes plot file--------------------------------------------------------------------
-  SELECT CASE(xyzcom_id)
-  CASE(master)
-    WRITE(plotFile,'(2A)') TRIM(plotdir),'/yprofiles.dat'
-    OPEN(UNIT=plotUnit,FILE=TRIM(plotFile),FORM='FORMATTED',STATUS='REPLACE')
-    WRITE(plotUnit,*) "%# <1-6> y-loc,ubar,vbar,wbar,rhobar,Pbar"
-    DO k=1,ny
-      WRITE(plotUnit,'(6ES12.4)') ybar(k),ubar(k),vbar(k),wbar(k),rhobar(k),pbar(k)
-    END DO
-    CLOSE(plotUnit)
-  END SELECT
+  !SELECT CASE(xyzcom_id)
+  !CASE(master)
+  !  WRITE(plotFile,'(2A)') TRIM(plotdir),'/yprofiles.dat'
+  !  OPEN(UNIT=plotUnit,FILE=TRIM(plotFile),FORM='FORMATTED',STATUS='REPLACE')
+  !  WRITE(plotUnit,*) "%# <1-6> y-loc,ubar,vbar,wbar,rhobar,Pbar"
+  !  DO k=1,ny
+  !    WRITE(plotUnit,'(6ES12.4)') ybar(k),ubar(k),vbar(k),wbar(k),rhobar(k),pbar(k)
+  !  END DO
+  !  CLOSE(plotUnit)
+  !END SELECT
+
+  !ALLOCATE(u2d(nx,ny))
+  !ALLOCATE(v2d(nx,ny))
+  !ALLOCATE(w2d(nx,ny))
+  !ALLOCATE(p2d(nx,ny))
+  !ALLOCATE(rho2d(nx,ny))
+  !ALLOCATE(x2d(nx,ny))
+  !ALLOCATE(y2d(nx,ny))
+
+
+
+  !CALL get_2d_z(u,u2d)
+  !CALL get_2d_z(v,v2d)      
+  !CALL get_2d_z(w,w2d)      
+  !CALL get_2d_z(p,p2d)      
+  !CALL get_2d_z(rho,rho2d)      
+  !CALL get_2d_z(x_c,x2d)      
+  !CALL get_2d_z(y_c,y2d)      
+
+  !SELECT CASE(xyzcom_id)
+  !    CASE(master)
+  !       WRITE(plotFile,'(2A)') TRIM(plotdir),'/mean-mir.tec'
+  !       OPEN(UNIT=plotUnit,FILE=TRIM(plotFile),FORM='FORMATTED',STATUS='REPLACE')
+  !       WRITE(ounit,*) ' VARIABLES = "X", "Y", "U", "V", "W", "pressure", "density" '
+  !       WRITE(ounit,*) ' ZONE I=', nx, ', J=', ny, ', F=POINT'
+  !       DO j=1,n2
+  !          DO i=1,n1
+  !             WRITE(ounit,*) x2d(i,j),y2d(i,j),u2d(i,j),v2d(i,j),w2d(i,j),p2d(i,j),rho2d(i,j)
+  !          END DO
+  !       END DO
+  !       CLOSE(plotUnit)
+  !END SELECT
+
 
   ! Pressure down length of nozzle
   z_a = 0.0d0 !! dble(nz-1)*dz / 2.0d0 
@@ -426,10 +580,6 @@ SUBROUTINE prob_plots(plotdir)
   elsewhere
       box = 0.0d0
   end where
-  !CALL filter(gfilter,box,tmp0)
-  !CALL filter(gfilter,tmp0,box)
-  !where (box > 1.0d0) box = 1.0d0
-  !where (box < 0.0d0) box = 0.0d0
 
   tmp0 = 0.0d0
   if (iy(1)==1) tmp0(:,1,:) = 1.0d0
@@ -443,7 +593,7 @@ SUBROUTINE prob_plots(plotdir)
   tmp1 = box*tmp0
   p_up = SUBSUM3YZ(p*tmp1)/SUBSUM3YZ(tmp1)
 
-  core = .1d0
+  core = del_BL*2.0D0 
   where (y_c<=-core .and. y_c>=core) box=0.0d0
   p_cen = SUBSUM3YZ(p*box)/SUBSUM3YZ(box)
 
@@ -478,7 +628,7 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
   USE constants
   USE nozzle_data
   USE metrics
-  USE interfaces, ONLY : filter, ran1, SUMproc
+  USE interfaces, ONLY : filter !, ran1, SUMproc
   IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(:,:,:), INTENT(INOUT) :: rho,u,v,w
   DOUBLE PRECISION, DIMENSION(:,:,:), INTENT(INOUT), OPTIONAL :: e
@@ -486,12 +636,21 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: dumF,dumT
   DOUBLE PRECISION, DIMENSION(size(rho,1),size(rho,3))  :: tmpw,blowx,blowz,blow
   DOUBLE PRECISION, DIMENSION(SIZE(u,1),SIZE(u,3)) :: dxdA,dydA,dzdA,t_mag,u_mag	!  A-column of Jacobian Tensor
-  DOUBLE PRECISION, DIMENSION(1) :: randT
+  !DOUBLE PRECISION, DIMENSION(1) :: randT
   DOUBLE PRECISION :: del
   DOUBLE PRECISION :: filpt,thick
   INTEGER :: i,k
 
-                                                           
+   
+         !! Add noise in the BL to trip the BL
+         IF(BL_flag) THEN
+            CALL random_BL(u,v,w)
+            BL_flag = .FALSE.
+         END IF
+
+         
+
+                                                        
    
       !!!  INFLOW  !!!
       IF (x1proc) THEN
@@ -504,21 +663,8 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
       END IF
       
 
-      !! RR boundary layer
-      IF(step .NE. step_old) THEN ! Only if we are on 1st step of RK-scheme
-         IF( simtime .GT. tflip) THEN          ! Are we beyond the last period?
-            flippy = .NOT. flippy                   ! Set the flip flag
-            IF (xyzcom_id==0) print*,"Flipping BL ",flippy       ! echos stuff
-            randT = 0.0D0                           ! Init the RN
-            IF (xyzcom_id==0) CALL ran1(randT)       ! Get the RN on master
-            randT(1) = SUMproc(randT(1))            ! Send procs the RN
-            tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
-            tflip = tflip + simtime                 ! Get the absolute value of flip time
-            CALL MPI_BARRIER(xyzcom,mpierr)
-         END IF
-      END IF
-      step_old = step
-      
+      CALL flip_BL(.FALSE.)  ! Call the flip BL routine which check whether or not to flip the top->bot...
+
       CALL inflow_rcy_v2(rho,u,v,w,e)
 
 
@@ -1170,28 +1316,35 @@ SUBROUTINE random_BL(u,v,w)
       DOUBLE PRECISION, DIMENSION(size(u,1),size(u,2),size(u,3))  :: tmpy,tmpx,tmpu
       INTEGER :: in_unit,i,j,k,re_unit,pt
       DOUBLE PRECISION :: dumy,bL,dum1,dum2,shift,umag,BB,f1w,f2w,Uinf,dt_step,thick
-      DOUBLE PRECISION :: plane
+      DOUBLE PRECISION :: plane,xBL
       INTEGER :: nxp,nyp,wall
       CHARACTER(LEN=30) :: comments,filename
 
       !! Use this to get smooth profile at wall
       IF(y1proc) u(:,1,:)  = zero
       IF(ynproc) u(:,ay,:) = zero
-      IF(ynproc .and. x1proc) print*,'yeppers'
-      DO i=1,10
-         CALL filtery(gfilter,u,tmpx)
-         CALL filtery(gfilter,tmpx,u)
-      END DO
+      IF(xyzcom_id == 0) print*,'Perturbing BL region'
+      
+      !DO i=1,10
+      !   CALL filtery(gfilter,u,tmpx)
+      !   CALL filtery(gfilter,tmpx,u)
+      !END DO
 
       CALL set_time_seed(1)
       CALL MPI_BARRIER(MPI_COMM_WORLD,mpierr)
       
+
+      !! BJO -- Make the j index dependent on the BL height
+      !!  also make BL length only up to the nozzle or ....
+      !! Perturb the present flow... dont filter the flow... this smoothes things and will slow transition.
+      !! 
       DO i=1,ax
          DO j=1,ay
             DO k=1,az
-               wL(i,j,k) = half*( one - tanh( dble(iy(j)-30) / 4))
-               wU(i,j,k) = half*( one + tanh( dble(iy(j)-( ny-30) ) / 4))
-            END DO
+               xBL = half*( one - tanh( dble(ix(i)-rcy_pt_g)/ 4.0d0 ) )
+               wL(i,j,k) = xBL * half*( one - tanh( dble(iy(j)-30) / 4.0d0 ))
+               wU(i,j,k) = xBL * half*( one + tanh( dble(iy(j)-( ny-30) ) / 4.0d0 ))
+            END DO 
          END DO
       END DO
 
@@ -1263,7 +1416,7 @@ SUBROUTINE send_plane(Lplane,Gplane,pdonor,precv,nvar,yproc)
 USE inputs, ONLY: nx,ny,nz,px,py,pz
 USE globals, ONLY: ax,ay,az
 USE mpi
-USE nozzle_data, ONLY: MAP,pmapID,rcy_pt_g,flippy
+USE nozzle_data, ONLY: MAP,pmapID,rcy_pt_g,flippy,rstat
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: nvar, yproc
@@ -1276,7 +1429,7 @@ INTEGER :: sproc,rproc
 INTEGER :: iy1,iyn,iz1,izn
 INTEGER :: ii,cycle,plane,side,zprocID,yprocID,recv,donor,zproc,top,bot
 LOGICAL :: onMAP
-INTEGER :: req,rstat(MPI_STATUS_SIZE),istart
+INTEGER :: req,istart
 
 
 
@@ -1515,7 +1668,7 @@ yproc = INT(sumY)
 END SUBROUTINE
 
 
-SUBROUTINE get_2d_y(var,plane)
+SUBROUTINE get_2d_z(var,plane)
       USE globals, ONLY: ax,ay,az,ix,iy,iz
       USE inputs, ONLY: nx,ny,nz
       USE interfaces, ONLY: SUBSUM3YZ
@@ -1525,17 +1678,19 @@ SUBROUTINE get_2d_y(var,plane)
       
       DOUBLE PRECISION, DIMENSION(ax,1,az) :: xlineL
       DOUBLE PRECISION, DIMENSION(nx) :: xlineG
-      INTEGER :: i
+      INTEGER :: i,ii
 
       DO i=1,ny
          ii = MOD( (i-1), ay ) + 1
          
          xlineL = 0.0D0
-         IF( iy(ii) == i ) xlineL = var(:,ii,:)
+         IF( iy(ii) == i ) xlineL(:,1,:) = var(:,ii,:)
            
          xlineG = SUBSUM3YZ(xlineL)
          plane(:,i) = xlineG
       END DO
+
+      plane = plane / dble(nz)
 
 END SUBROUTINE
       
