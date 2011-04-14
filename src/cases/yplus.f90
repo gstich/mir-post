@@ -14,7 +14,15 @@ MODULE yplus_data
   INTEGER :: iz1 = 1        ! Z-index left bound on averaging volume
   INTEGER :: izn = 100      ! Z-index right bound on averaging volume
 
+  DOUBLE PRECISION :: Re_BL = 5.0D3
+  DOUBLE PRECISION :: del_BL = 1.0D-1
+
+  CHARACTER(LEN=90) :: ofname = 'Uwall.dat'
+  DOUBLE PRECISION  :: fudge = 1.0D0
+
+
 END MODULE yplus_data
+
 
 
 PROGRAM yplus
@@ -35,8 +43,9 @@ PROGRAM yplus
   CHARACTER(LEN=flen) :: inputFile
 
   DOUBLE PRECISION :: dudy,tauw,mu_0,mu_w,rho_w,rho_0,del,utau,off,dUp
+  DOUBLE PRECISION :: T_w,T_0,U_0,ST,T_off,mu_off
   INTEGER :: nviz,iviz,funit=34
-  NAMELIST /yplus_vars/ ix1,ixn,iz1,izn
+  NAMELIST /yplus_vars/ ix1,ixn,iz1,izn,ofname,fudge
 
 
 
@@ -87,16 +96,38 @@ PROGRAM yplus
   tflc = tflc/dble(nviz)
 
 
+  ! Sutherland's Law for Viscosity
+  T_0 = 273.15D0  ! Kelvin reference temperature
+  ST = 110.4D0    ! Sutherland temperature
+
   !! Get some y_plus units
   rho_w = output(1,rho)
   rho_0 = output(ny/2,rho)
-  mu_0 = output(ny/2,mu)
-  mu_w = output(1,mu)
+
+  mu_off = output(ny/2,mu)
+  T_off = output(ny/2,T)
+
+  mu_0 = mu_off / ((T_off/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_off + ST) )
+  mu_0 = output(1,mu)
+
+  U_0 = 31788.0D0 !output(ny/2,u)
+  !mu_0 = U_0 * rho_0 * del_BL / Re_BL         ! Physical viscosity based on inlet parameters
+  !mu_0 = mu_0 !* fudge  
+
+
+  T_w = ( output(1,T) + output(ny,T) ) / 2.0D0
+  mu_w = mu_0 * (T_w/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_w + ST)
+  !mu_w = output(1,mu)
+ 
+  print*,'Mu(infty)',mu_0
+  print*,'Mu(wall)',mu_w
+
 
   dudy = ( output(2,u) - output(1,u) )/ ( output(2,y_c) - output(1,y_c) )
   tauw = mu_w * dudy
   utau = sqrt( tauw / rho_w )
   print*,'U_tau',utau
+
 
   !! Scale y
   del = mu_w / ( rho_w * utau )
@@ -126,13 +157,13 @@ PROGRAM yplus
 
 
 
-  OPEN(UNIT=33,FILE='Uwall.dat',FORM='FORMATTED',STATUS='UNKNOWN')
-  WRITE(33,*) '# y+, u+, rho, Uvd, <uu>'
+  OPEN(UNIT=33,FILE=TRIM(ofname),FORM='FORMATTED',STATUS='UNKNOWN')
+  WRITE(33,*) '# y+, u+, rho, Uvd, <uu>, mu, T'
   DO i=1,ny/2
-     WRITE(33,'(6ES12.4)') output(i,y_c),output(i,u),output(i,rho),Uvd(i),tflc(i,u)
+     WRITE(33,'(9ES12.4)') output(i,y_c),output(i,u),output(i,rho),Uvd(i),tflc(i,u),output(i,mu),output(i,T),output(i,ktc)
   END DO
   DO i=ny/2+1,ny
-     WRITE(33,'(6ES12.4)') (output(ny,y_c)-output(i,y_c)),output(i,u),output(i,rho),Uvd(i),tflc(i,u)
+     WRITE(33,'(9ES12.4)') (output(ny,y_c)-output(i,y_c)),output(i,u),output(i,rho),Uvd(i),tflc(i,u),output(i,mu),output(i,T),output(i,ktc)
   END DO
 
   CLOSE(33)

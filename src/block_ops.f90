@@ -142,6 +142,10 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
      END DO
 
 
+  CASE('BLOCK')
+
+     Gdata(ig:ig+ax-1,jg:jg+ay-1,kg:kg+az-1,:) = iodata
+
 
   END SELECT
 

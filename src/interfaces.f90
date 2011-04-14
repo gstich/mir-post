@@ -106,17 +106,16 @@ END INTERFACE
      END SUBROUTINE PLANE_IJ
   END INTERFACE
 
+  INTERFACE BLOCK
+     SUBROUTINE BLOCK(dataB,file)
+       USE globals
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: dataB
+       CHARACTER(LEN=flen) :: file
+     END SUBROUTINE BLOCK
+  END INTERFACE
 
-
-!!$
-!!$INTERFACE PLAN_AVE
-!!$   SUBROUTINE PLAN_AVE(direction,vars,plane2D)
-!!$     IMPLICIT NONE
-!!$     CHARACTER(LEN=10) :: direction
-!!$     INTEGER, DIMENSION(:) :: vars
-!!$     DOUBLE PRECISION, DIMENSION(:,:,:) :: plane2D
-!!$   END SUBROUTINE PLAN_AVE
-!!$END INTERFACE
 
 
 

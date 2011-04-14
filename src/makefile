@@ -4,7 +4,7 @@ f90=	ifort
 flags = 
 
 SOURCE=	globals.o interfaces.o lines.o planes.o driver.o block_ops.o 
-PROBS= yplus length span span_flc writeplanes
+PROBS= yplus length span span_flc writeplanes writeplanes_2
 
 warn :
 	@echo "Please select a case to compile:"
@@ -41,3 +41,6 @@ span_flc :$(SOURCE) cases/span_flc.o
 
 writeplanes :$(SOURCE) cases/writeplanes.o
 	$(f90) $(SOURCE) writeplanes.o $(flags) -o writeplanes_ex
+
+writeplanes_2 :$(SOURCE) cases/writeplanes_2.o
+	$(f90) $(SOURCE) writeplanes_2.o $(flags) -o writeplanes_2_ex
