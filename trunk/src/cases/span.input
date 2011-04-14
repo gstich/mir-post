@@ -1,15 +1,15 @@
 &span_vars
-ix1 = 193
-ixn = 220
-iy1 = 32
-iyn = 32
+ix1 = 650
+ixn = 650
+iy1 = 30
+iyn = 30
 /
 
 &INPUT 
-t1 = 2800
-tf = 2800
-nx = 256
+t1 = 50
+tf = 75
+nx = 768
 ny = 256
-nz = 64
-jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
+nz = 256
+jobdir = '/p/lscratchd/olson45/nozzle/nozzlemedium3d'
 /

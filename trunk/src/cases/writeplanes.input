@@ -4,8 +4,8 @@ izn = 128      ! Z-index right bound on averaging volume
 /
 
 &INPUT 
-t1 = 0000
-tf = 0242
+t1 = 0550
+tf = 0642
 nx = 512
 ny = 128
 nz = 128

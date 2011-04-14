@@ -1,16 +1,16 @@
 &yplus_vars
-ix1 = 560
-ixn = 600
+ix1 = 65
+ixn = 75
 iz1 = 1
 izn = 128
 /
 
 &INPUT 
-t1 = 805
-tf = 805
-nx = 768
-ny = 256
-nz = 256
-!jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
-jobdir = '/p/lscratchd/olson45/nozzle/nozzle3Dm'
+t1 = 540
+tf = 540
+nx = 512
+ny = 128
+nz = 128
+!jobdir = '/p/lscratchd/olson45/nozzle/nozzlemedium3d'
+jobdir = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d'
 /
