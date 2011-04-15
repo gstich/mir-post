@@ -117,7 +117,7 @@ PROGRAM yplus
 
   T_w = ( output(1,T) + output(ny,T) ) / 2.0D0
   mu_w = mu_0 * (T_w/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_w + ST)
-  !mu_w = output(1,mu)
+  mu_w = output(1,mu)
  
   print*,'Mu(infty)',mu_0
   print*,'Mu(wall)',mu_w
