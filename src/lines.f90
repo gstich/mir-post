@@ -3,7 +3,7 @@ SUBROUTINE SUBSUM3IK(stride,prof1D,file)
   USE post_routines
   IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-  INTEGER, DIMENSION(2,2) :: stride
+  INTEGER, DIMENSION(3,2) :: stride
   CHARACTER(LEN=flen) :: file
 
   DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: Gdata
@@ -18,8 +18,8 @@ SUBROUTINE SUBSUM3IK(stride,prof1D,file)
   !! Set the index box size for the averaging kernal
   i1g = stride(1,1)
   ifg = stride(1,2)  
-  k1g = stride(2,1)
-  kfg = stride(2,2)
+  k1g = stride(3,1)
+  kfg = stride(3,2)
 
   !! Set the case for Summation rule
   FUNK = 'SUBSUM3IK'
@@ -72,7 +72,7 @@ SUBROUTINE SUBSUM3JK(stride,prof1D,file)
   USE post_routines
   IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-  INTEGER, DIMENSION(2,2), INTENT(IN) :: stride
+  INTEGER, DIMENSION(3,2), INTENT(IN) :: stride
   CHARACTER(LEN=flen) :: file
 
   DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: Gdata
@@ -85,10 +85,10 @@ SUBROUTINE SUBSUM3JK(stride,prof1D,file)
 
 
   !! Set the index box size for the averaging kernal
-  j1g = stride(1,1)
-  jfg = stride(1,2)
-  k1g = stride(2,1)
-  kfg = stride(2,2)
+  j1g = stride(2,1)
+  jfg = stride(2,2)
+  k1g = stride(3,1)
+  kfg = stride(3,2)
 
   !! Set the case for Summation rule
   FUNK = 'SUBSUM3JK'
@@ -138,7 +138,7 @@ SUBROUTINE SUBSUM3IJ(stride,prof1D,file)
   USE post_routines
   IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-  INTEGER, DIMENSION(2,2), INTENT(IN) :: stride
+  INTEGER, DIMENSION(3,2), INTENT(IN) :: stride
   CHARACTER(LEN=flen) :: file
 
   DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: Gdata

@@ -6,7 +6,7 @@ MODULE block
        IMPLICIT NONE
        REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(IN) :: iodata
        INTEGER, DIMENSION(3), INTENT(IN) :: corner
-       INTEGER, DIMENSION(2,2), INTENT(IN) :: stride
+       INTEGER, DIMENSION(3,2), INTENT(IN) :: stride
        DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: Gdata
        CHARACTER(LEN=flen), INTENT(IN) :: FUNK
      END SUBROUTINE block_ops
@@ -24,7 +24,7 @@ MODULE post_routines
        IMPLICIT NONE
        CHARACTER(LEN=flen), INTENT(IN) :: vizdir
        INTEGER, DIMENSION(6) :: procIJK
-       INTEGER, DIMENSION(2,2) :: stride
+       INTEGER, DIMENSION(3,2) :: stride
        DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: Gdata
        CHARACTER(LEN=flen), INTENT(IN) :: FUNK
      END SUBROUTINE proc_loop
@@ -43,7 +43,7 @@ MODULE operators
        USE post_routines
        IMPLICIT NONE
        DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-       INTEGER, DIMENSION(2,2) :: stride
+       INTEGER, DIMENSION(3,2) :: stride
        CHARACTER(LEN=flen) :: file
      END SUBROUTINE SUBSUM3IK
   END INTERFACE
@@ -55,7 +55,7 @@ INTERFACE SUBSUM3JK
      USE post_routines
      IMPLICIT NONE
      DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-     INTEGER, DIMENSION(2,2) :: stride
+     INTEGER, DIMENSION(3,2) :: stride
      CHARACTER(LEN=flen) :: file
    END SUBROUTINE SUBSUM3JK
 END INTERFACE
@@ -67,7 +67,7 @@ INTERFACE SUBSUM3IJ
      USE post_routines
      IMPLICIT NONE
      DOUBLE PRECISION, DIMENSION(:,:) :: prof1D
-     INTEGER, DIMENSION(2,2) :: stride
+     INTEGER, DIMENSION(3,2) :: stride
      CHARACTER(LEN=flen) :: file
    END SUBROUTINE SUBSUM3IJ
 END INTERFACE
@@ -79,7 +79,7 @@ END INTERFACE
        USE post_routines
        IMPLICIT NONE
        DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
-       INTEGER, DIMENSION(2,2) :: stride
+       INTEGER, DIMENSION(3,2) :: stride
        CHARACTER(LEN=flen) :: file
      END SUBROUTINE PLANE_IK
   END INTERFACE
@@ -90,7 +90,7 @@ END INTERFACE
        USE post_routines
        IMPLICIT NONE
        DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
-       INTEGER, DIMENSION(2,2) :: stride
+       INTEGER, DIMENSION(3,2) :: stride
        CHARACTER(LEN=flen) :: file
      END SUBROUTINE PLANE_JK
   END INTERFACE
@@ -101,7 +101,7 @@ END INTERFACE
        USE post_routines
        IMPLICIT NONE
        DOUBLE PRECISION, DIMENSION(:,:,:) :: prof2D
-       INTEGER, DIMENSION(2,2) :: stride
+       INTEGER, DIMENSION(3,2) :: stride
        CHARACTER(LEN=flen) :: file
      END SUBROUTINE PLANE_IJ
   END INTERFACE
@@ -116,6 +116,17 @@ END INTERFACE
      END SUBROUTINE BLOCK
   END INTERFACE
 
+  INTERFACE POINT
+     SUBROUTINE POINT(dataA,file,Ii,Ij,Ik)
+       USE globals, ONLY: flen,DIM
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(DIM), INTENT(OUT) :: dataA
+       INTEGER, DIMENSION(3,2) :: stride
+       CHARACTER(LEN=flen) :: file
+       INTEGER, INTENT(IN) :: Ii,Ij,Ik
+     END SUBROUTINE POINT
+  END INTERFACE
 
 
 

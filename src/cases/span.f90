@@ -218,7 +218,7 @@ SUBROUTINE get_coor(vfile,xslc,yslc,spc)
 
   
   !! Use the profile, to make spatial correlation
-  ivar = u
+  ivar = p
   ALLOCATE(sflc(nz*2))
   ALLOCATE(corr(nz))
 

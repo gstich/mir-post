@@ -1,16 +1,16 @@
 &yplus_vars
-ix1 = 65
-ixn = 75
+ix1 = 230
+ixn = 240
 iz1 = 1
-izn = 128
+izn = 64
+ofname = 'yplus_BLtest.dat'
 /
 
 &INPUT 
-t1 = 540
-tf = 540
-nx = 512
-ny = 128
-nz = 128
-!jobdir = '/p/lscratchd/olson45/nozzle/nozzlemedium3d'
-jobdir = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d'
+t1 = 3800
+tf = 3800
+nx = 256
+ny = 256
+nz = 64
+jobdir = '/p/lscratchd/olson45/BLtest/BLtest3Dw'
 /

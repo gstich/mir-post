@@ -1,13 +1,12 @@
-&span_vars
-ix1 = 130
-ixn = 130
-iy1 = 30
-iyn = 30
+&query_vars
+ix1 = 300
+iy1 = 1
+iz1 = 5 
 /
 
 &INPUT 
-t1 = 270
-tf = 289
+t1 = 0200
+tf = 0350
 nx = 768
 ny = 256
 nz = 256
