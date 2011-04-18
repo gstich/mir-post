@@ -59,7 +59,7 @@ tauw = mu_w * dudy;
 utau = sqrt( tauw / rho_w );
 del = mu_w / ( rho_w * utau );
 
-figure(1);clf;
+figure(1);%clf;
 y1 = Yprof(1,:,Y)-Yprof(1,1,Y);
 u1 = Yprof(1,:,U);
 y1 = y1/del;

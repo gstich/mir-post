@@ -6,7 +6,7 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
   IMPLICIT NONE
   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(IN) :: iodata
   INTEGER, DIMENSION(3), INTENT(IN) :: corner
-  INTEGER, DIMENSION(2,2), INTENT(IN) :: stride
+  INTEGER, DIMENSION(3,2), INTENT(IN) :: stride
   DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: Gdata
   CHARACTER(LEN=flen), INTENT(IN) :: FUNK
 
@@ -34,8 +34,8 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
      !! Set the index box size for the averaging kernal
      i1g = stride(1,1)
      ifg = stride(1,2)
-     k1g = stride(2,1)
-     kfg = stride(2,2)
+     k1g = stride(3,1)
+     kfg = stride(3,2)
      
      irngL = max(i1g-ig+1,1)
      irngU = min(ifg-ig+1,ax)
@@ -53,10 +53,10 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
   CASE('SUBSUM3JK')
 
      !! Set the index box size for the averaging kernal
-     j1g = stride(1,1)
-     jfg = stride(1,2)
-     k1g = stride(2,1)
-     kfg = stride(2,2)
+     j1g = stride(2,1)
+     jfg = stride(2,2)
+     k1g = stride(3,1)
+     kfg = stride(3,2)
 
      jrngL = max(j1g-jg+1,1)
      jrngU = min(jfg-jg+1,ay)
@@ -97,8 +97,8 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
      ALLOCATE(dpdum(ax,az,DIM))
 
      !! Set the index box size for the averaging kernal
-     j1g = stride(1,1)
-     jfg = stride(1,2)
+     j1g = stride(2,1)
+     jfg = stride(2,2)
      
      jrngL = max(j1g-jg+1,1)
      jrngU = min(jfg-jg+1,ay)
@@ -130,8 +130,8 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
      ALLOCATE(dpdum(ax,ay,DIM))
 
      !! Set the index box size for the averaging kernal
-     k1g = stride(1,1)
-     kfg = stride(1,2)
+     k1g = stride(3,1)
+     kfg = stride(3,2)
      
      krngL = max(k1g-kg+1,1)
      krngU = min(kfg-kg+1,az)
@@ -145,6 +145,24 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
   CASE('BLOCK')
 
      Gdata(ig:ig+ax-1,jg:jg+ay-1,kg:kg+az-1,:) = iodata
+
+
+  CASE('POINT')
+     i1g = stride(1,1)
+     ifg = stride(1,2)
+     j1g = stride(2,1)
+     jfg = stride(2,2)
+     k1g = stride(3,1)
+     kfg = stride(3,2)
+     
+     irngL = max(i1g-ig+1,1)
+     irngU = min(ifg-ig+1,ax)
+     jrngL = max(j1g-jg+1,1)
+     jrngU = min(jfg-jg+1,ay)
+     krngL = max(k1g-kg+1,1)
+     krngU = min(kfg-kg+1,az)
+
+     Gdata(1,1,1,:) = iodata(irngL,jrngL,krngL,:)
 
 
   END SELECT

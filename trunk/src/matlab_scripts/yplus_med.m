@@ -5,9 +5,9 @@ clc;
 X=1; Y=2; U=3; V=4; W=5; RHO=6; P=7; T=8;
 
 
-t1 = 65;
-t2 = 72;
-Nwall = 100;
+t1 = 349;
+t2 = 349;
+Nwall = 131;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/nozzlemedium3d';
 
@@ -34,7 +34,7 @@ Yprof = Yprof / (2*buff + 1);
 % Thermo-dynamic vars
 Mach = 1.0;
 ReBL = 5e3;
-delBL= 1.0e-1;
+delBL= 1.3e-1;
 gamma = 1.4;
 Pin  =   Pmean(1,ny/2, P );
 rhoin  = Pmean(1,ny/2,RHO);
@@ -50,7 +50,8 @@ ST = 110.4;    % Sutherland temperature
 
 T_wall = Yprof(1,1,T);
 mu_w = mu_0 * ((T_wall/T_0)^(3.0D0/2.0D0) * (T_0 + ST) / (T_wall + ST) );
-mu_w = mu_w;% * 1.8;
+%mu_w = 8.76e-4;
+mu_w
 
 % Scaling
 rho_w = Yprof(1,1,RHO);
@@ -64,7 +65,7 @@ y1 = Yprof(1,:,Y)-Yprof(1,1,Y);
 u1 = Yprof(1,:,U);
 y1 = y1/del;
 u1 = u1/utau;
-semilogx( y1,u1,'bo');
+semilogx( y1,u1,'r+');
 x1 = logspace(-1,1.2,20);
 x2 = logspace(.8,3,20);
 k = .42;
@@ -82,22 +83,41 @@ Fprof = Fprof + Fprof2;
 Fprof = Fprof / 2;
 Fprof = Fprof / (2*buff + 1);
 
+%[h,BL] = hdrload('yplus_BLtest.dat');
+%figure(1);hold on;plot(BL(:,1),BL(:,4),'k^');
 
-
-figure(2);
+figure(2);hold on;%clf;
 y1 = y1*del/delBL;
 u1 = Fprof(1,:,U).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'b');hold on;
+plot(y1,u1,'b--');hold on;
 u1 = Fprof(1,:,V).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'r');hold on;
+plot(y1,u1,'r--');hold on;
 u1 = Fprof(1,:,W).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'g');hold on;
+plot(y1,u1,'g--');hold on;
 
 
 
 xlim([0 3])
 
+MT = 0;
+y1 = y1*delBL;
+u1 = Yprof(1,:,U);
+rho = Yprof(1,:,RHO);
+u0 = u1(end);
+uM = u1.*rho/u0/rhoin.*(1-u1/u0);
+MT = trapz(y1,uM);
 
+Re_theta = u0*rhoin*MT/mu_0
+
+uM = 1-u1.*rho/u0/rhoin;
+DT = trapz(y1,uM);
+Re_D = u0*rhoin*DT/mu_0
+%for i=1:ny/2
+%    MT = MT + u1(i)/u0*(1-u1(i)/u0);
+%end
+
+    
+    
