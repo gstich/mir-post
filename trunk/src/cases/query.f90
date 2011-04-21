@@ -74,7 +74,6 @@ PROGRAM query
   END DO
 
 
-
   PRINT*,'Point query: (I,J,K) = (',ix1,',',iy1,',',iz1,')'
   PRINT*,'X, Y, Z    :',Rout(x_c),Rout(y_c),Rout(z_c)
   PRINT*,'U, V, W    :',Rout(U),Rout(V),Rout(W)

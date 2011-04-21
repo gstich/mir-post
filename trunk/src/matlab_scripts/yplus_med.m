@@ -7,7 +7,7 @@ X=1; Y=2; U=3; V=4; W=5; RHO=6; P=7; T=8;
 
 t1 = 349;
 t2 = 349;
-Nwall = 131;
+Nwall = 151;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/nozzlemedium3d';
 
@@ -34,7 +34,7 @@ Yprof = Yprof / (2*buff + 1);
 % Thermo-dynamic vars
 Mach = 1.0;
 ReBL = 5e3;
-delBL= 1.3e-1;
+delBL= 1.0e-1;
 gamma = 1.4;
 Pin  =   Pmean(1,ny/2, P );
 rhoin  = Pmean(1,ny/2,RHO);
@@ -108,6 +108,7 @@ u1 = Yprof(1,:,U);
 rho = Yprof(1,:,RHO);
 u0 = u1(end);
 uM = u1.*rho/u0/rhoin.*(1-u1/u0);
+uM(uM<0) = 0;
 MT = trapz(y1,uM);
 
 Re_theta = u0*rhoin*MT/mu_0
