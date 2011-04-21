@@ -160,35 +160,6 @@ END SUBROUTINE prob_inputs
   CALL flip_BL(.TRUE.)
 
 
-  ! Handle the flipping of the BL
-  !funit = 35
-  !fform = '(L,1D25.15)'
-  !WRITE(flipfile,'(2A)') TRIM(jobdir),'/flippy.dat'
-  !INQUIRE(FILE=flipfile,EXIST=fexist)
-
-  !IF(fexist) THEN  !! If file exists, read from last state
-  !    OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='OLD',ACTION='READ')
-  !    READ(funit,TRIM(fform)) flippy,tflip
-  !    CLOSE(funit)
-  !ELSE  !! Otherwise, generate the fist time period and save to file
-  !    flippy = .FALSE.          ! Set the flip flag
-  !    tflow = Len_BL/U_in       ! Flow through time on the BL
-  !    tiid = .25d0              ! Range in Tflow units of IID RN
-  !    randT = 0.0D0             ! Init the RN
-  !    CALL set_time_seed(1)     ! Clock based RN seed
-  !    IF (xyzcom_id==0) CALL ran1(randT) ! Get the RN on master
-  !    randT(1) = SUMproc(randT(1)) ! Send procs the RN
-  !    tflip = tflow*(one-tiid*(randT(1)-one)) ! Get next random time period
-  !    tflip = tflip + simtime   ! Get the absolute value of flip time
-  !    
-  !    IF(xyzcom_id==0) THEN
-  !       OPEN(UNIT=funit,FILE=flipfile,FORM='FORMATTED',STATUS='NEW',ACTION='WRITE')
-  !       WRITE(funit,TRIM(fform)) flippy,tflip
-  !       CLOSE(funit)
-  !    END IF
-
-  !END IF
-
 
   !! Print out the map
   IF(world_id == master ) THEN
@@ -1002,7 +973,7 @@ SUBROUTINE inflow_rcy_v2(rho,u,v,w,e) !!,rcy_pt_g,del_BL,Len_BL,U_in)
       DOUBLE PRECISION :: alpha,beta
       DOUBLE PRECISION :: Talpha,Tbeta
       DOUBLE PRECISION :: t_nm1,t_n,dt_n,Rgas,gm1
-      DOUBLE PRECISION :: Uvd_inf,AA,iBB,BB,U_inf
+      DOUBLE PRECISION :: Uvd_inf,AA,iBB,BB,U_inf,dVel
       CHARACTER(len=80) :: uaveFile,uaveDir
       LOGICAL :: onMAP
       
@@ -1248,9 +1219,14 @@ SUBROUTINE inflow_rcy_v2(rho,u,v,w,e) !!,rcy_pt_g,del_BL,Len_BL,U_in)
       Roave(uvar,:,:) = U_inf/AA * dsin( tmpP/U_inf * AA) ! Transform back from Van Driest
 
       ! Convert Mean back from Van Driest velocity (only done for U velocity)
-      tmpP = Qave(uvar,:,:)
+      !tmpP = Qave(uvar,:,:)
       Qave(uvar,:,:) = U_inf/AA * dsin( AA*tmpP / U_inf )
 
+      ! Ensure that the BL doesn't exceed the mean flow velocity
+      tmpP = Qave(uvar,:,:)
+      dVel = MAXVAL( SUM(tmpP,2) / DBLE(az) )
+      Roave(uvar,:,:) = Roave(uvar,:,:) * U_inf / dVel
+      
 
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!          Section 7- Reassemble and Reassign        !!!
