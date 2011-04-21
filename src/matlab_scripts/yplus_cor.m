@@ -6,7 +6,7 @@ X=1; Y=2; U=3; V=4; W=5; RHO=6; P=7; T=8;
 
 
 t1 = 600;
-t2 = 602;
+t2 = 601;
 Nwall = 80;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d';
@@ -34,7 +34,7 @@ Yprof = Yprof / (2*buff + 1);
 % Thermo-dynamic vars
 Mach = 1.0;
 ReBL = 5e3;
-delBL= 1.5e-1;
+delBL= 1.0e-1;
 gamma = 1.4;
 Pin  =   Pmean(1,ny/2, P );
 rhoin  = Pmean(1,ny/2,RHO);
@@ -99,5 +99,23 @@ plot(y1,u1,'g');hold on;
 
 
 xlim([0 3])
+
+MT = 0;
+y1 = y1*delBL;
+u1 = Yprof(1,:,U);
+rho = Yprof(1,:,RHO);
+u0 = u1(end);
+uM = u1.*rho/u0/rhoin.*(1-u1/u0);
+uM(uM<0) = 0;%uM = abs(uM);
+MT = trapz(y1,uM);
+
+Re_theta = u0*rhoin*MT/mu_0
+
+uM = 1-u1.*rho/u0/rhoin;
+DT = trapz(y1,uM);
+Re_D = u0*rhoin*DT/mu_0
+%for i=1:ny/2
+%    MT = MT + u1(i)/u0*(1-u1(i)/u0);
+%end
 
 
