@@ -5,8 +5,8 @@ clc;
 X=1; Y=2; U=3; V=4; W=5; RHO=6; P=7; T=8;
 
 
-t1 = 349;
-t2 = 349;
+t1 = 400;
+t2 = 400;
 Nwall = 151;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/nozzlemedium3d';
@@ -50,7 +50,7 @@ ST = 110.4;    % Sutherland temperature
 
 T_wall = Yprof(1,1,T);
 mu_w = mu_0 * ((T_wall/T_0)^(3.0D0/2.0D0) * (T_0 + ST) / (T_wall + ST) );
-%mu_w = 8.76e-4;
+%mu_w = 8.62e-4;
 mu_w
 
 % Scaling
