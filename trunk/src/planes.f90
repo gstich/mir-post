@@ -335,3 +335,74 @@ SUBROUTINE POINT(dataA,file,Ii,Ij,Ik)
 
   
 END SUBROUTINE POINT
+
+
+SUBROUTINE POINT_W(dataA,file,Ii,Ij,Ik,ioff,joff,koff)
+  USE globals
+  USE post_routines
+  IMPLICIT NONE
+  DOUBLE PRECISION, DIMENSION(DIM), INTENT(OUT) :: dataA
+  CHARACTER(LEN=flen) :: file
+  INTEGER, INTENT(IN) :: Ii,Ij,Ik,ioff,joff,koff
+
+  DOUBLE PRECISION, DIMENSION(1,1,1,DIM) :: dataB
+  INTEGER, DIMENSION(3,2) :: stride
+  INTEGER, DIMENSION(6) :: procIJK
+  CHARACTER(LEN=flen) :: FUNK
+  DOUBLE PRECISION :: norm,tmp
+  INTEGER :: i1p,ifp,j1p,jfp,k1p,kfp
+  INTEGER :: i1g,ifg,j1g,jfg,k1g,kfg
+  INTEGER :: i
+
+  !! Set the case for Summation rule
+  FUNK = 'POINT_W'
+
+  !! Set the index box size for the averaging kernal
+  i1g = Ii-ioff
+  ifg = Ii+ioff
+  j1g = Ij-joff
+  jfg = Ij+joff
+  k1g = Ik-koff
+  kfg = Ik+koff
+  
+  stride(1,1) = i1g
+  stride(1,2) = ifg
+  stride(2,1) = j1g
+  stride(2,2) = jfg
+  stride(3,1) = k1g
+  stride(3,2) = kfg
+
+
+
+  !! Set the processor bounds for the data
+  tmp = dble(i1g)/dble(ax)
+  i1p = CEILING(tmp) - 1
+  tmp = dble(ifg)/dble(ax)
+  ifp = CEILING(tmp) - 1
+
+  tmp = dble(j1g)/dble(ay)
+  j1p = CEILING(tmp) - 1
+  tmp = dble(jfg)/dble(ay)
+  jfp = CEILING(tmp) - 1
+
+  tmp = dble(k1g)/dble(az)
+  k1p = CEILING(tmp) - 1
+  tmp = dble(kfg)/dble(az)
+  kfp = CEILING(tmp) - 1
+
+  procIJK(1) = i1p 
+  procIJK(2) = ifp
+  procIJK(3) = j1p
+  procIJK(4) = jfp
+  procIJK(5) = k1p
+  procIJK(6) = kfp 
+
+  !! Loop over all the processors and perform the operations
+  dataB = 0.0D0
+  CALL proc_loop(file,procIJK,stride,dataB,FUNK)  
+
+  !! Divide by number of point in the block
+  dataA = dataB(1,1,1,:)/( dble(2*ioff+1)*dble(2*joff+1)*dble(2*koff+1) )
+
+  
+END SUBROUTINE POINT_W

@@ -164,6 +164,29 @@ SUBROUTINE block_ops(iodata,corner,stride,Gdata,FUNK)
 
      Gdata(1,1,1,:) = iodata(irngL,jrngL,krngL,:)
 
+  CASE('POINT_W')
+     i1g = stride(1,1)
+     ifg = stride(1,2)
+     j1g = stride(2,1)
+     jfg = stride(2,2)
+     k1g = stride(3,1)
+     kfg = stride(3,2)
+     
+     irngL = max(i1g-ig+1,1)
+     irngU = min(ifg-ig+1,ax)
+     jrngL = max(j1g-jg+1,1)
+     jrngU = min(jfg-jg+1,ay)
+     krngL = max(k1g-kg+1,1)
+     krngU = min(kfg-kg+1,az)
+
+     !! Sum the entire mini-block and average outside this kernal
+     DO i=irngL,irngU
+        DO j=jrngL,jrngU
+           DO k=krngL,krngU
+              Gdata(1,1,1,:) = Gdata(1,1,1,:) + iodata(i,j,k,:)
+           END DO
+        END DO
+     END DO
 
   END SELECT
 
