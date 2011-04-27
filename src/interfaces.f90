@@ -128,6 +128,17 @@ END INTERFACE
      END SUBROUTINE POINT
   END INTERFACE
 
+  INTERFACE POINT_W
+     SUBROUTINE POINT_W(dataA,file,Ii,Ij,Ik,ioff,joff,koff)
+       USE globals, ONLY: flen,DIM
+       USE post_routines
+       IMPLICIT NONE
+       DOUBLE PRECISION, DIMENSION(DIM), INTENT(OUT) :: dataA
+       INTEGER, DIMENSION(3,2) :: stride
+       CHARACTER(LEN=flen) :: file
+       INTEGER, INTENT(IN) :: Ii,Ij,Ik,ioff,joff,koff
+     END SUBROUTINE POINT_W
+  END INTERFACE
 
 
 END MODULE operators

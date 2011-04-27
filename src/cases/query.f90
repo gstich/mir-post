@@ -10,6 +10,9 @@ MODULE query_data
   INTEGER :: ix1 = 1        ! X-index 
   INTEGER :: iy1 = 1        ! Y-index 
   INTEGER :: iz1 = 1        ! Z-index 
+  INTEGER :: ioff = 0       ! Width of
+  INTEGER :: joff = 0       ! Width of
+  INTEGER :: koff = 0       ! Width of
 
 END MODULE query_data
 
@@ -29,7 +32,7 @@ PROGRAM query
   CHARACTER(LEN=flen) :: inputFile
 
   INTEGER :: nviz,iviz,funit=34
-  NAMELIST /query_vars/ ix1,iy1,iz1
+  NAMELIST /query_vars/ ix1,iy1,iz1,ioff,joff,koff
 
 
   !! General input file for t1,tf,nx,ny,nz,filename
@@ -56,7 +59,8 @@ PROGRAM query
      
      ! Get the next viz-directory and call kernal
      CALL viz_name(jobdir,iviz,vfile)
-     CALL POINT(output,vfile,ix1,iy1,iz1)
+     !CALL POINT(output,vfile,ix1,iy1,iz1)
+     CALL POINT_W(output,vfile,ix1,iy1,iz1,3,0,2)
      Rout = output
      PRINT*,'Query time:',iviz
 

@@ -12,7 +12,7 @@ Source("visit_engine.py")
 
 # Launch/request the procs
 e = Engine()
-e.open(nprocs=32,part="pbatch",bank="views",rtime="30:00")
+e.open(nprocs=16,part="pbatch",bank="views",rtime="240:00")
  
 
 
@@ -64,11 +64,24 @@ yp = 2.0 * Ht;
 p0 = (x0 + xp, y0 - yp, z0);
 p1 = (x0 + xp, y0 + yp, z0);
 
-npts = 100;
+npts = 200;
 
 LOA = GetGlobalLineoutAttributes();
 LOA.numSamples = npts;
+LOA.samplingOn = 1;
 SetGlobalLineoutAttributes(LOA);
+
+## Read in command line arg
+if len(sys.argv) !=8:
+    sys.exit('visit -cli -nw -s python.script.py DB t0 tf Var')
+DB = sys.argv[4]
+print 'Database set to: %s' % DB
+t0 = int(sys.argv[5])
+print 't0 set to      : %s' % t0
+tf = int(sys.argv[6])
+print 't0 set to      : %s' % tf
+Var = sys.argv[7]
+print 'Variable set to: %s' % Var
 
 
 OpenDatabase(DB)
