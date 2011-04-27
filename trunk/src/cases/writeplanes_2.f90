@@ -186,9 +186,12 @@ SUBROUTINE get_ALL(vfile,mean,flc)
   INTEGER :: k
 
   ALLOCATE(data(nx,ny,nz,DIM))
+  
+  PRINT*,'Reading data...'
   CALL BLOCK(data,vfile)
 
   !! Get the mean
+  PRINT*,'Computing planes...'
   mean = SUM( data, 3 )
   mean = mean / dble(nz)
 

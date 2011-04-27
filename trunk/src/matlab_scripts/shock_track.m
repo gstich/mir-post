@@ -5,21 +5,28 @@ clc;
 close all;
 
 %% Load the pressure data on interval... average and plot
-intv = [260,940];
-%intv = [920,940];
+
+
 
 pref = 7.5e5;
 dt = 5.0e-6;
 
 
-
-dir = '../nozzle3D/';
-weight = abs(intv(1)-intv(2)) + 1;
+data = '/p/lscratchd/olson45/nozzle/';
+dir = [data,'nozzlecoarse3d/'];
 pa = zeros(512,4);
+intv = [400,879];
+
+%dir = [data,'nozzlemedium3d/'];
+%pa = zeros(768,4);
+%intv = [200,430];
+
+%weight = abs(intv(1)-intv(2)) + 1;
+
 ii = 0;
 for i=intv(1):intv(2)
     ii = ii + 1;
-    file = [ dir ,'vis0',int2str(i),'/pressure.dat' ];
+    file = [ dir ,'vis0',int2str(i),'/pressure.dat' ]
     
     pf = load(file);
     
@@ -32,24 +39,23 @@ for i=intv(1):intv(2)
     
     val = mid;
 
-    for j=1:100
-    val = gfilter(val);
+    for j=1:50
+        val = gfilter(val);
     end
     
     
-    dbot = ddx(val);
-    Fshk = 1 - ((val-pref)/pref).^2;
-    Fshk = Fshk.*sign(dbot);
-    
-    
-    [dps,ns] = max(Fshk);
-    
-    xs(ii) = x(ns);
-    ps(ii) = val(ns);
+%     dbot = ddx(val);
+%     Fshk = 1 - ((val-pref)/pref).^2;
+%     Fshk = Fshk.*sign(dbot);
+%     
+%     [dps,ns] = max(Fshk);
+%     
+%     xs(ii) = x(ns);
+%     ps(ii) = val(ns);
     
     
     %% Try fitting parabola to min.
-    off = 50;
+    off = 1;
     [Pmin,Nmin] = min(val);
     X1 = x(Nmin);
     Y1 = Pmin;
@@ -67,9 +73,10 @@ for i=intv(1):intv(2)
     xs(ii) =  B / (2*A);
     ps(ii) = Pmin;
     
-    %plot(x,val);hold on;
-    %plot(X1,Y1,'go');plot(X2,Y2,'go');plot(X3,Y3,'go');
-    %plot(xs(ii),ps(ii),'ro');drawnow;
+    figure(3);
+    plot(x,val);hold on;
+    plot(X1,Y1,'go');%plot(X2,Y2,'go');plot(X3,Y3,'go');
+    plot(xs(ii),ps(ii),'ro');drawnow;pause(.01);hold off;
     %hold off;
     
 end

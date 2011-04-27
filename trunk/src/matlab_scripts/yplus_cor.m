@@ -12,7 +12,7 @@ buff = 5;
 path = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d';
 
 if  ~exist('Pmean')
-    Pmean = sum_planes(path,'mean',t1,t2);
+    P
 end
 if  ~exist('fluc')
     fluc = sum_planes(path,'flc' ,t1,t2);

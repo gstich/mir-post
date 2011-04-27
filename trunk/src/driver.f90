@@ -90,7 +90,7 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
   IMPLICIT NONE
   CHARACTER(LEN=flen), INTENT(IN) :: vizdir
   INTEGER, DIMENSION(6) :: procIJK
-  INTEGER, DIMENSION(2,2) :: stride
+  INTEGER, DIMENSION(3,2) :: stride
   DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: Gdata
   CHARACTER(LEN=flen), INTENT(IN) :: FUNK
 
@@ -134,7 +134,7 @@ SUBROUTINE proc_loop(vizdir,procIJK,stride,Gdata,FUNK)
 
 
            WRITE(procdir,'(2A,I6.6)') TRIM(vizdir),'/p',p
-           !print*,'proc read',p,ig,jg,kg
+           print*,'proc read',p,ig,jg,kg
            OPEN(UNIT=punit,FILE=TRIM(procdir),FORM='UNFORMATTED',STATUS='OLD')
            DO v=1,varDIM
               READ(punit) iodata(:,:,:,v)

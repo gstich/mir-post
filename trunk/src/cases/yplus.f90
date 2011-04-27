@@ -31,7 +31,7 @@ PROGRAM yplus
   USE yplus_data
   IMPLICIT NONE
   INTEGER :: i
-  INTEGER, DIMENSION(2,2) :: stride
+  INTEGER, DIMENSION(3,2) :: stride
 
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: output
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: tave
@@ -62,8 +62,8 @@ PROGRAM yplus
   !! Set some variables from the input files
   stride(1,1) = ix1
   stride(1,2) = ixn
-  stride(2,1) = iz1
-  stride(2,2) = izn
+  stride(3,1) = iz1
+  stride(3,2) = izn
   nviz=tf-t1+1
 
   !! Initialize the data arrays
@@ -107,21 +107,23 @@ PROGRAM yplus
   mu_off = output(ny/2,mu)
   T_off = output(ny/2,T)
 
+
+  print*,((T_off/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_off + ST) )
   mu_0 = mu_off / ((T_off/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_off + ST) )
-  !mu_0 = output(1,mu)
+  !mu_0 = output(ny/2,mu)
 
   !U_0 = 31788.0D0 !output(ny/2,u)
   !mu_0 = U_0 * rho_0 * del_BL / Re_BL         ! Physical viscosity based on inlet parameters
-  mu_0 = mu_0 * fudge  
+  !mu_0 = mu_0 * fudge  
 
 
   T_w = ( output(1,T) + output(ny,T) ) / 2.0D0
   mu_w = mu_0 * (T_w/T_0)**(3.0D0/2.0D0) * (T_0 + ST) / (T_w + ST)
   mu_w = output(1,mu)
  
-  print*,'Mu(infty)',mu_0
-  print*,'Mu(wall)',mu_w
-  print*,'T(wall)',T_w
+  print*,'Mu(infty)',mu_0, T_0
+  print*,'Mu(FS)   ',mu_off,T_off
+  print*,'Mu(wall) ',mu_w,T_w
 
 
   dudy = ( output(2,u) - output(1,u) )/ ( output(2,y_c) - output(1,y_c) )
