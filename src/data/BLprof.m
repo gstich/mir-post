@@ -62,7 +62,7 @@ for i=1:size(res,2)
     utau_i = res(i).data(1,key.utau);
     uvd = res(i).data(:,key.uvd);
     uvd = uvd * utau_i / utau;
-    semilogx(y,uvd,res(i).sym);hold on;
+    semilogx(y,uvd,res(i).sym,'LineWidth',LW);hold on;
 end
 figure(1);
 xlim([1 2e3]);
@@ -82,7 +82,7 @@ for i=1:size(res,2)
     uu = sqrt( res(i).data(:,key.uu) / utau^2 );    
     vv = sqrt( res(i).data(:,key.vv) / utau^2 );
     ww = sqrt( res(i).data(:,key.ww) / utau^2 );
-    plot(y,uu,res(i).sym,y,vv,res(i).sym,y,ww,res(i).sym);hold on;
+    plot(y,uu,res(i).sym,y,vv,res(i).sym,y,ww,res(i).sym,'LineWidth',LW);hold on;
 end
 
 figure(2);
@@ -91,7 +91,7 @@ ylim([0 3.5])
 box on;
 h1 = xlabel(['$y/ \delta$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
-h2 = ylabel('$ (u_i)_{rms} / u_\tau $');
+h2 = ylabel('$ \sqrt{u^\prime_i u^\prime_i} / u_\tau $');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
 
