@@ -134,14 +134,14 @@ PROGRAM yplus
 
   !! Scale y
   del = mu_w / ( rho_w * utau )
-  output(:,y_c) = output(:,y_c) / del
+  output(:,y_c) = output(:,y_c) !/ del
   off = output(1,y_c)
   output(:,y_c) = output(:,y_c) - off
   print*,'Del',del
 
 
   !! Scale velocity
-  output(:,u) = output(:,u) / utau
+  output(:,u) = output(:,u) !/ utau
 
 
   !! Van Driest transformation

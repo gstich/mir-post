@@ -2,15 +2,27 @@
 clc;
 
 % Some parameters for ease of use
+X=20; Y=21; U=1; V=2; W=3; RHO=5; P=4; T=6;UU=7;VV=8;WW=9;
+MU=16;MUa=17;MUb=18;MUc=19;
 
-X=15; Y=16; U=1; V=2; W=3; RHO=5; P=4; T=5;UU=6;VV=7;WW=8;
+Ru = 8.314472e7;
+mw = 28.966;
+R = Ru/mw;
+
 
 t1 = 550;
-t2 = 600;
+t2 = 580;
 Nwall = 135;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
- 
+ofile = '../data/BLprof/medium.dat';
+
+t1 = 800;
+t2 = 840;
+Nwall = 87;
+path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
+ofile = '../data/BLprof/coarse.dat'; 
+
 if ~exist('Pmean')
     Pmean = sum_planes(path,'post',t1,t2);
 end
@@ -34,14 +46,28 @@ Yprof = Yprof / (2*buff + 1);
 
 
 % Thermo-dynamic vars
-Mach = 1.0;
-ReBL = 5e3;
-delBL= 1.5e-1;
+Pinitial = 1e6;
+Tinitial = 300;
+NPR = 1.7;
+Pin = .5283;
+rhoin = .63395;
+Mach = .99997;
+ReBL = 10e3;
+delBL= 2.0e-1;
 gamma = 1.4;
-Pin  =   Pmean(1,ny/2, P );
-rhoin  = Pmean(1,ny/2,RHO);
-Uin = Mach*sqrt(Pin*gamma/rhoin);
-mu_0 = Uin * rhoin * delBL / ReBL;
+
+%Pin  =   Pmean(1,ny/2, P );
+%rhoin  = Pmean(1,ny/2,RHO);
+%Uin = Pmean(1,ny/2,U) %Mach*sqrt(Pin*gamma/rhoin);
+%mu_0 = Uin * rhoin * delBL / ReBL
+
+rhoin = rhoin*NPR*Pinitial/(Tinitial*R);
+Pin = Pin*NPR*Pinitial                    ;
+Uin = Mach*sqrt(Pin*gamma/rhoin)         ;
+ein = (Pin/(gamma-1))/rhoin            ;
+Tin = Pin / (rhoin * R)               ;
+mu_0 = Uin * rhoin * delBL / ReBL       
+  
 
 
 
@@ -50,9 +76,9 @@ mu_0 = Uin * rhoin * delBL / ReBL;
 T_0 = 273.15;  % Kelvin reference temperature
 ST = 110.4;    % Sutherland temperature
 
-T_wall = Yprof(1,1,T);
-mu_w = mu_0 * ((T_wall/T_0)^(3.0D0/2.0D0) * (T_0 + ST) / (T_wall + ST) );
-mu_w = 9.1e-4;
+T_wall = Yprof(1,1,T)
+mu_w = mu_0 * ((T_wall/T_0)^(3.0D0/2.0D0) * (T_0 + ST) / (T_wall + ST) )
+mu_w = (Yprof(1,1,MU) + Yprof(1,1,MU) )/ 2    %9.1e-4;
 
 % Scaling
 rho_w = Yprof(1,1,RHO);
@@ -64,9 +90,19 @@ del = mu_w / ( rho_w * utau );
 figure(1);clf;
 y1 = Yprof(1,:,Y)-Yprof(1,1,Y);
 u1 = Yprof(1,:,U);
+
+% Van Driest
+uvd(1) = 0;
+for i=2:ny/2
+    dup = u1(i) - u1(i-1);
+    uvd(i) = uvd(i-1) + sqrt( Yprof(1,i,RHO) / rho_w) * dup;
+end
+
 y1 = y1/del;
 u1 = u1/utau;
-semilogx( y1,u1,'bo');
+uvd = uvd/utau;
+
+semilogx( y1,uvd,'bo');
 x1 = logspace(-1,1.2,20);
 x2 = logspace(.8,3,20);
 k = .41;
@@ -86,34 +122,34 @@ Fprof = Fprof / (2*buff + 1);
 
 
 
-figure(2);clf;
-y1 = y1*del/delBL;
+figure(2);hold on;
+y2 = y1*del/delBL;
 u1 = Fprof(1,:,UU).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'b');hold on;
+plot(y2,u1,'b');hold on;
 u1 = Fprof(1,:,VV).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'r');hold on;
+plot(y2,u1,'r');hold on;
 u1 = Fprof(1,:,WW).*Yprof(1,:,RHO)/tauw;
 u1 = sqrt(u1);
-plot(y1,u1,'g');hold on;
+plot(y2,u1,'g');hold on;
 
 
 
 xlim([0 2])
 
 MT = 0;
-y1 = y1*delBL;
+y3 = y2*delBL;
 u1 = Yprof(1,:,U);
 rho = Yprof(1,:,RHO);
 u0 = u1(end);
 uM = u1.*rho/u0/rhoin.*(1-u1/u0);
-MT = trapz(y1,uM);
+MT = trapz(y3,uM);
 
 Re_theta = u0*rhoin*MT/mu_0
 
 uM = 1-u1.*rho/u0/rhoin;
-DT = trapz(y1,uM);
+DT = trapz(y3,uM);
 Re_D = u0*rhoin*DT/mu_0
 %for i=1:ny/2
 %    MT = MT + u1(i)/u0*(1-u1(i)/u0);
@@ -135,4 +171,23 @@ figure(2);
 xlabel('y/delta');
 ylabel('uu');
 
+pprof(:,1) = Yprof(1,:,Y);
+pprof(:,2) = y1;
+pprof(:,3) = del + 0*y1;
+pprof(:,4) = Yprof(1,:,U);
+pprof(:,5) = u1;
+pprof(:,6) = uvd;
+pprof(:,7) = utau + 0*u1;
+pprof(:,8) = Yprof(1,:,UU);
+pprof(:,9) = Yprof(1,:,VV);
+pprof(:,10) = Yprof(1,:,WW);
+pprof(:,11) = delBL + 0*y1;
+pprof(:,12) = tauw + 0*y1;
+
+key1 = '%% < 1-5  > y(cm), y+, del, u(cm/s),u+';
+key2 = '%% < 6-10 > uvd, utau, uu, vv, ww';
+key3 = '%% < 11-12> delBL, tauw';
+dlmwrite(ofile,key1);
+dlmwrite(ofile,key2,'-append');
+dlmwrite(ofile,pprof,'delimiter',' ','-append');
 
