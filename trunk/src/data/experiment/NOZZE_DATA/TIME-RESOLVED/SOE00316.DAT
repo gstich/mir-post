@@ -1,0 +1,25 @@
+
+Date =                                  Friday, February 29, 2008	
+Time =                                  2:09 PM	
+Upper Nozzle Configuration =            Divergent 	
+Lower Nozzle Configuration =            Divergent 	
+Upper Exit Height  (in) =               0.560000	
+Upper Exit Angle (deg) =                0.000000	
+Lower Exit Height (in) =                0.560000	
+Lower Exit Angle (deg) =                0.000000	
+Aspect Ratio =                          3.570000	
+Area Ratio =                            1.600000	
+Target NPR =                            1.700000	
+Actual NPR =                            1.703229		
+Sample Rate (Hz) =   		        200000.00000	
+Atmospheric Pressure (psia) =           14.700000		
+P1 m =                                  3.030500	
+P1 b =                                  -0.798400	
+P2 m =                                  2.948200	
+P2 b =                                  -0.715200	
+P3 b =                                  2.944700	
+P3 b =                                  0.524300	
+P4 b =                                  2.943500	
+P4 b =                                  -1.257100	
+P5 b =                                  2.922600	
+P5 b =                                  -0.596500
