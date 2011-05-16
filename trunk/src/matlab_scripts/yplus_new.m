@@ -9,19 +9,32 @@ Ru = 8.314472e7;
 mw = 28.966;
 R = Ru/mw;
 
+resolution = 'medium';
 
+switch resolution
+    case 'medium',
 t1 = 550;
 t2 = 580;
 Nwall = 135;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
 ofile = '../data/BLprof/medium.dat';
-
+    case 'coarse',
 t1 = 800;
 t2 = 840;
 Nwall = 87;
+buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
 ofile = '../data/BLprof/coarse.dat'; 
+    case 'fine',
+t1 = 195;
+t2 = 206;
+Nwall = 174;
+buff = 5;
+path = '/p/lscratchd/olson45/nozzle/post_procfine3d';
+ofile = '../data/BLprof/fine.dat'; 
+
+end
 
 if ~exist('Pmean')
     Pmean = sum_planes(path,'post',t1,t2);
@@ -99,7 +112,7 @@ for i=2:ny/2
 end
 
 y1 = y1/del;
-u1 = u1/utau;
+up = u1/utau;
 uvd = uvd/utau;
 
 semilogx( y1,uvd,'bo');
@@ -187,7 +200,7 @@ pprof(:,12) = tauw + 0*y1;
 key1 = '%% < 1-5  > y(cm), y+, del, u(cm/s),u+';
 key2 = '%% < 6-10 > uvd, utau, uu, vv, ww';
 key3 = '%% < 11-12> delBL, tauw';
-dlmwrite(ofile,key1);
-dlmwrite(ofile,key2,'-append');
+dlmwrite(ofile,key1,'delimiter',' ');
+dlmwrite(ofile,key2 ,'delimiter',' ','-append');
 dlmwrite(ofile,pprof,'delimiter',' ','-append');
 

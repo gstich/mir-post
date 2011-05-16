@@ -1,0 +1,141 @@
+
+
+*******************************************************************************
+Mon May 16 13:15:43 2011
+
+
+FIT:    data read from 'medium.dat' u 1:2
+        format = x:z
+	y range restricted to [-0.400000 : 0.00000]
+        #datapoints = 37
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 0.926678          delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 0.725102
+
+initial set of free parameter values
+
+m               = 1
+b               = 1
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 1.26317e-05
+rel. change during last iteration : -1.78531e-08
+
+degrees of freedom    (FIT_NDF)                        : 35
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.000600755
+variance of residuals (reduced chisquare) = WSSR/ndf   : 3.60906e-07
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+m               = -0.0738417       +/- 0.0008567    (1.16%)
+b               = 0.888561         +/- 0.0001945    (0.02189%)
+
+
+correlation matrix of the fit parameters:
+
+               m      b      
+m               1.000 
+b               0.862  1.000 
+
+
+*******************************************************************************
+Mon May 16 13:16:20 2011
+
+
+FIT:    data read from 'medium.dat' u 1:2
+        format = x:z
+	y range restricted to [-0.100000 : 0.100000]
+        #datapoints = 19
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 9.56916e-05       delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 0.708344
+
+initial set of free parameter values
+
+m               = -0.0738417
+b               = 0.888561
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 1.5389e-06
+rel. change during last iteration : -5.91224e-08
+
+degrees of freedom    (FIT_NDF)                        : 17
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.000300871
+variance of residuals (reduced chisquare) = WSSR/ndf   : 9.05236e-08
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+m               = -0.0988935       +/- 0.001167     (1.18%)
+b               = 0.88687          +/- 6.904e-05    (0.007785%)
+
+
+correlation matrix of the fit parameters:
+
+               m      b      
+m               1.000 
+b               0.021  1.000 
+
+
+*******************************************************************************
+Mon May 16 13:18:48 2011
+
+
+FIT:    data read from '../experiment/NOZZLE_DATA/MEAN/CENTERLINE/MeanCentPress.txt' u 1:2
+        format = x:z
+	y range restricted to [-0.100000 : 0.100000]
+        #datapoints = 15
+        residuals are weighted equally (unit weight)
+
+function used for fitting: g(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 0.230894          delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 0.708365
+
+initial set of free parameter values
+
+n               = 1
+h               = 1
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 5.81033e-05
+rel. change during last iteration : -7.25424e-06
+
+degrees of freedom    (FIT_NDF)                        : 13
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.00211412
+variance of residuals (reduced chisquare) = WSSR/ndf   : 4.46948e-06
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+n               = -0.216641        +/- 0.009155     (4.226%)
+h               = 0.902773         +/- 0.0005465    (0.06053%)
+
+
+correlation matrix of the fit parameters:
+
+               n      h      
+n               1.000 
+h              -0.047  1.000 
