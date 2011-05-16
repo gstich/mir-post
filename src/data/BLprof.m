@@ -3,9 +3,10 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-pdfE = true;
+pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
+res(3).name = 'fine';
 ref = 2;
 
 % Figure name
@@ -15,6 +16,7 @@ figs(2).name = 'rms';
 % Plot symbols
 res(1).sym = '--';
 res(2).sym = '-.';
+res(3).sym = '-';
 
 % Figure option
 LW = 2;         % LineWidth
