@@ -1,15 +1,16 @@
 &query_vars
-ix1 = 570
-iy1 = 100
-iz1 = 128
-ioff = 2
-koff = 2
-joff = 2 
+ix1 = 630
+iy1 = 107
+iz1 = 133
+ioff = 3
+koff = 3
+joff = 3 
+outfile = 'ptot_time.med2'
 /
 
 &INPUT 
 t1 = 0200
-tf = 0430
+tf = 0788
 nx = 768
 ny = 256
 nz = 256
