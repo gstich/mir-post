@@ -13,6 +13,7 @@ MODULE query_data
   INTEGER :: ioff = 0       ! Width of
   INTEGER :: joff = 0       ! Width of
   INTEGER :: koff = 0       ! Width of
+  CHARACTER(LEN=90) :: outfile = "query.dat"
 
 END MODULE query_data
 
@@ -32,7 +33,7 @@ PROGRAM query
   CHARACTER(LEN=flen) :: inputFile
 
   INTEGER :: nviz,iviz,funit=34
-  NAMELIST /query_vars/ ix1,iy1,iz1,ioff,joff,koff
+  NAMELIST /query_vars/ ix1,iy1,iz1,ioff,joff,koff,outfile
 
 
   !! General input file for t1,tf,nx,ny,nz,filename
@@ -60,16 +61,16 @@ PROGRAM query
      ! Get the next viz-directory and call kernal
      CALL viz_name(jobdir,iviz,vfile)
      !CALL POINT(output,vfile,ix1,iy1,iz1)
-     CALL POINT_W(output,vfile,ix1,iy1,iz1,3,0,2)
+     CALL POINT_W(output,vfile,ix1,iy1,iz1,ioff,joff,koff)
      Rout = output
      PRINT*,'Query time:',iviz
 
      IF (i==1) THEN
-        OPEN(UNIT=33,FILE='query.dat',FORM='FORMATTED',STATUS='UNKNOWN')
-        WRITE(33,*) '# X, Y, Z:',Rout(x_c),Rout(y_c),Rout(z_c) 
-        WRITE(33,*) '# 1-4    : step,U,V,W'
-        WRITE(33,*) '# 5-7    : P,T,rho'
-        WRITE(33,*) '# 8-10   : mu,beta,ktc'
+        OPEN(UNIT=33,FILE=TRIM(outfile),FORM='FORMATTED',STATUS='UNKNOWN')
+        WRITE(33,*) '%# X, Y, Z:',Rout(x_c),Rout(y_c),Rout(z_c) 
+        WRITE(33,*) '%# 1-4    : step,U,V,W'
+        WRITE(33,*) '%# 5-7    : P,T,rho'
+        WRITE(33,*) '%# 8-10   : mu,beta,ktc'
      END IF
 
      WRITE(33,'(10ES12.4)') REAL(iviz),Rout(U),Rout(V),Rout(W), &
@@ -77,6 +78,7 @@ PROGRAM query
 
   END DO
 
+  CLOSE(33)
 
   PRINT*,'Point query: (I,J,K) = (',ix1,',',iy1,',',iz1,')'
   PRINT*,'X, Y, Z    :',Rout(x_c),Rout(y_c),Rout(z_c)
