@@ -6,8 +6,8 @@ close all;
 path = 'static/';
 base = 'pressure_0';
 
-path = 'total/';
-base = 'ptotal_0';
+path = '../visit_scripts/';
+base = 'ptot_';
 
 ext = '.dat';
 xnum = 1;
@@ -15,17 +15,17 @@ ynum = 2;
 znum = 3;
 Vnum = 4;
 
-npts = 153;
-t0 = 800;
-tf = 941;
+npts = 201;
+t0 = 560;
+tf = 569;
 p0 = 1e6;
-Ht = 2.23;
+Ht = 1.78;
 
 Vdata = zeros(npts,tf-t0+1,2);
 
 % Read the entire data-set by looping through the files
 for i=t0:tf
-    file = [ path, base, int2str(i),ext];
+    file = [ path, base, num2str(i,'%4.4i'),ext];
     disp(file);
     d = load(file);
     
@@ -60,31 +60,6 @@ plot(y,prms/p0);
 
 
 % Read in the exp. data file
-xx = [-2,2];
-yy = [0.0,0.6];
-
-figure(2);
-exp = imread('ptot_rms.png');
-%b = bwboundaries(exp);
-imshow(exp);
-xpix = size(exp,2);
-ypix = size(exp,1);
-
-
-xdata = y;
-ydata = prms/p0;
-
-xdata = (xdata - xx(1) ) / (xx(2)-xx(1));
-xdata = xdata * xpix;
-
-ydata = -(ydata - yy(2)) / (yy(2)-yy(1));
-ydata = ydata * ypix;
-
-hold on;
-plot(xdata,ydata,'b--','LineWidth',2);
-
-
-% Read in the exp. data file
 
 % Data extents on plot
 xx = [-2,2];
@@ -97,7 +72,8 @@ UR = [668, 20];
 figure(3);
 exp = imread('ptot_rms2.png');
 
-imshow(exp);
+%imshow(exp);
+image(exp);
 xpix = size(exp,2);
 ypix = size(exp,1);
 
