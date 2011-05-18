@@ -1,11 +1,11 @@
 &query_vars
 ix1 = 630
 iy1 = 107
-iz1 = 133
+iz1 = 240
 ioff = 3
 koff = 3
 joff = 3 
-outfile = 'ptot_time.med2'
+outfile = 'ptot_time.med5'
 /
 
 &INPUT 

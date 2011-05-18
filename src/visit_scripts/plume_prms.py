@@ -10,10 +10,6 @@ from math import sqrt;
 # Script must be issued on the machine which will be used
 Source("visit_engine.py")
 
-# Launch/request the procs
-e = Engine()
-e.open(nprocs=16,part="pbatch",bank="views",rtime="240:00")
- 
 
 
 def get_data(VAR,time):
@@ -66,10 +62,6 @@ p1 = (x0 + xp, y0 + yp, z0);
 
 npts = 200;
 
-LOA = GetGlobalLineoutAttributes();
-LOA.numSamples = npts;
-LOA.samplingOn = 1;
-SetGlobalLineoutAttributes(LOA);
 
 ## Read in command line arg
 if len(sys.argv) !=8:
@@ -79,18 +71,27 @@ print 'Database set to: %s' % DB
 t0 = int(sys.argv[5])
 print 't0 set to      : %s' % t0
 tf = int(sys.argv[6])
-print 't0 set to      : %s' % tf
+print 'tf set to      : %s' % tf
 Var = sys.argv[7]
 print 'Variable set to: %s' % Var
 
+# Launch/request the procs
+e = Engine()
+e.open(nprocs=32,part="pbatch",bank="views",rtime="120:00")
+
+LOA = GetGlobalLineoutAttributes();
+LOA.numSamples = npts;
+LOA.samplingOn = 1;
+SetGlobalLineoutAttributes(LOA);
 
 OpenDatabase(DB)
 SetTimeSliderState(t0)
-AddPlot("Pseudocolor", Var)
-DrawPlots()
 DefineScalarExpression("xc", "coord(%s)[0]" % Mesh)
 DefineScalarExpression("yc", "coord(%s)[1]" % Mesh)
 DefineScalarExpression("zc", "coord(%s)[2]" % Mesh)
+DefineScalarExpression("ptot","pressure+density/2*velocity_magnitude^2");
+AddPlot("Pseudocolor", Var)
+DrawPlots()
 
 
 # Do a lineout on all 4 variables to produce 4 curves.
