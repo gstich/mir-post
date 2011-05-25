@@ -81,7 +81,7 @@ e.open(nprocs=32,part="pbatch",bank="views",rtime="120:00")
 
 LOA = GetGlobalLineoutAttributes();
 LOA.numSamples = npts;
-LOA.samplingOn = 1;
+#LOA.samplingOn = 1;
 SetGlobalLineoutAttributes(LOA);
 
 OpenDatabase(DB)

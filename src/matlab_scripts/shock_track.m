@@ -15,11 +15,11 @@ dt = 5.0e-6;
 data = '/p/lscratchd/olson45/nozzle/';
 dir = [data,'nozzlecoarse3d/'];
 pa = zeros(512,4);
-intv = [300,1139];
+intv = [500,1653];
 
 %dir = [data,'nozzlemedium3d/'];
 %pa = zeros(768,4);
-%intv = [350,665];
+%intv = [200,903];
 
 %weight = abs(intv(1)-intv(2)) + 1;
 
@@ -41,12 +41,12 @@ for i=intv(1):intv(2)
     [xs,ps] = get_shock_location(x,val);
     XSS(ii,1) = xs;
     
-    val = mid;
-    [xs,ps] = get_shock_location(x,val);
+    %val = mid;
+    %[xs,ps] = get_shock_location(x,val);
     XSS(ii,2) = xs;
     
-    val = bot;
-    [xs,ps] = get_shock_location(x,val);
+    %val = bot;
+    %[xs,ps] = get_shock_location(x,val);
     XSS(ii,3) = xs;
     
     
