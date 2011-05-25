@@ -17,8 +17,10 @@ Vnum = 4;
 
 npts = 201;
 t0 = 560;
-tf = 569;
+tf = 595;
 p0 = 1e6;
+NPR = 1.7;
+pres = p0*NPR;
 Ht = 1.78;
 
 Vdata = zeros(npts,tf-t0+1,2);
@@ -55,7 +57,7 @@ prms = sqrt(prms);
 y = Vdata(:,1,1);
 y = y/Ht;
 figure(1);
-plot(y,prms/p0);
+plot(y,prms/pres);
 
 
 
@@ -79,7 +81,7 @@ ypix = size(exp,1);
 
 
 xdata = y;
-ydata = prms/p0;
+ydata = prms/pres;
 
 xdata = (xdata - xx(1) ) / (xx(2)-xx(1));
 xdata = xdata * (UR(1)-LL(1)) + LL(1);
