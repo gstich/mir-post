@@ -1,0 +1,332 @@
+\documentclass[]{aiaa-tc}% insert '[draft]' option to show overfull boxes
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+ \title{Large-Eddy Simulation of an over-expanded planar nozzle}
+
+ \author{
+ 	Britton J. Olson
+    \thanks{Graduate Student, Department of Aeronautics and Astronautics, Ph. (925) 550-3255} \  and 
+  \ Sanjiva K. Lele 
+  \thanks{Professor, Department of Aeronautics and Astronautics and Department of Mechanical Engineering, Ph. (650) 723-7721}\\
+  {\normalsize\itshape
+   Stanford University, Stanford, CA 94305}
+ }
+
+ % Data used by 'handcarry' option if invoked
+ \AIAApapernumber{2011}
+ \AIAAconference{41st AIAA Fluid Dynamics Conference and Exhibit, June 2011, Honolulu, Hawaii}
+ % Shock-wave/boundary-layer interactions
+ \AIAAcopyright{\AIAAcopyrightD{2011}}
+ 
+ \lhead{ \scriptsize{41st AIAA Fluid Dynamics Conference and Exhibit \\ June 2011, Honolulu, Hawaii}}
+ \rhead{ \scriptsize{Shock-wave/boundary-layer interactions}}
+ 
+ 
+ % Define commands to assure consistent treatment throughout document
+ \newcommand{\eqnref}[1]{(\ref{#1})}
+ \newcommand{\class}[1]{\texttt{#1}}
+ \newcommand{\package}[1]{\texttt{#1}}
+ \newcommand{\file}[1]{\texttt{#1}}
+ \newcommand{\BibTeX}{\textsc{Bib}\TeX}
+ 
+ \newcommand{\divg}{\nabla\cdot}
+\newcommand{\grad}{\nabla}
+\newcommand{\V}{\vec{\mathbf{v}}}
+\newcommand{\pd}[2]{\frac{\partial#1}{\partial#2}}
+\newcommand{\pth}[1]{\left( #1 \right)}
+\def\bgk#1{\mbox{\boldmath $#1$}}
+\def\vec#1{\bgk{ #1}}
+\def\ten#1{\underline{\bgk{ #1}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Large-eddy simulation of an over-expanded planar nozzle is performed to elucidate the complex interaction between the incoming boundary layer, the standing shock wave and the separated shear layer downstream of the shock.  A high-order compact differencing scheme, which includes artificial diffusivities for capturing discontinuities, is used to resolve turbulent structures while introducing very limited amounts of numerical dissipation.   This numerical simulation seeks to model the experiment performed by Papamoschou et.al. \cite{Papam:09,Papam:10,Papam:06} and shed light on the underlying physics of the shock-boundary layer interaction and the Free-Shock Separation \cite{Ostlund:05} (FSS) which is present in over-expanded super-sonic nozzles.  To achieve a feasible cost for computing a solution, the Reynolds number of the simulation is approximately $1/15^{th}$ of the experimental value but the geometrical ratio of the boundary layer thickness to throat is duplicated.  Results of a coarse mesh simulation presented in this conference paper abstract compare qualitatively well with those obtained in the experiment despite limited resolution.  The LES captures the unsteady fluctuation of the shockwave as it interacts with the incoming turbulent boundary layer and the separated shear layer downstream.  Data from the simulation allow for a much more in-depth exploration of the physics and will lead to a better understanding of the unsteady shock wave behavior.  The final paper will focus on the results from finer mesh simulations and include a mesh sensitivity study.
+\end{abstract}
+
+\section*{Nomenclature}
+
+\begin{tabbing}
+  XXXXXXXX \= \kill% this line sets tab stop
+  $\beta$ \> bulk viscosity \\
+  $\Delta\vec{x}$ \> grid spacing \\
+  $\delta$  \> boundary layer thickness (99\% velocity thickness) \\
+  $\ten{\delta}$ \> unit tensor \\
+  $E$ \> total energy \\
+  $\gamma$ \> ratio of specific heats \\
+  $\vec{g}$ \> gravitational acceleration \\
+  $\kappa$ \> thermal conductivity \\
+  $H_t$ \> nozzle throat height \\
+  $L_z$ \> domain extend in the span-wise direction \\
+  $\mu$ \> dynamic viscosity \\
+  $M$ \> Mach number \\
+  $N_\xi,N_\eta,N_\zeta$ \> number of grid points in computational mesh \\
+  $NPR$ \> nozzle pressure ratio, $p_{0_{i}}/p_\infty$ \\
+  $p$ \> static pressure \\
+  $\rho$ \> density \\
+  $\vec{q}$ \> heat flux \\
+  $R$ \> gas constant \\
+  $Re$ \> Reynolds number \\
+  $\ten{S}$ \> strain rate tensor \\
+  $\ten{\tau}$ \> viscous stress tensor \\
+  $t$ \> time \\
+  $T$ \> static temperature \\
+  $\vec{u}$ \> velocity vector \\
+  $\xi,\eta,\zeta$ \> generalized coordinate directions \\
+  \\
+  \textit{Subscript}\\
+  $0$ \> total or stagnation value \\
+  $e$ \> value at nozzle exit \\
+  $\infty$ \> ambient or outer-nozzle conditions \\
+  $i$ \> nozzle inflow conditions \\
+  $N$ \> experimental nozzle value \\
+  $+$ \> wall unit quantity \\
+  $rr$ \> recycling-rescaling region \\
+  $t$ \> value at nozzle throat \\
+  $w$ \> wall value \\
+ \end{tabbing}
+
+\section{Introduction}
+
+A major consideration in the design of converging-diverging nozzles is the presence, and avoidance, of shock waves.  The unsteady and axially asymmetric shock wave which can reside in supersonic nozzles, imparts large ``side loads'' on the nozzle during engine start-up or under certain over-expanded conditions.  Although the occurrence of this phenomenon can be approximated at some level, there is still a great deal which is not understood due to inherit complexities of the shock-boundary layer interaction.  Conversely, the presence of shock waves inside a nozzle has recently been shown in experiments \cite{Papam:10} to enhance the downstream mixing of the nozzle jet.  Such an outcome might be desirable for engineering applications involving combustion related flows. 
+
+
+The shock wave boundary layer separation in the nozzle has been classified into two different classes.  The first, restricted shock separation (RSS), is typical of nozzles which contain a small internal shock (such as in thrust optimised nozzles) and which are over expanded.  In this interaction, the flow separates then reattaches forming a separation bubble and is analogous to several other cononical shock boundary layer interactions which have been investigated\cite{Dussauge:09,Bookey:05}.  The second, free shock separation (FSS), is common in ideally contoured nozzles and is unique in the sense that the separated boundary layer fails to reattach downstream.  Rather there is a sub-sonic shear layer which persists down the length of the nozzle.  The coupling between the downstream separation region and the shock location is more complex for FSS than RSS and as a result is less understood\cite{Ostlund:05}.  Furthermore, the ``side loads'' tend to be the largest in magnitude in the FSS regime.
+
+Recent experiments performed by Papamoshchou et. al.\cite{Papam:09,Papam:10,Papam:06} of a simple two-dimensional extruded nozzle at Reynolds number based on nozzle height $(3-6)\times10^5$ have elucidated further the unsteady nature of the FSS.  Interesting flow features such as an asymmetric lambda-shock structure in the nozzle and largely enhanced mixing in the downstream jet of over-expanded nozzles have been observed.  These experiments quantify the shock's unsteady motion and find that there is broad-band range of frequencies present.  The higher frequencies are independent of the shock strength/location and are governed by the incoming turbulent boundary layer.  The lower frequencies, however, depend greatly on the shock strength and the shock location becomes much more unstable with increasing shock strength.  The experimental data show a very intuitive correlation between the shock location and total fluctuation downstream of the shock.  As the shock moves up/down stream, the strength of the shock will vary, thus altering the total pressure loss in the flow.  However, time resolved measurements of the turbulent boundary layer and the separated shear layer downstream are not present and therefore, it is impossible to establish correlations between them and the shock motion. To date and to our knowledge, the only simulation performed which models this experiment has been Xiao et al \cite{Xiao:07}, which constituted a steady 2d Reynolds Averaged Navier-Stokes (RANS) solution.  The study had agreeable results with the mean statistics and overall behavior of the experimental setup.  However, as is the nature of steady RANS, unsteady phenomenon are not captured and we can say no more about the unsteady coupling between boundary layer, shock location and downstream shear layer.
+
+Recently, Large Eddy Simulation (LES) has had excellent success in providing results which capture the unsteady flow physics of shock wave boundary layer interactions.\cite{Morgan:10b,Kawai:10aiaa,Touber:09,Pirozzoli:09}  Reasonable comparison to experiments at ever increasing Reynolds numbers are proving LES to be a valuable tool for engineering design and fundamental scientific research.  We wish to leverage this technique to generate a rich data set which can be interrogated at a higher level of sophistication then experimental data can afford.  Coarse mesh calculations have been completed in a relatively short amount of time and subsequent refined calculations are underway.  Data from these calculations are anticipated to be the focus of the proposed study.  We provide a brief summary of the methodology for the LES we are conducting and show preliminary results of a coarse mesh calculation which shows good qualitative agreement with the experiment.
+
+
+\section{LES}
+
+\subsection{Governing Equations}
+
+The compressible Navier-Stokes  equations can be written as:
+
+\begin{equation}
+  \pd{\rho}{t} + \divg \pth{ \rho\bgk{u} }  = 0 ,
+  \label{eq:mass}
+\end{equation}
+\begin{equation}
+  \pd{\rho\bgk{u}}{t} + \divg \pth{ \rho\bgk{u}\bgk{u} + \ten{\delta} P - \ten{\tau} } = \rho\bgk{g} ,
+  \label{eq:mom}
+\end{equation}
+\begin{equation}
+  \pd{E}{t} + \divg \pth{ \bgk{u}\pth{E+p} - \bgk{u}\cdot\ten{\tau} + \vec{q}  }  = \rho\bgk{u}\cdot\bgk{g}
+  \label{eq:energy}
+\end{equation}
+
+
+where we have,
+
+
+\begin{align}
+	\ten{\tau} &= 2 \mu \ten{S} +(\beta-\frac{2}{3}\mu) \pth{\divg\bgk{u}}  \ten{\delta}, \\
+	\ten{S} &= \frac{1}{2} \pth{  \grad \bgk{u} + \pth{ \grad \bgk{u}}^T }  ,\\
+        \vec{q} &= - \kappa \grad T, \\
+	E &=  \frac{p}{\gamma-1} + \frac{1}{2}\rho \bgk{u}\cdot\bgk{u}, \\
+	T &= \frac{p}{\rho R}
+\end{align}
+
+Equations~\ref{eq:mass}-\ref{eq:energy} are numerically solved in conservation form on a generalized curvilinear grid.  Values are computed with dimensional units and air ($\gamma=1.4$) is used as the working fluid.
+
+\subsection{Numerical Methods}
+
+
+All first derivatives comprising the gradient and divergence operators in the governing equations are computed using a 10th-order compact scheme \cite{Lele:92}.  This scheme has high wave-number resolution which is desirable in the boundary and shear layers.  High-wave number biased artificial diffusivities \cite{Kawai:10,Cook:07,CookCabot:05} are used to smooth out sharp discontinuities in the flow and are modified slightly to alleviate the harsh numerical stiffness incurred in the high aspect-ratio grid near the viscous boundary layer.
+
+The equations are advanced in time using a 5-stage, fourth-order Runge-Kutta scheme\cite{Kennedy:00} chosen for its broad stability properties in both convective and diffusive terms.  At the completion of every sub-iteration, an 8th-order filter is applied to the conserved variables to remove the top $1/10^{th}$ of wave numbers as sharply as possible.  The Courant-Friedrichs-Lewy (CFL) stability limit is near unity for the entirety of the calculation.
+
+\subsection{Mesh}
+
+The computational mesh is generated by mapping a single structured mesh to the boundary on the planar nozzle.  The same mesh then diverges and coarsens to form a background mesh which models the far-field conditions of the experiment.  The radius of the corner where the background mesh meets the nozzle mesh is larger then in the experiment for our coarse mesh simulations.  However, for the planned fine mesh simulation, this radius will be appreciable smaller and approaching the turbulent boundary layer length scale, $\delta$.  The diverging portion of the nozzle is also modeled and is discussed in the following section.  The coarse mesh calculation, whose results are briefly examined below, attempts to maintain the same ratio of nozzle throat height to boundary layer thickness as the experiment, that is $\delta/H_t$, but exceeds the observed experimental ratio by a factor of 2.  The medium and fine mesh calculations will ensure this ratio is identical to the observed experimental value.   Thus, large scale features of the experiment such as shock location and separation point are less effected by our modeled boundary layer.  For the given resolution requirements given in table~\ref{tbl:mesh}, we use a nozzle height Reynolds number of $2.5\times 10^4$.  Table~\ref{tbl:mesh} shows parameters of the completed coarse mesh and the anticipated medium and fine mesh simulations which define the wall spacing in viscous units and the overall grid size.  
+
+\begin{table}[!h]
+
+\begin{center}
+	\begin{tabular}{lcccccccr}
+	%\multicolumn{11}{c}{Mesh} \\ 
+	\hline 
+	Mesh & $N_{\xi}$ & $N_{\eta}$ & $N_{\zeta}$ & $L_z$ & $\Delta x^+_{in}$ & $\Delta y^+_{in}$ & $\Delta z^+_{in}$ & Total Pts.\\
+	\hline 
+	Coarse & 512 & 128 &              128            & 1.5$H_t$ & 40 & 1-55 & 30 & 8.39 M \\
+	Medium & 768 & 256 &              256           & 2.0$H_t$ & 30 & 1-23 & 20 & 50.33 M \\
+	Fine & 1024 & 386 &              386            & 2.3$H_t$ & 20 & 1-14 & 15 & 152.6 M
+	\end{tabular}
+\end{center}
+	\caption{Computational mesh parameters for various levels of refinement.  The value of $L_z$ of the experiment\cite{Papam:10} was $2.7H_t$ .}
+	\label{tbl:mesh}
+\end{table}
+
+
+\subsection{Boundary Conditions}
+
+The far field boundary condition is a non-reflecting characteristic boundary condition\cite{Poinsot:92} with a ``buffer'' region applied at the last few grid point which smooths out gradients and enforces the ambient conditions.  The nozzle walls are viscous and adiabatic, e.g. $\vec{u}_w=0$ and $\vec{q}_w\cdot\vec{n}_w = 0$.  The span-wise direction is periodic and the inflow values $\vec{u}_i$, $p_i$ and $\rho_i$ are given by the quasi-1d approximation.  Furthermore, it becomes computationally infeasible to resolve the boundary layer of the entire diverging section.  Rather, we begin our simulation at the throat of the nozzle and use the method of recycling-rescaling\cite{Morgan:10a,Lund:98} to continuously feed the simulation an accurately evolving turbulent boundary layer.  Figure~\ref{fig:info_3d} shows the inflow and nozzle portion of the domain and depicts the recycling-rescaling section.
+
+\begin{figure}[!htb]% order of placement preference: here, top, bottom
+ \includegraphics{figs/info_3d.png}
+ \caption{Iso-volume of $|| \nabla\rho ||$  shaded by vorticity magnitude with contours of velocity magnitude in back plane. }
+ \label{fig:info_3d}
+\end{figure}
+
+
+\section{Preliminary Results}
+
+Preliminary results from the coarse mesh simulation are presented here.  The computation ran on 256 processors for 2 days which was long enough to wash out initial transients, develop the boundary layer and capture the low frequency oscillations of the shock location.  The coarse calculation attempts to match the particular experimental configuration from Papamoschou et.al.\cite{Papam:09} with a given nozzle pressure ratio ($NPR$) of 1.77 and an area ratio ($A_e/A_t$) of 1.4.  Figure~\ref{fig:info_3d} shows the main features of the over-expanded nozzle experiment.  A normal shock wave is set up inside the nozzle and forces the turbulent boundary layer to separate.  The flow does not reattach and there is a large shear layer downstream as the flow exits into the ambient conditions outside the nozzle.
+
+\subsection{Incoming Turbulent Boundary Layer}
+
+The boundary layer statistics have converged.... see.
+
+\begin{figure}
+	\includegraphics[height=2.75in]{../../figs/mean.pdf}
+	\includegraphics[height=2.75in]{../../figs/rms.pdf}
+ 	\label{fig:BL_prof}
+\end{figure}
+
+
+Point out and qualify the shift upward from the log-law profiles.
+
+\begin{figure}
+	\includegraphics[height=2.75in]{../../figs/Pcenter.pdf}
+	\includegraphics[height=2.75in]{../../figs/Pwall.pdf}
+ 	\label{fig:P_prof}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[height=2.75in]{../../figs/dPdx.pdf}
+ 	\label{fig:dPdx}
+\end{figure}
+
+
+\begin{figure}
+	\includegraphics[height=2.75in]{../../figs/1dspancorr.pdf}
+	\includegraphics[height=2.75in]{../../figs/2dspancorr.pdf}
+ 	\label{fig:P_prof}
+\end{figure}
+
+
+\subsection{Shock Location}
+Figure~\ref{fig:schl} shows a comparison between a Schlieren photograph taken from the experiment to results taken from the coarse mesh calculation.  Contours of the density gradient magnitude ($||\nabla\rho|| $) show that the coarse mesh calculation is in good qualitative agreement with the experiment.  The shock location, (which was experimentally reported to oscillate left and right by a distance of +/- $\delta_N$ ) agrees quite well with the experiment.  Furthermore the secondary shocks or the ``aftershocks'' observed in the experiments are captured.  From the experimental Schlieren image, one can clearly observe that there are scales of motion present in the separated shear layer which are not resolved in the coarse mesh calculation, and hence the requirement for subsequent and refined simulations.
+
+
+\begin{figure}[!htb]% order of placement preference: here, top, bottom
+	\begin{center}
+	\includegraphics[width=6.1in]{figs/papam_exp.png}
+ 	\includegraphics[width=6in]{figs/papam_cLES.png}
+	\end{center}
+ 	\caption{Schlieren from experiment \cite{Papam:09} (top) and contours of $||\nabla\rho||$ from a 2d slice of the coarse mesh LES (bottom).}
+ 	\label{fig:schl}
+\end{figure}
+
+
+
+\subsection{Flow asymmetries}
+The experimentalists also observed large asymmetries in the shock structure and in the separated shear layer.  Once a preferred side was selected by the flow it was maintained through the duration of the experiment.  This preferred side varied from run to run with a uniformly random distribution.  Again the coarse mesh calculation exhibited identical behavior, selecting a preferred side and maintaining that side for the duration of the simulation.  Both the lambda shock structure and the asymmetric shear layer from the calculation are shown in Figure~\ref{fig:asym}.  We can also observe a rapid change in the turbulent structure of the flow near the wall as the flow passes through the shock wave in Figure~\ref{fig:asymBL}.  The distinct differences in the top and bottom boundary layers illustrate clearly the shock asymmetry present in the flow.
+
+
+
+\begin{figure}[!h]% order of placement preference: here, top, bottom
+	\begin{center}
+	\includegraphics[width=6in]{figs/rho_941s.png}
+	\end{center}
+ 	\caption{Contours of density from a 2d slice of the coarse mesh LES showing asymmetries in shock structure and separated shear layer}
+ 	\label{fig:asym}
+\end{figure}
+
+\begin{figure}[!h]% order of placement preference: here, top, bottom
+	\begin{center}
+	\includegraphics[width=6in]{figs/top_bottom.png}
+	\end{center}
+ 	\caption{Contours of density from a 2d slice of the coarse mesh LES at $y^+ \approx 16$ showing asymmetries in shock structure and separated shear layer for top and bottom walls.}
+ 	\label{fig:asymBL}
+\end{figure}
+
+\subsection{Outlook for subsequent LES calculations}
+The preliminary coarse mesh calculations show surprisingly good results despite the poorly resolved turbulent boundary layer.  It is expected that the medium and fine meshes will produce data which is much richer and complete in the sense that more scales of motion are resolved.  These data sets will be used to compute more quantitative statistics which will be used to compare with the experiment and to advance the understanding of this problem and its complex, underlying physics.  We also plan to conduct a parametric variation with the nozzle pressure ratio to explore the flow regimes observed in the experiments.  
+
+
+\section*{Acknowledgments}
+
+This work is supported by the Department of Energy SciDAC2 Grant (Grant DE-FC02-06-ER25787) and the DOE Computational Science Graduate Fellowship.  The authors wish to thank Dr. A. Cook and Dr. W. Cabot for providing the code which was modified for the present study.  
+
+\begin{thebibliography}{10}% maximum number of references (for label width)
+ 
+ \bibitem{Lele:92}
+ 	S.K. Lele, ``Compact Finite-Difference Schemes With Spectral-Like Resolution,'' \emph{Journal of Computational
+	Physics}, Vol. 103, pp. 16-42, 1992.
+	
+\bibitem{Poinsot:92}
+	T.J. Poinsot and S.K. Lele, ``Boundary conditions for direct simulations of compressible viscous flow,'' \emph{Journal of Computational Physics}, 101(1):104-129, 1992
+
+ \bibitem{Cook:07} 
+ 	A.W. Cook,  ``Artificial Fluid Properties for large-eddy simulation of compressible turbuelnt mixing,'' \emph{Physics of Fluids}, Volume {\bf 19}, 2007.
+	
+\bibitem{CookCabot:05}
+	A.W. Cook and W.H. Cabot, ``Hyperviscosity for shock-turbulence interactions'', \emph{Journal of Computational Physics}, Vol. 203(2):379-385, 2005
+ 
+ \bibitem{Kawai:10}
+ 	S. Kawai, S. K. Shankar and S. K. Lele, ``Assessment of localized artificial diffusivity scheme for large-eddy simulation of compressible turbulent flows,'' \emph{Journal of Computational Physics}, {\bf 		229} (5), 1739-1762, (2010).
+	
+ \bibitem{Kawai:10aiaa}
+	S. Kawai, S.K. Lele, ``Large-Eddy Simulation of Jet Mixing in Supersonic Crossﬂows,'' \emph{AIAA JOURNAL} Vol. 48, No. 9, September 2010.
+	
+ \bibitem{Touber:09}
+ 	E. Touber and N.D. Sandham, ``Large-eddy simulation of low-frequency unsteadiness in a turbulent shock-induced separation bubble,'' \emph{Theoretical and Computational Fluid Dynamics} Volume 23, Number 2, 79-107
+
+ \bibitem{Pirozzoli:09}
+ 	S. Pirozzoli, A. Beer, M. Bernardini and F. Grasso, ``Computational analysis of impinging shock-wave boundary layer interaction under conditions of incipient separation,'' \emph{Shock Waves} Volume 19, Number 6, 487-497
+
+ \bibitem{Kennedy:00}
+ 	C.A. Kennedy, M.H. Carpenter and R.M. Lewis, ``Low-storage, explicit Runge-Kutta schemes for the compressible Navier-Stokes equations,'' \emph{Appl. Numer. Math.} {\bf 35}, 177 (2000) 
+ 
+ \bibitem{Ostlund:05}
+ 	J. Ostlund and B. Muhammad-Klingmann,``Supersonic flow separation with application to rocket engine nozzles,'' \emph{Appl. Mech. Rev.} {\bf 58}, 143 (2005).
+ 
+ \bibitem{Papam:10}
+ 	A.D. Johnson and D. Papamoschou, ``Instability of shock-induced nozzle flow separation,'' \emph{Physics of Fluids}, Volume {\bf 22}, (2010).
+	
+ \bibitem{Papam:09}
+ 	D. Papamoschou, A. Zill, A. Johnson, ``Supersonic flow separation in planar nozzles,'' \emph{Shock Waves}, {\bf 19}, 171 (2009).
+
+ \bibitem{Xiao:07}
+ 	Q. Xiao, H.M. Tsai and D. Papamoschou, ``Numerical investigation of supersonic flow separation,'' \emph{AIAA J.} {\bf 45}, 532 (2007).
+	
+ \bibitem{Papam:06}
+ 	D. Papamoschou and A. Johnson, ``Unsteady phenomena in supersonic nozzle flow separation,'' \emph{AIAA J.} 2006-3360, (2006).
+	
+ \bibitem{Bourgoing:05}
+ 	A. Bourgoing and Ph. Reijasse, ``Experimental analysis of unsteady separated flows in a super-sonic planar nozzle,'' \emph{Shock Waves} {\bf 14}, 251 (2005).
+	
+ \bibitem{Dussauge:09}
+ 	S. Piponniau, J.P. Dussauge, J.F. Debieve and P. Dupont, ``A simple model for low-frequecy unsteadiness in shock induced separation,'' \emph{J. Fluid Mech.}, vol. {\bf 629}, pp. 87-108 (2009).
+	
+ \bibitem{Lund:98}
+ 	T.S. Lund, X. Wu, and K.D. Squires, ``Generation of Turbulent Inflow Data for Spatially-Developing Boundary Layer 
+Simulations,'' \emph{Journal of Computational Physics}, Vol. 140, No. 2, 1998, pp. 233-258.
+
+ \bibitem{Morgan:10a} 
+ 	B. Morgan, J. Larsson, S. Kawai and S.K. Lele, ``An Improved Method for Prescribing Turbulent Boundary Layer 
+Inflow'', \emph{AIAA Journal}, submitted for publication, June, 2010.
+
+ \bibitem{Morgan:10b} 
+ 	B. Morgan,S. Kawai and S.K. Lele, ``Large-Eddy Simulation of an Oblique Shock Impinging on a 
+Turbulent Boundary Layer'', \emph{AIAA Journal}, 2010-4467, 2010.
+ 	
+ \bibitem{Bookey:05}
+ 	P.B. Bookey, C. Wyckham, A.J. Smits, and M.P. Martin, ``New Experimental Data of STBLI at DNS/LES Accessible 
+Reynolds Numbers,''  AIAA Paper 2005-309, Jan. 2005.
+
+	
+ 
+	
+\end{thebibliography}
+
+\end{document}
+
+% - Release $Name:  $ -

@@ -16,13 +16,13 @@ figs(2).name = 'Pwall';
 figs(3).name = 'dPdx';
 
 % Plot symbols
-res(1).sym = '--';
-res(2).sym = '-.';
+res(1).sym = 'k--';
+res(2).sym = 'k-.';
 
 % Figure option
 LW = 2;         % LineWidth
-FSn = 18;       % FontSize labels
-FSa = 12;       % FontSize axis
+FSn = 25;       % FontSize labels
+FSa = 18;       % FontSize axis
 
 % Data format key
 key.xcen = 1;       key.pcen = 2;        key.xwall = 3;
@@ -35,12 +35,12 @@ key.pwall(2) = 4;
 efile = '../data/experiment/NOZZLE_DATA/MEAN/CENTERLINE/MeanCentPress.txt';
 PexpC = load(efile);
 figure(1);hold on;
-plot(PexpC(:,1),PexpC(:,2),'r-','LineWidth',LW)
+plot(PexpC(:,1),PexpC(:,2),'ko','LineWidth',LW)
 
 efile = '../data/experiment/NOZZLE_DATA/MEAN/WALL/MeanWallPress.txt';
 PexpW = load(efile);
 figure(2);hold on;
-plot(PexpW(:,1),PexpW(:,2),'ro','LineWidth',LW)
+plot(PexpW(:,1),PexpW(:,2),'ko','LineWidth',LW)
 
 
 
@@ -71,7 +71,7 @@ for i=1:size(res,2)
 end
 
 figure(1);
-xlim([0 8]);
+xlim([0 7]);
 box on;
 h1 = xlabel(['$x/H_t$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
@@ -115,15 +115,29 @@ x = PexpW(:,1);
 
 dPdx = ddx(p)./ddx(x);
 %for i=1:100;dPdx = gfilter(dPdx);end;
-plot(x,dPdx*beta,'ro','LineWidth',LW);hold on;
+plot(x,dPdx*beta,'ko','LineWidth',LW);hold on;
 
 % Spalart DNS
 x = linspace(-1,3,100);
-p = x*0 + -.3;
-plot(x,p,'k--');
+p = x*0 ;%+ -.3;
+plot(x,p,'k--','LineWidth',1.5);
+
+% Throat location
+%p = linspace(-2,4,10);
+%x = p*0;
+%plot(x,p,'k');
+
+% Add the text
+tx = 0.75;
+ty = 0.2;
+h1 = text(tx,ty,'Adverse','HorizontalAlignment','center');
+h2 = text(tx,-ty,'Favorable','HorizontalAlignment','center');
+set(h1, 'interpreter', 'latex','FontSize',FSn)
+set(h2, 'interpreter', 'latex','FontSize',FSn)
 
 figure(3);
 xlim([-1,2.5])
+ylim([-2,1])
 box on;
 h1 = xlabel(['$x/H_t$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
@@ -131,6 +145,10 @@ h2 = ylabel('$\frac{dP}{dx} \frac{\delta^*}{\tau_w}$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
 
+% Fix to make sure Latex fits in
+a = get(gca,'Position');
+a(1) = a(1)*1.15;
+set(gca,'Position',a);
 
 
 % Save the figures and convert them to .pdf

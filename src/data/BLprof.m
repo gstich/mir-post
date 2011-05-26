@@ -3,7 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-pdfE = true;
+%pdfE = true;
+pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
@@ -22,8 +23,8 @@ res(3).sym = 'k-';
 
 % Figure option
 LW = 2;         % LineWidth
-FSn = 18;       % FontSize labels
-FSa = 12;       % FontSize axis
+FSn = 25;       % FontSize labels
+FSa = 18;       % FontSize axis
 
 % Data format key
 key1 = '%% < 1-5 > y(cm), y+, del, u(cm/s),u+';
@@ -69,16 +70,17 @@ for i=1:size(res,2)
     semilogx(y,uvd,res(i).sym,'LineWidth',LW);hold on;
 end
 figure(1);
-xlim([1 2e3]);
-ylim([0 25]);
-box on;
+
+
 h1 = xlabel(['$y^+$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$u^+$');
 set(h2,'Interpreter','latex','FontSize',FSn);
+box on;
 set(gca,'FontSize',FSa);
-%legend('Coarse','Medium','Fine');
-
+xlim([1 2e3]);
+ylim([0 25]);
+set(gca,'Position',[.13,.13,.775,.8107])
 
 figure(2);clf;
 
@@ -91,10 +93,24 @@ for i=1:size(res,2)
 end
 
 figure(2);
+
+h1 = xlabel(['$y/\delta$']);
+set(h1,'Interpreter','latex','FontSize',FSn);
+h2 = ylabel('$\sqrt{\overline{u^\prime u^\prime}_i}/u_\tau$');
+set(h2,'Interpreter','latex','FontSize',FSn);
+set(gca,'FontSize',FSa);
+box on;
+set(gca,'FontSize',FSa);
 xlim([0 1.2])
 ylim([0 3.5])
+set(gca,'Position',[.13,.13,.775,.8107])
 
-%legend('Coarse','Medium','Fine');
+
+% Load and plot Spalart DNS
+%dns = load('BLprof/spalart_dns.dat');
+%figure(1);hold on;
+%plot( 10.^dns(:,1), dns(:,2),'k-');
+
 
 % Save the figures and convert them to .pdf
 if (pdfE)
