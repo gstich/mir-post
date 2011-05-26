@@ -17,9 +17,9 @@ dir = [data,'nozzlecoarse3d/'];
 pa = zeros(512,4);
 intv = [500,1653];
 
-%dir = [data,'nozzlemedium3d/'];
-%pa = zeros(768,4);
-%intv = [200,903];
+dir = [data,'nozzlemedium3d/'];
+pa = zeros(768,4);
+intv = [500,974];
 
 %weight = abs(intv(1)-intv(2)) + 1;
 

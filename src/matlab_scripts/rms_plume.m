@@ -15,12 +15,12 @@ ynum = 2;
 znum = 3;
 Vnum = 4;
 
-npts = 201;
-t0 = 560;
-tf = 595;
+npts = 245;
+t0 = 606;
+tf = 819;
 p0 = 1e6;
 NPR = 1.7;
-pres = p0*NPR;
+pres = p0;%*NPR;
 Ht = 1.78;
 
 Vdata = zeros(npts,tf-t0+1,2);
