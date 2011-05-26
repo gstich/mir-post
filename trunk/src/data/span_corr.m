@@ -19,8 +19,8 @@ res(2).sym = '-.';
 
 % Figure option
 LW = 2;         % LineWidth
-FSn = 18;       % FontSize labels
-FSa = 12;       % FontSize axis
+FSn = 25;       % FontSize labels
+FSa = 18;       % FontSize axis
 cmax = .2;      % Contour Level Max
 Nc = 64;        % Number of contour level
 Ht = 1.78;
@@ -34,12 +34,12 @@ contourf(XX,YY+1,tay,[0:.01:.2],'edgecolor','none')
 
 
 %% Correlation plots
-figure(2);hold on;
-x = [1:1:size(Cor,1)];
+%figure(2);hold on;
+%x = [1:1:size(Cor,1)];
 
-plot(  x/x(end) *.5, Cor(:,1) ,'--','LineWidth',LW);
-plot(  x/x(end) *.5, Cor(:,106) ,'--','LineWidth',LW);
-plot(  x/x(end) *.5, Cor(:,399), '--','LineWidth',LW);
+%plot(  x/x(end) *.5, Cor(:,1) ,'--','LineWidth',LW);
+%plot(  x/x(end) *.5, Cor(:,106) ,'--','LineWidth',LW);
+%plot(  x/x(end) *.5, Cor(:,399), '--','LineWidth',LW);
 
 %% Medium
 figure(1);hold on;
@@ -61,9 +61,9 @@ set(gca,'FontSize',FSa);
 %% Correlation plots
 figure(2);hold on;
 x = [1:1:size(Cor,1)];
-plot(  x/x(end) *.5, Cor(:,1) ,'LineWidth',LW);
-plot(  x/x(end) *.5, Cor(:,106) ,'LineWidth',LW);
-plot(  x/x(end) *.5, Cor(:,237) ,'LineWidth',LW);
+plot(  x/x(end) *.5, Cor(:,1) ,'k-','LineWidth',LW);
+plot(  x/x(end) *.5, Cor(:,106),'k--' ,'LineWidth',LW);
+plot(  x/x(end) *.5, Cor(:,237),'k-.','LineWidth',LW);
 box on;
 h1 = xlabel(['$z/ H_t$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
