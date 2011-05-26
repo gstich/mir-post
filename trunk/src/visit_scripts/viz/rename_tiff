@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for i in *.tif; do
+    mv $i $i'f'
+done
