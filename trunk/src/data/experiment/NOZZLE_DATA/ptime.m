@@ -33,7 +33,7 @@ for i=1:5
     tap(i).praw = load(tap(i).name);
     tap(i).p = Pamb + tap(i).praw*tap(i).m + tap(i).b;
     tap(i).pbar = mean( tap(i).p );
-    tap(i).PSD = sqrt((tap(i).p - tap(i).pbar).^2);
+    tap(i).PSD = sqrt((tap(i).p - tap(i).pbar).^2)./tap(i).pbar ;
 end
 
 figure(1);
@@ -43,9 +43,10 @@ for i=1:5
 end
 
 figure(2)
-L=1000;
+L=10000;
 Fs=srate;
 hw = hann(L,'periodic');
+
 for i=2:5
 
 y = tap(i).PSD(1:L);
@@ -55,14 +56,60 @@ NFFT = 2^nextpow2(L); % Next power of 2 from length of y
 Y = (fft(y,NFFT))/L;
 f = Fs/2*linspace(0,1,NFFT/2+1);
 
+c(i-1,:) = 2*abs(f'.*Y(1:NFFT/2+1));
 % Plot single-sided amplitude spectrum.
 figure(i)
 semilogx(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
-%loglog(f,2*abs(Y(1:NFFT/2+1)));hold all; 
-xlim([f(ceil(size(f,2)/2)) f(end) ])
+%loglog(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
+%xlim([f(ceil(size(f,2)/2)) f(end) ])
 end
 title('Single-Sided Amplitude Spectrum of y(t)')
 xlabel('Frequency (Hz)')
 ylabel('|Y(f)|')
+
+
+
+%% Reduce data to a mere N points
+N = 1000;
+f1 = f(2);
+f2 = f(end);
+FF = logspace(log10(f1),log10(f2),N);
+for i=1:4
+    b(i,:) = interp1(f,c(i,:),FF);
+    b(i,:) = b(i,:) / sum(b(i,:));
+end
+
+
+% Make a 2d Contour plot of exp. data
+lfreq = size(FF,2);
+x = zeros(4,lfreq);
+y = zeros(4,lfreq);
+for i=1:lfreq
+    x(:,i) = [0, 1.27, 2.54, 3.81];
+    % Filter this term
+    %for k=1:4
+    %    for ii=2:min(size(b))-1
+    %        b(ii,:)=(b(ii-1,:)+b(ii+1,:))/2;
+    %    end
+    %end
+end
+
+for i=1:4
+    y(i,:) = log10(FF);
+    % Filter this term
+    for k=1:2
+        for ii=2:max(size(b))-1
+            b(:,ii)=(b(:,ii-1)+b(:,ii+1))/2;
+        end
+    end
+end
+
+figure(7);
+[cp,cp] = contourf(x,y,b,12);
+set(cp,'edgecolor','none');
+xray = flipud(gray);
+colormap(xray)
+
+
 
 
