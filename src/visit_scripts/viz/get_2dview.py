@@ -22,25 +22,37 @@ e.open(nprocs=32,part="pbatch",bank="views",rtime="120:00")
 # Load the file
 base = "/p/lscratchd/olson45/nozzle/post_proc";
 resolution = "medium3d";
-t_viz = 350;
+
+toff = 200;       # Offset for the 2d data set
+t1 = 200;         # Start index for viz
+tf = 1122;        # End index for viz
+t_viz = 650;      # Start index for this render run...
 var = "gradRHO";
 #var = "sch";
 
+Nx = 1920;
+Ny = 360;  # 1080/3
+AR = Nx/Ny;
+Ht = 1.78;
+
 # Zoomed in of entire nozzle section
+wide = 2*Ht;
+x1 = -.1*Ht;
+xn = 2*Ht*AR + x1;
 v1 = GetView2D();
-v1.windowCoords = (-2.5, 20.6229, -5.72, 5.72)
+v1.windowCoords = (x1, xn, -wide/2, wide/2)
 v1.viewportCoords = (0,1,0,1);
 
 # Bit more zoomed in
-v2 = GetView2D();
-v2.windowCoords = (0, 15.6229, -3.92, 3.92)
-v2.viewportCoords = (0,1,0,1);
+#v2 = GetView2D();
+#v2.windowCoords = (0, 15.6229, -3.92, 3.92)
+#v2.viewportCoords = (0,1,0,1);
 
-SetView2D(v2);
+SetView2D(v1);
 
 file = base + resolution + "/post.mir"
 OpenDatabase(file);
-SetTimeSliderState(t_viz);
+SetTimeSliderState(t_viz-toff);
 
 
 DefineScalarExpression("sch","0.8*exp( -15*gradRHO/.015)");
@@ -52,7 +64,7 @@ psdo_atts = PseudocolorAttributes();
 psdo_atts.centering = psdo_atts.Nodal;
 psdo_atts.colorTableName = "xray";
 psdo_atts.maxFlag = 1;
-psdo_atts.max = .075;
+psdo_atts.max = .005;  #.075 (sch)x
 SetPlotOptions(psdo_atts);
 DrawPlots();
 
@@ -68,20 +80,24 @@ InvertBackgroundColor();
 
 # Set the File Output type
 win = SaveWindowAttributes();
-win.width = 2048;
-win.height = 1024;
+win.width = Nx;
+win.height = Ny;
 win.family = 0;
 win.fileName = resolution + str(t_viz) + var;
 win.format = win.TIFF;
 win.resConstraint = win.NoConstraint;
 SetSaveWindowAttributes(win);
 
+Nt = tf - t_viz + 1
+for tt in range(Nt):
 
-DrawPlots();
-SaveWindow();
-
-
-
+    td = tt + t_viz - toff;  # Data/time slider index
+    ti = tt + t_viz - t1
+    SetTimeSliderState(td);
+    win.fileName = resolution + var + '_' + str(ti).zfill(4);
+    SetSaveWindowAttributes(win);
+    DrawPlots();
+    SaveWindow();
 
 
 

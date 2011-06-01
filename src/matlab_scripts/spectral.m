@@ -1,10 +1,11 @@
 function  spectral
 
 
-%npts = 5;
+%npts = 6;
 %Bfile = 'DATA/ptot_time.med';
-npts = 2;
-Bfile = 'DATA/ptot_bl.med';
+npts = 19;
+Bfile = 'DATA/ptot_plume.med';
+Bfile = 'DATA/ptot_plume.cor';
 
 b = 0;
 for i=1:npts
@@ -17,7 +18,8 @@ for i=1:npts
     w = data(:,4);
     rho = data(:,7);
     ptot = p + rho/2.*(u.*u + v.*v + w.*w);
-
+    
+    %ptot = 2.2*ptot;
     a = get_spectra(ptot);
     b = b + a;
 end
@@ -25,16 +27,20 @@ end
 b = b/npts;
 
 
-
+tt = max(size(p))*5e-6
+c = b(2,:).^2*tt;
+b(2,:) = c / c(1);
 loglog(b(1,:),b(2,:));hold all; 
 
-
+psd_e = load('../data/experiment/psd_exp.dat');
+psd_e(:,2) = psd_e(:,2)/psd_e(1,2);
+loglog(psd_e(:,1),psd_e(:,2),'ro');
 
 xlabel('f H_t/U_p')
 ylabel('Pa^2/Hz')
 
-a = 1*10^7;
-m = -5/3;
+a = 1*10^3.5;
+m = -25/9;
 x = logspace(-1,.5,50);
 y = a*x.^m;
 
@@ -42,12 +48,12 @@ y = a*x.^m;
 %plot(x,y,'k--');
 
 
-save '../data/spectra/separation/spectra.mat' b x y;
+save ../data/spectra/separation/spectra_coarse.mat b psd_e;
 
 %% Compare to exp. data
 %plot_exp;
 %compare_exp(x,y,'k--');
-%compare_exp(b(1,:),b(2,:)/300,'b--');
+%compare_exp(b(1,:),2*b(2,:).^2*tt,'b--');
 
 
 
@@ -98,7 +104,7 @@ hw = hanning(L,'periodic');
 
 y = ptot - mean(ptot);
 y = y/10;   % Convert to Pascals
-y = y.*y;
+%y = y.*y;
 y = y.*hw;
 
 
@@ -110,7 +116,7 @@ f = Fs/2*linspace(0,1,NFFT/2+1);
 %% Divide by frequency
 
 a(1,:) = f*Ht/Up;
-a(2,:) = 2*abs(Y(1:NFFT/2+1)).*f';  %./f';
+a(2,:) = 2*abs(Y(1:NFFT/2+1));  %./f';
 
 
 
