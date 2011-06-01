@@ -2,6 +2,7 @@ clear all;
 clc;
 close all;
 
+path(path,'../../../matlab_scripts');
 dir = 'TIME-RESOLVED';
 srate = 200e3;
 V = 1;
@@ -68,6 +69,7 @@ xlabel('Frequency (Hz)')
 ylabel('|Y(f)|')
 
 
+tt = 5.4e-5;
 
 %% Reduce data to a mere N points
 N = 1000;
@@ -95,14 +97,16 @@ for i=1:lfreq
 end
 
 for i=1:4
-    y(i,:) = log10(FF);
+    y(i,:) = log10(FF*tt);
     % Filter this term
-    for k=1:2
-        for ii=2:max(size(b))-1
-            b(:,ii)=(b(:,ii-1)+b(:,ii+1))/2;
-        end
-    end
+    %for k=1:2
+    %    for ii=2:max(size(b))-1
+    %        b(:,ii)=(b(:,ii-1)+b(:,ii+1))/2;
+    %    end
+    %end
 end
+
+write_visit('exp.tec',x,y,b);
 
 figure(7);
 [cp,cp] = contourf(x,y,b,12);
