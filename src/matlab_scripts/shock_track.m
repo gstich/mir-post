@@ -15,11 +15,11 @@ dt = 5.0e-6;
 data = '/p/lscratchd/olson45/nozzle/';
 dir = [data,'nozzlecoarse3d/'];
 pa = zeros(512,4);
-intv = [500,1653];
+intv = [1500,1916];
 
-dir = [data,'nozzlemedium3d/'];
-pa = zeros(768,4);
-intv = [500,974];
+%dir = [data,'nozzlemedium3d/'];
+%pa = zeros(768,4);
+%intv = [800,1060];
 
 %weight = abs(intv(1)-intv(2)) + 1;
 
