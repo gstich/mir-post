@@ -8,18 +8,20 @@ import math
 
 
 # Sets the view based on interpolating a spline
-def FlyView(i, N):
+def FlyView(i, N, side):
   ## Pan-back- Starting view of whole domain
   v1 = GetView3D();
-  v1.viewNormal = (0, 0, 1)
-  v1.focus = (2.2244, 0.0, 1.792)
-  v1.viewUp = (0, 1, 0)
+  v1.viewNormal = (0, 0, 1*side)
+  #v1.viewNormal = (0, 0, -1)
+  v1.focus = (6.0, 0.0, 1.7)
+  v1.viewUp = (0, 1*side, 0)
+  #v1.viewUp = (0, -1, 0)
   v1.viewAngle = 30
   v1.parallelScale = 51.4056
   v1.nearPlane = -102.811
   v1.farPlane = 102.811
   v1.imagePan = (0,0)
-  v1.imageZoom = 4
+  v1.imageZoom = 10
   v1.perspective = 1
   v1.eyeAngle = 2
   v1.axis3DScaleFlag = 0
@@ -28,15 +30,18 @@ def FlyView(i, N):
 
   # Zoom and turn
   v2 = GetView3D();
-  v2.viewNormal = (-0.660848, 0.256162, 0.705451)
-  v2.focus = (2.2244, -1.0, 1.792)
-  v2.viewUp = (0, 1, 0)
+  v2.viewNormal = (-1.00848, 0.256162*side, 0.705451*side)
+  #v2.viewNormal = (-0.660848, -0.256162, -0.705451)
+  v2.focus = (2.2244, -1.0*side, 1.792)
+  #v2.focus = (2.2244, 1.0, 1.792)
+  v2.viewUp = (0, 1*side, 0)
+  #v2.viewUp = (0, -1, 0)
   v2.viewAngle = 30
   v2.parallelScale = 51.4056
   v2.nearPlane = -102.811
   v2.farPlane = 102.811
   v2.imagePan = ( 0 , 0)
-  v2.imageZoom = 35.5477
+  v2.imageZoom = 55.5477
   v2.perspective = 1
   v2.eyeAngle = 2
   v2.axis3DScaleFlag = 0
@@ -46,14 +51,14 @@ def FlyView(i, N):
   # Turn around lower BL ... zoom in direct in line
   v3 = GetView3D();
   v3.viewNormal = (-0.95412, 0.206522, 0)
-  v3.focus = (2.2244, -1.0, 1.792)
+  v3.focus = (3.2244, -1.0, 1.792)
   v3.viewUp = (0, 1 , 0)
   v3.viewAngle = 30
   v3.parallelScale = 51.4056
   v3.nearPlane = -102.811
   v3.farPlane = 102.811
   v3.imagePan = (0, 0)
-  v3.imageZoom = 10.2593
+  v3.imageZoom = 15.2593
   v3.perspective = 1
   v3.eyeAngle = 2
   v3.axis3DScaleFlag = 0
@@ -62,9 +67,9 @@ def FlyView(i, N):
 
   ## Run along the length of the nozzle
   v4 = GetView3D();
-  v4.viewNormal = (-0.80848, 0.256162, 0.705451)
-  v4.focus = (8.2244, 0.0, 1.792)
-  v4.viewUp = (0, 1, 0)
+  v4.viewNormal = (-0.60848, 0.56162*side, 0.705451*side)
+  v4.focus = (7.2244, 0.0, 1.792)
+  v4.viewUp = (0, 1*side, 0)
   v4.viewAngle = 30
   v4.parallelScale = 51.4056
   v4.nearPlane = -102.811
@@ -79,9 +84,9 @@ def FlyView(i, N):
 
   ## View 5
   v5 = GetView3D();
-  v5.viewNormal = (-0.80848, 0.256162, -0.705451)
+  v5.viewNormal = (-0.60848, 0.26162*side, -0.705451*side)
   v5.focus = (8.2244, 0.0, 1.792)
-  v5.viewUp = (0, 1, 0)
+  v5.viewUp = (0, 1*side, 0)
   v5.viewAngle = 30
   v5.parallelScale = 51.4056
   v5.nearPlane = -102.811
@@ -97,15 +102,15 @@ def FlyView(i, N):
 
 
   v6 = GetView3D();
-  v6.viewNormal = (-0.660848, 0.256162, -0.705451)
-  v6.focus = (2.2244, -1.0, 1.792)
-  v6.viewUp = (0, 1, 0)
+  v6.viewNormal = (-0.660848, 0.256162*side, -0.705451*side)
+  v6.focus = (2.2244, -1.0*side, 1.792)
+  v6.viewUp = (0, 1*side, 0)
   v6.viewAngle = 30
   v6.parallelScale = 51.4056
   v6.nearPlane = -102.811
   v6.farPlane = 102.811
   v6.imagePan = ( 0 , 0)
-  v6.imageZoom = 35.5477
+  v6.imageZoom = 45.5477
   v6.perspective = 1
   v6.eyeAngle = 2
   v6.axis3DScaleFlag = 0
@@ -115,9 +120,9 @@ def FlyView(i, N):
 
 
   v7 = GetView3D();
-  v7.viewNormal = (-0.660848, 0.256162, 0.705451)
-  v7.focus = (5.2244, -1.0, 1.792)
-  v7.viewUp = (0, 1, 0)
+  v7.viewNormal = (-0.660848, 0.256162*side, 0.705451*side)
+  v7.focus = (5.2, -1.0*side, 2.0)
+  v7.viewUp = (0, 1*side, 0)
   v7.viewAngle = 30
   v7.parallelScale = 51.4056
   v7.nearPlane = -102.811
@@ -164,17 +169,24 @@ Source("utils.py")
 
 # Launch/request the procs
 e = Engine()
-e.open(nprocs=128,part="pbatch",bank="views",rtime="240:00")
+e.open(nprocs=200,part="pbatch",bank="views",rtime="480:00")
 #e.open(nprocs=128,part="pdebug",rtime="30:00")
 
 
 # Load the file
 base = "/p/lscratchd/olson45/nozzle/nozzle";
 
-resolution = "medium3d";
-j_cut = 150;
-t_start = 600;
-t_end = 600;
+#resolution = "medium3d";
+resolution = "fine3d";
+#j_cut = 150;    # medium
+j_cut = 159;     # fine
+t_start = 233;
+t_end = 233;
+
+side = -1;     # Side= top(-1), bot(1)
+del_bl = .2;
+Ht = 1.78;
+
 
 #resolution = "coarse3d";
 #j_cut = 60;
@@ -205,11 +217,12 @@ psdo_atts = PseudocolorAttributes();
 psdo_atts.centering = psdo_atts.Nodal;
 psdo_atts.colorTableName = "hot_desaturated";
 psdo_atts.maxFlag = 1;
-psdo_atts.max = 1.5;
+#psdo_atts.max = 1.5;         ## Medium Case
+psdo_atts.max = 1.75;        ## Fine Case
 SetPlotOptions(psdo_atts);
-DrawPlots();
+#DrawPlots();
 
-# Add the Isovolume Operator
+# Add the Isovolume of Q to Mach Contours
 SetActivePlots(0);
 isoV_atts = IsovolumeAttributes();
 isoV_atts.variable = "Q"
@@ -219,6 +232,19 @@ isoV_atts.ubound = 4e11;    ## Coarse case
 AddOperator("Isovolume");
 SetOperatorOptions(isoV_atts);
 DrawPlots();
+
+# Add cut to remove one side
+## Make this just a cut at
+#SetActivePlots(0);
+#islc_atts = IndexSelectAttributes();
+#islc_atts.dim = islc_atts.ThreeD;
+#islc_atts.yMax = j_cut;     # medium -  1-jcut
+#islc_atts.yMin = j_cut;     # fine-     jcut-Ny
+#AddOperator("IndexSelect");
+#SetOperatorOptions(islc_atts);
+#DrawPlots();
+
+
 
 
 
@@ -233,25 +259,18 @@ psdo1_atts.opacity = 0.5;
 psdo1_atts.maxFlag = 1;
 psdo1_atts.max = 0;
 SetPlotOptions(psdo1_atts);
-DrawPlots()
+#DrawPlots()
 
-# Add cut to remove one side
-SetActivePlots(0);
-islc_atts = IndexSelectAttributes();
-islc_atts.dim = islc_atts.ThreeD;
-islc_atts.yMax = j_cut;
-AddOperator("IndexSelect");
-SetOperatorOptions(islc_atts);
-DrawPlots();
+
 
 
 # Add the Isovolume Operator
 SetActivePlots(1);
 isoV1_atts = IsovolumeAttributes();
-isoV1_atts.ubound = -80000;
+isoV1_atts.ubound = -50000;   #-8000 med
 AddOperator("Isovolume");
 SetOperatorOptions(isoV1_atts);
-DrawPlots();
+#DrawPlots();
 
 
 # Clip the first bit to remove the noise
@@ -259,23 +278,38 @@ SetActivePlots(1);
 clp_atts = ClipAttributes();
 clp_atts.plane1Origin = (-2.0,0,0);
 clp_atts.plane1Normal = (-1,0,0);
-clp_atts.plane2Status = 1;
-clp_atts.plane2Origin = (0,0.7,0);
-clp_atts.plane2Normal = (0,1,0);
 AddOperator("Clip");
 SetOperatorOptions(clp_atts);
+#DrawPlots();
+
+# Clip the to to clear view
+#SetActivePlots(1);
+#clp1_atts = ClipAttributes();
+#clp1_atts.plane1Origin = (0,0.7,0);
+#clp1_atts.plane1Normal = (0,1,0);
+#AddOperator("Clip");
+#SetOperatorOptions(clp1_atts);
+#DrawPlots();
+
+SetActivePlots((0,1));
+clp2_atts = ClipAttributes();
+clp2_atts.plane1Origin = (0, side*(Ht/2.0-del_bl*2.0) , 0);
+clp2_atts.plane1Normal = (0,side,0);
+AddOperator("Clip");
+SetOperatorOptions(clp2_atts);
 DrawPlots();
 
-SetActivePlots(1);
-clp_atts = ClipAttributes();
-clp_atts.plane1Origin = (-2.0,0,0);
-clp_atts.plane1Normal = (-1,0,0);
-clp_atts.plane2Status = 1;
-clp_atts.plane2Origin = (0,0.7,0);
-clp_atts.plane2Normal = (0,1,0);
-AddOperator("Clip");
-SetOperatorOptions(clp_atts);
-DrawPlots();
+
+#SetActivePlots(1);
+#clp_atts = ClipAttributes();
+#clp_atts.plane1Origin = (-2.0,0,0);
+#clp_atts.plane1Normal = (-1,0,0);
+#clp_atts.plane2Status = 1;
+#clp_atts.plane2Origin = (0,0.7,0);
+#clp_atts.plane2Normal = (0,1,0);
+#AddOperator("Clip");
+#SetOperatorOptions(clp_atts);
+#DrawPlots();
 
 
 
@@ -300,7 +334,9 @@ SetAnnotationAttributes(annot)
 win = SaveWindowAttributes();
 win.width = 1920;        ## High-Def
 win.height = 1080;       ## High-Def
-win.fileName = "grad";
+win.fileName = "Q_fine_bot";
+win.outputToCurrentDirectory = 0;
+win.outputDirectory = "/p/lscratchd/olson45/nozzle/nozzlefine3d/MOVIES/static_fly"
 win.format = win.TIFF;
 win.quality = 100;
 win.resConstraint = win.NoConstraint;
@@ -308,9 +344,11 @@ SetSaveWindowAttributes(win);
 
 
 ## Stage-1: Zoom in from full mesh to nozzle local -- 5sec -> 5*20 = 100 frames
-nF = 1000
-for i in range(nF):
-  FlyView(i,nF);
+nF = 2000
+off = 0
+for i in range(nF-off):
+  ii = i + off
+  FlyView(ii,nF,side);
   DrawPlots();
   SaveWindow();
   
