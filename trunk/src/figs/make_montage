@@ -17,4 +17,4 @@ for ((i=1;i<=$num;i++)); do
     fname=$fname${f[$i]}$space
 done
 
-montage -border $bdr -geometry $width$x -tile 1$x$num $fname $outfile
+montage  -geometry $width$x -tile 1$x$num $fname $outfile
