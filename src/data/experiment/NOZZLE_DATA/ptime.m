@@ -70,6 +70,8 @@ ylabel('|Y(f)|')
 
 
 tt = 5.4e-5;
+%tt = 3.4e-5;
+xoff = 7;
 
 %% Reduce data to a mere N points
 N = 1000;
@@ -80,14 +82,14 @@ for i=1:4
     b(i,:) = interp1(f,c(i,:),FF);
     b(i,:) = b(i,:) / sum(b(i,:));
 end
-
+b = b/N;
 
 % Make a 2d Contour plot of exp. data
 lfreq = size(FF,2);
 x = zeros(4,lfreq);
 y = zeros(4,lfreq);
 for i=1:lfreq
-    x(:,i) = [0, 1.27, 2.54, 3.81];
+    x(:,i) = [0, 1.27, 2.54, 3.81] + 7;
     % Filter this term
     %for k=1:4
     %    for ii=2:min(size(b))-1
@@ -97,22 +99,22 @@ for i=1:lfreq
 end
 
 for i=1:4
-    y(i,:) = log10(FF*tt);
+    y(i,:) = FF*tt; %log10(FF*tt);
     % Filter this term
-    %for k=1:2
-    %    for ii=2:max(size(b))-1
-    %        b(:,ii)=(b(:,ii-1)+b(:,ii+1))/2;
-    %    end
-    %end
+    for k=1:2
+        for ii=2:max(size(b))-1
+            b(:,ii)=(b(:,ii-1)+b(:,ii+1))/2;
+        end
+    end
 end
 
 write_visit('exp.tec',x,y,b);
 
-figure(7);
-[cp,cp] = contourf(x,y,b,12);
-set(cp,'edgecolor','none');
-xray = flipud(gray);
-colormap(xray)
+%figure(7);
+%[cp,cp] = contourf(x,y,b,12);
+%set(cp,'edgecolor','none');
+%xray = flipud(gray);
+%colormap(xray)
 
 
 
