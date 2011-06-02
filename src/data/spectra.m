@@ -3,8 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-%pdfE = true;
-pdfE = false;
+pdfE = true;
+%pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
@@ -16,7 +16,7 @@ ref(3) = 2;
 figs(1).name = 'PSD_compare';
 
 % Plot symbols
-res(1).sym = 'k--';
+res(1).sym = 'k-';
 res(2).sym = 'k-.';
 res(3).sym = 'k-';
 

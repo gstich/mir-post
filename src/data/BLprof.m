@@ -15,6 +15,7 @@ ref(3) = 2;
 % Figure name
 figs(1).name = 'mean';
 figs(2).name = 'rms';
+figs(3).name = 'spalart';
 
 % Plot symbols
 res(1).sym = 'k--';
@@ -106,10 +107,40 @@ ylim([0 3.5])
 set(gca,'Position',[.13,.13,.775,.8107])
 
 
+figure(3);clf;
+semilogx(x1,x1,'k--');hold on;
+semilogx(x2,1/k*log(x2)+C,'k--');hold on;
+for i=3:3
+    
+    % Get reference utau,del,delBL,tau_w
+    utau = res(ref(i)).data(1,key.utau);
+    del = res(ref(i)).data(1,key.del);
+    delBL = res(ref(i)).data(1,key.delBL);
+    tauw = res(ref(i)).data(1,key.tauw);
+    
+    y = res(i).data(:,key.y) / del; y = y - y(1);
+    u = res(i).data(:,key.u) / utau;
+    utau_i = res(i).data(1,key.utau);
+    uvd = res(i).data(:,key.uvd);
+    uvd = uvd * utau_i / utau;
+    semilogx(y,uvd,res(i).sym,'LineWidth',LW);hold on;
+end
+
 % Load and plot Spalart DNS
-%dns = load('BLprof/spalart_dns.dat');
-%figure(1);hold on;
-%plot( 10.^dns(:,1), dns(:,2),'k-');
+dns = load('BLprof/spalart_dns.dat');
+plot( 10.^dns(:,1), dns(:,2),'k--','LineWidth',LW);
+
+h1 = xlabel(['$y^+$']);
+set(h1,'Interpreter','latex','FontSize',FSn);
+h2 = ylabel('$u^+$');
+set(h2,'Interpreter','latex','FontSize',FSn);
+box on;
+set(gca,'FontSize',FSa);
+xlim([1 2e3]);
+ylim([0 25]);
+set(gca,'Position',[.13,.13,.775,.8107])
+
+
 
 
 % Save the figures and convert them to .pdf
