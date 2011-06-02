@@ -1,0 +1,20 @@
+#!/bin/bash
+# Script will make a some composite images for montage
+
+
+## Linear stack of images
+bdr=2
+width=1800
+x="x"
+num=2
+outfile="XvSt_wall.jpg"
+f[1]="../visit_scripts/exp_test.tif"
+f[2]="../visit_scripts/sim_test.tif"
+space=" "
+
+fname=$space
+for ((i=1;i<=$num;i++)); do
+    fname=$fname${f[$i]}$space
+done
+
+montage -border $bdr -geometry $width$x -tile 1$x$num $fname $outfile
