@@ -45,6 +45,11 @@
 \maketitle
 
 \begin{abstract}
+
+\emph{
+We do a series of LES of Papam exp.  We show good agreement to exp. quantities and observe int. flow phenomenon not mentioned in exp.  We look at data and unsteady shock at level of detail that exp and RANS cant.}
+
+
 Large-eddy simulation of an over-expanded planar nozzle is performed to elucidate the complex interaction between the incoming boundary layer, the standing shock wave and the separated shear layer downstream of the shock.  A high-order compact differencing scheme, which includes artificial diffusivities for capturing discontinuities, is used to resolve turbulent structures while introducing very limited amounts of numerical dissipation.   This numerical simulation seeks to model the experiment performed by Papamoschou et.al. \cite{Papam:09,Papam:10,Papam:06} and shed light on the underlying physics of the shock-boundary layer interaction and the Free-Shock Separation \cite{Ostlund:05} (FSS) which is present in over-expanded super-sonic nozzles.  To achieve a feasible cost for computing a solution, the Reynolds number of the simulation is approximately $1/15^{th}$ of the experimental value but the geometrical ratio of the boundary layer thickness to throat is duplicated.  Results of a coarse mesh simulation presented in this conference paper abstract compare qualitatively well with those obtained in the experiment despite limited resolution.  The LES captures the unsteady fluctuation of the shockwave as it interacts with the incoming turbulent boundary layer and the separated shear layer downstream.  Data from the simulation allow for a much more in-depth exploration of the physics and will lead to a better understanding of the unsteady shock wave behavior. 
 \end{abstract}
 
@@ -92,6 +97,8 @@ Large-eddy simulation of an over-expanded planar nozzle is performed to elucidat
 
 \section{Introduction}
 
+\emph{ Shock waves affect the design of nozzle.... interaction with BL is not fully understood.  Exp. Papam sought to look at this phenomenon and found bla... RANS was used on this and found BLA... LES is very handy for this stuff.  We do LES.}
+
 A major consideration in the design of converging-diverging nozzles is the presence, and avoidance, of shock waves.  The unsteady and axially asymmetric shock wave which can reside in supersonic nozzles, imparts large ``side loads'' on the nozzle during engine start-up or under certain over-expanded conditions.  Although the occurrence of this phenomenon can be approximated at some level, there is still a great deal which is not understood due to inherit complexities of the shock-boundary layer interaction.  Conversely, the presence of shock waves inside a nozzle has recently been shown in experiments \cite{Papam:10} to enhance the downstream mixing of the nozzle jet.  Such an outcome might be desirable for engineering applications involving combustion related flows. 
 
 
@@ -138,7 +145,7 @@ Equations~\ref{eq:mass}-\ref{eq:energy} are numerically solved in conservation f
 \subsection{Numerical Methods}
 
 
-All first derivatives comprising the gradient and divergence operators in the governing equations are computed using a 10th-order compact scheme \cite{Lele:92}.  This scheme has high wave-number resolution which is desirable in the boundary and shear layers.  High-wave number biased artificial diffusivities \cite{Kawai:10,Cook:07,CookCabot:05} are used to smooth out sharp discontinuities in the flow and act as the sub-grid scale model.  These diffusivities are modified slightly to alleviate the harsh numerical stiffness incurred in the high aspect-ratio grid near the viscous boundary layer.
+All first derivatives comprising the gradient and divergence operators in the governing equations are computed using a 10th-order compact scheme \cite{Lele:92}.  This scheme has high wave-number resolution which is desirable in the boundary and shear layers.  High-wave number biased artificial diffusivities \cite{Kawai:10,Cook:07,CookCabot:05} are used to smooth out sharp discontinuities in the flow and act as the sub-grid scale model.  These diffusivities are modified slightly to alleviate the prohibitive numerical stiffness which arises in the high aspect-ratio grid near the viscous boundary layer and shock.
 
 The equations are advanced in time using a 5-stage, fourth-order Runge-Kutta scheme\cite{Kennedy:00} chosen for its broad stability properties in both convective and diffusive terms.  At the completion of every sub-iteration, an 8th-order filter is applied to the conserved variables to remove the top $1/10^{th}$ of wave numbers as sharply as possible.  The Courant-Friedrichs-Lewy (CFL) stability limit is near unity for the entirety of the calculation.
 
@@ -175,8 +182,24 @@ The far field employs a non-reflecting characteristic boundary condition\cite{Po
  \label{fig:info_3d}
 \end{figure}
 
+\section{Experimental Setup}
 
-\section{Preliminary Results}
+\emph{ Papam's setup looked like this.  The several papers studied bla,bla and bla and found bla.... we are modeling case 3 from PoF 2010 because has asymmetries.  We only do one to establish the suitability of LES and res. requirements.  maybe dont need this?}
+
+
+\section{Results}
+
+\emph{ We compare results from exp. and highlight the key feature of this complex flow.  We verify incoming BL is wall resolved and converged for the 3 levels of refinement.  
+\\  - Mean pressure profile (discuss modeling approach for converging section)
+\\  - Mean U and rms profiles.... ( we are capturing the pertinent  length scales well.- higher Re, higher $\delta$ than exp. Also give $Re_\tau$ and $Re_\theta$ of sim.  More modeling assumptions)
+\\  - Span-wise correlations.... ( Good results, show our periodic domain is large enough that it doesn't effect the averaged results.  Also suggests that the exp AR might be large enough to have a similar span indep. behavior away from the wall.  ?? 
+\\  - Plume PSD.- Ah.. quantity that RANS cant touch.... we nail it.  Coarse calc. is doing well at capturing unsteadiness post shock.
+\\  - Wall pressure comp. spec.  General trends are captured and we see good agreement with position (X) and frequency range(St).  Emph. the range and inherit cost of calc.
+\\  - Show shock position time history... spectra...  Distinguish difference in methods and potential reasons for discrepancies but show we capture the trends well.  
+\\  - Flow asymmetries/ shock structure well represented (show $|\nabla\rho|$ vs. Schlieren).
+\\  - Comment on shock motion and separation, RSS+FSS and side loads... show side loads for fun.  Some correlation perhaps?
+}
+
 
 Preliminary results from the coarse mesh simulation are presented here.  The computation ran on 256 processors for 2 days which was long enough to wash out initial transients, develop the boundary layer and capture the low frequency oscillations of the shock location.  The coarse calculation attempts to match the particular experimental configuration from Papamoschou et.al.\cite{Papam:09} with a given nozzle pressure ratio ($NPR$) of 1.77 and an area ratio ($A_e/A_t$) of 1.4.  Figure~\ref{fig:info_3d} shows the main features of the over-expanded nozzle experiment.  A normal shock wave is set up inside the nozzle and forces the turbulent boundary layer to separate.  The flow does not reattach and there is a large shear layer downstream as the flow exits into the ambient conditions outside the nozzle.
 
@@ -257,6 +280,9 @@ The experimentalists also observed large asymmetries in the shock structure and 
 
 \subsection{Outlook for subsequent LES calculations}
 The preliminary coarse mesh calculations show surprisingly good results despite the poorly resolved turbulent boundary layer.  It is expected that the medium and fine meshes will produce data which is much richer and complete in the sense that more scales of motion are resolved.  These data sets will be used to compute more quantitative statistics which will be used to compare with the experiment and to advance the understanding of this problem and its complex, underlying physics.  We also plan to conduct a parametric variation with the nozzle pressure ratio to explore the flow regimes observed in the experiments.  
+
+\section{Conclusion}
+\emph{We did this LES.  It compared well and we can now look at all kinds of stuff.  New stuff was found ... here we repeat what that was.  }
 
 
 \section*{Acknowledgments}
