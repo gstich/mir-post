@@ -16,7 +16,7 @@ ref(3) = 2;
 figs(1).name = 'PSD_compare';
 
 % Plot symbols
-res(1).sym = 'k-';
+res(1).sym = 'b-';
 res(2).sym = 'k-.';
 res(3).sym = 'k-';
 
@@ -36,7 +36,7 @@ for i=1:1
     loglog(b(1,:),b(2,:),res(i).sym,'LineWidth',LW);hold on;
 end
 
-loglog(psd_e(:,1),psd_e(:,2),'ko','LineWidth',LW);hold on;
+loglog(psd_e(:,1),psd_e(:,2),'ko','LineWidth',LW,'MarkerSize',10);hold on;
 
 
 
