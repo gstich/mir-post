@@ -7,12 +7,12 @@ Ny = 360
 base='medium3dgradRHO_';
 fmt='.tiff'
 Iname = []
-Iname.append('0500')
-Iname.append('0550')
-Iname.append('0600')
-Iname.append('0650')
-Iname.append('0700')
-Iname.append('0750')
+Iname.append('1100')
+Iname.append('1125')
+Iname.append('1150')
+Iname.append('1175')
+Iname.append('1200')
+Iname.append('1225')
 
 for i in range(len(Iname)):
     Iname[i] = base + Iname[i] + fmt;

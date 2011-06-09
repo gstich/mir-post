@@ -1,7 +1,7 @@
 function wall_spectra
 
 
-load('DATA/Pbot.mat');
+load('DATA/Pbot_cor.mat');
 Ptop = Pbot;
 
 dx = 1;
@@ -28,6 +28,7 @@ for i=x1:xs:xn
         ptime(1:end) = Ptop(i,k,:);
         
         a = get_spectra(ptime);
+        a = a.*a;
         
         pspec = pspec + a(2,:)';
         zcount = zcount + 1;
@@ -58,7 +59,7 @@ pgrid = pgrid/Nt;
 xcount = 0;
 for i=x1:xs:xn
     ii = xcount + 1;
-    XX(ii,:) = X(i);
+    XX(ii,:) = X(i)/Ht;
     xcount = xcount + 1;
 end
 %hold all;
@@ -78,10 +79,10 @@ end
 %end
 
 write_visit('DATA/sim_cor_spec.tec',XX(:,2:end),FF(:,2:end),pgrid(:,2:end));
-%figure(2);
-%contourf(XX,FF,pgrid,16,'edgecolor','none');
-%xray = flipud(gray);
-%colormap(xray);
+figure(2);
+contourf(XX,FF,pgrid,16,'edgecolor','none');
+xray = flipud(gray);
+colormap(xray);
 
 %save WS.mat
 
@@ -101,7 +102,7 @@ hw = hanning(L,'periodic');
 
 y = ptot - mean(ptot);
 y = y/10;   % Convert to Pascals
-y = y.*y;
+y = y;%.*y;
 y = y.*hw;
 
 
@@ -113,7 +114,7 @@ f = Fs/2*linspace(0,1,NFFT/2+1);
 %% Divide by frequency
 
 a(1,:) = f*Ht/Up;
-a(2,:) = 2*abs(Y(1:NFFT/2+1));%.*f';  %./f';
+a(2,:) = 2*abs(Y(1:NFFT/2+1));
 
 
 end
