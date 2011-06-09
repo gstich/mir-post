@@ -21,14 +21,26 @@ e.open(nprocs=32,part="pbatch",bank="views",rtime="120:00")
 
 # Load the file
 base = "/p/lscratchd/olson45/nozzle/post_proc";
-resolution = "medium3d";
 
-toff = 200;       # Offset for the 2d data set
-t1 = 200;         # Start index for viz
-tf = 1122;        # End index for viz
-t_viz = 650;      # Start index for this render run...
+
+## Coarse presets
+toff = 600;       # Offset for the 2d data set
+t1 = 600;         # Start index for viz
+tf = 2258;        # End index for viz
+t_viz = 600;      # Start index for this render run...
+resolution = "coarse3d";
+odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_cor/"
+
+## Medium presets
+#toff = 200;       # Offset for the 2d data set
+#t1 = 200;         # Start index for viz
+#tf = 1128;        # End index for viz
+#t_viz = 1121;      # Start index for this render run...
+#resolution = "medium3d";
+#odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_med/"
+
 var = "gradRHO";
-#var = "sch";
+
 
 Nx = 1920;
 Ny = 360;  # 1080/3
@@ -83,6 +95,8 @@ win = SaveWindowAttributes();
 win.width = Nx;
 win.height = Ny;
 win.family = 0;
+win.outputToCurrentDirectory = 0;
+win.outputDirectory = odir;
 win.fileName = resolution + str(t_viz) + var;
 win.format = win.TIFF;
 win.resConstraint = win.NoConstraint;

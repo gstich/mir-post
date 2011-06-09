@@ -7,35 +7,41 @@ import sys
 import math
 
 
+side = -1;
 
-## This is a good movie view 
+## Pan-back- Starting view of whole domain
 v1 = GetView3D();
-v1.viewNormal = (-.1, .1, 1)
-v1.focus = (6.5, 0.0, 1.792)
-v1.viewUp = (0, 1, 0)
+v1.viewNormal = (0, 0, 1*side)
+#v1.viewNormal = (0, 0, -1)
+v1.focus = (6.0, 0.0, 1.7)
+v1.viewUp = (0, 1*side, 0)
+#v1.viewUp = (0, -1, 0)
 v1.viewAngle = 30
 v1.parallelScale = 51.4056
 v1.nearPlane = -102.811
 v1.farPlane = 102.811
 v1.imagePan = (0,0)
-v1.imageZoom = 15
+v1.imageZoom = 10
 v1.perspective = 1
 v1.eyeAngle = 2
 v1.axis3DScaleFlag = 0
 v1.axis3DScales = (1, 1, 1)
 v1.shear = (0, 0, 1)
 
-# This is the schematic view
+# Zoom and turn
 v2 = GetView3D();
-v2.viewNormal = (-0.4, 0.256162, 0.705451)
-v2.focus = (6.5, 0.0, 1.792)
-v2.viewUp = (0, 1, 0)
+v2.viewNormal = (-1.00848, 0.256162*side, 0.705451*side)
+#v2.viewNormal = (-0.660848, -0.256162, -0.705451)
+v2.focus = (2.2244, -1.0*side, 1.792)
+#v2.focus = (2.2244, 1.0, 1.792)
+v2.viewUp = (0, 1*side, 0)
+#v2.viewUp = (0, -1, 0)
 v2.viewAngle = 30
 v2.parallelScale = 51.4056
 v2.nearPlane = -102.811
 v2.farPlane = 102.811
 v2.imagePan = ( 0 , 0)
-v2.imageZoom = 10
+v2.imageZoom = 55.5477
 v2.perspective = 1
 v2.eyeAngle = 2
 v2.axis3DScaleFlag = 0
@@ -45,14 +51,14 @@ v2.shear = (0, 0, 1)
 # Turn around lower BL ... zoom in direct in line
 v3 = GetView3D();
 v3.viewNormal = (-0.95412, 0.206522, 0)
-v3.focus = (2.2244, -1.0, 1.792)
+v3.focus = (3.2244, -1.0, 1.792)
 v3.viewUp = (0, 1 , 0)
 v3.viewAngle = 30
 v3.parallelScale = 51.4056
 v3.nearPlane = -102.811
 v3.farPlane = 102.811
 v3.imagePan = (0, 0)
-v3.imageZoom = 10.2593
+v3.imageZoom = 15.2593
 v3.perspective = 1
 v3.eyeAngle = 2
 v3.axis3DScaleFlag = 0
@@ -61,9 +67,9 @@ v3.shear = (0, 0, 1)
 
 ## Run along the length of the nozzle
 v4 = GetView3D();
-v4.viewNormal = (-0.80848, 0.256162, 0.705451)
-v4.focus = (8.2244, 0.0, 1.792)
-v4.viewUp = (0, 1, 0)
+v4.viewNormal = (-0.60848, 0.56162*side, 0.705451*side)
+v4.focus = (7.2244, 0.0, 1.792)
+v4.viewUp = (0, 1*side, 0)
 v4.viewAngle = 30
 v4.parallelScale = 51.4056
 v4.nearPlane = -102.811
@@ -78,9 +84,9 @@ v4.shear = (0, 0, 1)
 
 ## View 5
 v5 = GetView3D();
-v5.viewNormal = (-0.80848, 0.256162, -0.705451)
+v5.viewNormal = (-0.60848, 0.26162*side, -0.705451*side)
 v5.focus = (8.2244, 0.0, 1.792)
-v5.viewUp = (0, 1, 0)
+v5.viewUp = (0, 1*side, 0)
 v5.viewAngle = 30
 v5.parallelScale = 51.4056
 v5.nearPlane = -102.811
@@ -94,11 +100,11 @@ v5.axis3DScales = (1, 1, 1)
 v5.shear = (0, 0, 1)
 
 
-## Zoom in of BL-shock interaction
+
 v6 = GetView3D();
-v6.viewNormal = (-0.660848, 0.256162, -0.705451)
-v6.focus = (4.5, -1.0, 1.792)
-v6.viewUp = (0, 1, 0)
+v6.viewNormal = (-0.660848, 0.256162*side, -0.705451*side)
+v6.focus = (2.2244, -1.0*side, 1.792)
+v6.viewUp = (0, 1*side, 0)
 v6.viewAngle = 30
 v6.parallelScale = 51.4056
 v6.nearPlane = -102.811
@@ -114,9 +120,9 @@ v6.shear = (0, 0, 1)
 
 
 v7 = GetView3D();
-v7.viewNormal = (-0.660848, 0.256162, 0.705451)
-v7.focus = (5.2244, -1.0, 1.792)
-v7.viewUp = (0, 1, 0)
+v7.viewNormal = (-0.660848, 0.256162*side, 0.705451*side)
+v7.focus = (5.2, -1.0*side, 2.0)
+v7.viewUp = (0, 1*side, 0)
 v7.viewAngle = 30
 v7.parallelScale = 51.4056
 v7.nearPlane = -102.811
@@ -128,9 +134,6 @@ v7.eyeAngle = 2
 v7.axis3DScaleFlag = 0
 v7.axis3DScales = (1, 1, 1)
 v7.shear = (0, 0, 1)  
-
-
-
 
   
 
@@ -178,6 +181,8 @@ DefineScalarExpression("Q","1/2*( trace(Omega*transpose(Omega))  - trace(S*trans
 # Define Div / Mach
 DefineScalarExpression("div","divergence(velocity)");
 DefineScalarExpression("Mach","velocity_magnitude/sound_speed");
+
+DefineScalarExpression("grho","magnitude(gradient(density))");
 
 # Add Pseudocolor plot - Mach
 AddPlot("Pseudocolor","Mach");

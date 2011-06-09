@@ -12,4 +12,4 @@ DATA(:,1,:) = X';
 DATA(:,2,:) = Y';
 DATA(:,3,:) = V';
 
-dlmwrite(file,DATA,'delimiter',' ','-append');
+dlmwrite(file,DATA,'delimiter',' ','-append','precision','%12.12f');

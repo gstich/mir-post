@@ -21,8 +21,12 @@ for i=t1:tf
   %Ptop(:,:,i-t1+1) = dum(:,:,1);
 end
 
+% Get xcoordinates from pressure plots
+path = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d/vis0000/pressure.dat';
+pplot = load(path);
+X = pplot(:,1);
 
-save 'DATA/Pbot.mat' Pbot;
+save 'DATA/Pbot.mat' Pbot X;
 
 
 

@@ -1,5 +1,6 @@
 
 clc;
+clear all;
 
 % Some parameters for ease of use
 X=20; Y=21; U=1; V=2; W=3; RHO=5; P=4; T=6;UU=7;VV=8;WW=9;
@@ -13,17 +14,18 @@ resolution = 'medium';
 
 switch resolution
     case 'medium',
-t1 = 650;
-t2 = 675;
+t1 = 1000;
+t2 = 1025;
 Nwall = 300;
-sep = 40;
+sep = 20;
 Nst = 8;
 for i=1:Nst
     station(i) = Nwall + (i-1)*sep;
 end
-buff = 5;
+buff = 0;
 path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
 ofile = '../data/BLprof/medium.dat';
+side = 'bot';
     case 'coarse',
 t1 = 800;
 t2 = 840;
@@ -36,6 +38,8 @@ end
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
 ofile = '../data/BLprof/coarse.dat'; 
+side = 'top';
+
     case 'fine',
 t1 = 195;
 t2 = 206;

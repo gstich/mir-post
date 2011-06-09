@@ -17,11 +17,11 @@ dt = 5.0e-6;
 Ht = 1.78;
 
 %% Load the data
-load shock_history/Xs_cor;
+load shock_history/coarse.mat;
 Xs_cor = XSS;
 %Xs_cor = Xs_cor / Ht + 3;
 
-load shock_history/Xs_med;
+load shock_history/medium.mat;
 Xs_med = XSS;
 %Xs_med = Xs_med / Ht + 3;
 
@@ -53,6 +53,34 @@ set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$X_s / H_t$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
+
+
+shock = Xs_med(300:end,1);
+Ht = 1.78;
+Up = 32940*1.93;
+L=size(shock,1);
+Fs = 200e3;
+hw = hanning(L,'periodic');
+
+
+y = shock - mean(shock);
+y = y/100; % Convert to meters
+y = y.*hw;
+
+
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+figure(2)
+Y = (fft(y,NFFT))/L;
+f = Fs/2*linspace(0,1,NFFT/2+1);
+
+%% Divide by frequency
+a(1,:) = f*Ht/Up;
+a(2,:) = 2*abs(Y(1:NFFT/2+1));
+
+figure(2);
+loglog( a(1,:), a(2,:).^2 )
+
+
 
 
 % Save the figures and convert them to .pdf

@@ -11,16 +11,25 @@ close all;
 pref = 7.5e5;
 dt = 5.0e-6;
 
+res = 'medium';
 
-data = '/p/lscratchd/olson45/nozzle/';
-dir = [data,'nozzlecoarse3d/'];
-pa = zeros(512,4);
-intv = [1500,1916];
+switch res
+    case('coarse')
 
-%dir = [data,'nozzlemedium3d/'];
-%pa = zeros(768,4);
-%intv = [800,1060];
+        data = '/p/lscratchd/olson45/nozzle/';
+        dir = [data,'nozzlecoarse3d/'];
+        pa = zeros(512,4);
+        intv = [600,2127];
+        ofile = '../data/shock_history/coarse.mat';
 
+    case('medium')
+        data = '/p/lscratchd/olson45/nozzle/';
+        dir = [data,'nozzlemedium3d/'];
+        pa = zeros(768,4);
+        intv = [400,1232];
+        ofile = '../data/shock_history/medium.mat';
+end
+        
 %weight = abs(intv(1)-intv(2)) + 1;
 
 ii = 0;
@@ -41,12 +50,12 @@ for i=intv(1):intv(2)
     [xs,ps] = get_shock_location(x,val);
     XSS(ii,1) = xs;
     
-    %val = mid;
-    %[xs,ps] = get_shock_location(x,val);
+    val = mid;
+    [xs,ps] = get_shock_location(x,val);
     XSS(ii,2) = xs;
     
-    %val = bot;
-    %[xs,ps] = get_shock_location(x,val);
+    val = bot;
+    [xs,ps] = get_shock_location(x,val);
     XSS(ii,3) = xs;
     
     
@@ -71,44 +80,8 @@ time = time * 1000;  % make mili-seconds
 
 
 plot(time,XSS(:,1),time,XSS(:,2),time,XSS(:,3));
-%xmean = mean(Xs);
 
-
-
-
-% Read in the exp. data file
-
-% Data extents on plot
-xx = [0,4];
-yy = [-0.5,0.7];
-
-% Data extents on picture-in pixels
-LL = [509,348];
-UR = [712, 14];
-
-%figure(3);
-%exp = imread('shock_hist.png');
-
-%imshow(exp);
-% xpix = size(exp,2);
-% ypix = size(exp,1);
-% 
-% 
-% xdata = time;
-% ydata = (Xs-xmean)/2.23;
-% 
-% xdata = (xdata - xx(1) ) / (xx(2)-xx(1));
-% xdata = xdata * (UR(1)-LL(1)) + LL(1);
-% 
-% ydata = -(ydata - yy(2)) / (yy(2)-yy(1));
-% ydata = ydata * (LL(2)-UR(2)) + UR(2);
-% 
-% hold on;
-% plot(xdata,ydata,'k-','LineWidth',1.5);
-
-xs = XSS(:,1);
-save Xs;
-
+save(ofile,'time','XSS');
 
 
 
