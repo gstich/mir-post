@@ -176,18 +176,27 @@ e.open(nprocs=200,part="pbatch",bank="views",rtime="480:00")
 # Load the file
 base = "/p/lscratchd/olson45/nozzle/nozzle";
 
-#resolution = "medium3d";
-resolution = "fine3d";
-#j_cut = 150;    # medium
-j_cut = 159;     # fine
-t_start = 233;
-t_end = 233;
-
-side = -1;     # Side= top(-1), bot(1)
 del_bl = .2;
 Ht = 1.78;
 
 
+## Fine case fly
+resolution = "fine3d";
+j_cut = 159;     # fine
+t_start = 233;
+t_end = 233;
+side = -1;     # Side= top(-1), bot(1)
+
+
+## Medium case fly
+#resolution = "medium3d";
+#j_cut = 150;    # medium
+#t_start = 233;
+#t_end = 233;
+#side = 1;     # Side= top(-1), bot(1)
+
+
+## Coarse case fly
 #resolution = "coarse3d";
 #j_cut = 60;
 #t_start = 800;

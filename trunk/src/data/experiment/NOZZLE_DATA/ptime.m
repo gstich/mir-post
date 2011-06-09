@@ -46,7 +46,7 @@ end
 figure(2)
 L=10000;
 Fs=srate;
-hw = hann(L,'periodic');
+hw = hanning(L,'periodic');
 
 for i=2:5
 
@@ -59,14 +59,14 @@ f = Fs/2*linspace(0,1,NFFT/2+1);
 
 c(i-1,:) = 2*abs(f'.*Y(1:NFFT/2+1));
 % Plot single-sided amplitude spectrum.
-figure(i)
-semilogx(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
+%figure(i)
+%semilogx(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
 %loglog(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
 %xlim([f(ceil(size(f,2)/2)) f(end) ])
 end
-title('Single-Sided Amplitude Spectrum of y(t)')
-xlabel('Frequency (Hz)')
-ylabel('|Y(f)|')
+%title('Single-Sided Amplitude Spectrum of y(t)')
+%xlabel('Frequency (Hz)')
+%ylabel('|Y(f)|')
 
 
 tt = 5.4e-5;
@@ -108,7 +108,7 @@ for i=1:4
     end
 end
 
-write_visit('exp.tec',x,y,b);
+write_visit('../../../matlab_scripts/DATA/exp_spec.tec',x,y,b);
 
 %figure(7);
 %[cp,cp] = contourf(x,y,b,12);

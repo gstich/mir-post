@@ -13,22 +13,22 @@ resolution = 'medium';
 
 switch resolution
     case 'medium',
-t1 = 550;
-t2 = 580;
+t1 = 700;  %550
+t2 = 1100;  %580
 Nwall = 135;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
 ofile = '../data/BLprof/medium.dat';
     case 'coarse',
-t1 = 800;
-t2 = 840;
+t1 = 1000;
+t2 = 1400;
 Nwall = 87;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
 ofile = '../data/BLprof/coarse.dat'; 
     case 'fine',
 t1 = 195;
-t2 = 206;
+t2 = 233; %205
 Nwall = 174;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_procfine3d';

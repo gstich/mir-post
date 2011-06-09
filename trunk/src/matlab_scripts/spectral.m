@@ -5,7 +5,7 @@ function  spectral
 %Bfile = 'DATA/ptot_time.med';
 npts = 19;
 Bfile = 'DATA/ptot_plume.med';
-Bfile = 'DATA/ptot_plume.cor';
+%Bfile = 'DATA/ptot_plume.cor';
 
 b = 0;
 for i=1:npts
@@ -48,7 +48,7 @@ y = a*x.^m;
 %plot(x,y,'k--');
 
 
-save ../data/spectra/separation/spectra_coarse.mat b psd_e;
+%save ../data/spectra/separation/spectra_coarse.mat b psd_e;
 
 %% Compare to exp. data
 %plot_exp;

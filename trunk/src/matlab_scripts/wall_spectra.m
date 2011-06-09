@@ -35,21 +35,31 @@ for i=x1:xs:xn
 
     xcount = xcount + 1;
     pgrid(xcount,1:end) = pspec(1:end) / zcount;
-
+    
 end
 
 f = a(1,:);
 
 % Compensated spectra
+Ht = 1.78;
+Up = 32940*1.93;
+
 FF = zeros(xcount,Nt);
 XX = FF;
 for i=1:xcount
     pgrid(i,:) = pgrid(i,:).*f;
     Pnorm = sum(pgrid(i,:));
     pgrid(i,:) = pgrid(i,:) / Pnorm;
-    FF(i,:) = log(f);
-    XX(i,:) = (i-1)*dx;
-    
+    FF(i,:) = f; %log(f);
+    XX(i,:) = (i-1)*dx; 
+end
+pgrid = pgrid/Nt;
+
+xcount = 0;
+for i=x1:xs:xn
+    ii = xcount + 1;
+    XX(ii,:) = X(i);
+    xcount = xcount + 1;
 end
 %hold all;
 %for i=1:xcount
@@ -67,7 +77,7 @@ end
 %    pgrid = b;
 %end
 
-write_visit('coarse_bot.tec',XX(:,2:end),FF(:,2:end),pgrid(:,2:end));
+write_visit('DATA/sim_cor_spec.tec',XX(:,2:end),FF(:,2:end),pgrid(:,2:end));
 %figure(2);
 %contourf(XX,FF,pgrid,16,'edgecolor','none');
 %xray = flipud(gray);
