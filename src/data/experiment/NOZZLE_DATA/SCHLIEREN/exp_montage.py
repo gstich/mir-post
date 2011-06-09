@@ -41,6 +41,14 @@ for i in range(len(Iname)):
     cmd = 'cd tmp; convert ' + Iname[i] + crop_args + Iname[i]
     os.system(cmd)
 
+## Resize for paper (to fit sim_data
+Nxx = 1076;
+Nyy = 288;
+crop_args = " -resize " + str(Nxx)+"x" + str(Nyy)+" ";
+for i in range(len(Iname)):
+    cmd = 'cd tmp; mogrify ' + crop_args + Iname[i]
+    os.system(cmd)
+
 ## Flip some images to get large lambda on top
 cmd = "cd tmp; mogrify -flip " + Iname[1]
 os.system(cmd);
@@ -56,7 +64,7 @@ ii[5] = 1;
 
 mN = 6;                    # Number of images in montage
 bdr = 5;                   # Border size
-mNx = Nx                   # Nx
+mNx = Nxx                  # Nx
 mNy = Nyy*mN + bdr*(mN+1)  # Ny
 ofile = 'test.jpg'
 
@@ -84,8 +92,8 @@ os.system(cmd)
 cmd = 'rm -rf tmp'
 os.system(cmd)
 
-cmd = "mogrify -resize 1000x montage.jpg"
-os.system(cmd)
+#cmd = "mogrify -resize 1000x montage.jpg"
+#os.system(cmd)
 
 print "Done with montage:"
 print str(mN) + " images written"

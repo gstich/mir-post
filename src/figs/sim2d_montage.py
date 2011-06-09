@@ -29,10 +29,11 @@ for i in range(len(Iname)):
     os.system(cmd)
 
 ## Crop to remove black
-Nxx = int(Nx/1.6);
+Nxx = int(Nx/1.6) - 124;
+xoff = 124
 Nyy = int(Ny/1.25);
 yoff = int((Ny-Nyy)/2);
-crop_args = " -crop " + str(Nxx)+"x" + str(Nyy)+ "+0+" + str(yoff) + " ";
+crop_args = " -crop " + str(Nxx)+"x" + str(Nyy)+ "+"+str(xoff)+"+" + str(yoff) + " ";
 for i in range(len(Iname)):
     cmd = 'cd tmp; convert ' + Iname[i] + crop_args + Iname[i]
     os.system(cmd)
@@ -53,7 +54,7 @@ ii[4] = 4;
 ii[5] = 5;
 
 mN = 6;                    # Number of images in montage
-bdr = 2;                   # Border size
+bdr = 5;                   # Border size
 mNx = Nxx                  # Nx
 mNy = Nyy*mN + bdr*(mN+1)  # Ny
 ofile = 'test.jpg'
@@ -78,8 +79,8 @@ os.system(cmd)
 cmd = 'rm -rf tmp'
 os.system(cmd)
 
-cmd = "mogrify -resize 1000x sim_montage.jpg"
-os.system(cmd)
+#cmd = "mogrify -resize 1000x sim_montage.jpg"
+#os.system(cmd)
 
 print "Done with montage:"
 print str(mN) + " images written"
