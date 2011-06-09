@@ -3,8 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-%pdfE = true;
-pdfE = false;
+pdfE = true;
+%pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
@@ -75,7 +75,7 @@ figure(1);
 
 h1 = xlabel(['$y^+$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
-h2 = ylabel('$u^+$');
+h2 = ylabel('$U^+_{VD}$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 box on;
 set(gca,'FontSize',FSa);
@@ -132,13 +132,24 @@ plot( 10.^dns(:,1), dns(:,2),'k--','LineWidth',LW);
 
 h1 = xlabel(['$y^+$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
-h2 = ylabel('$u^+$');
+h2 = ylabel('$U^+_{VD}$'); 
 set(h2,'Interpreter','latex','FontSize',FSn);
 box on;
 set(gca,'FontSize',FSa);
 xlim([1 2e3]);
 ylim([0 25]);
 set(gca,'Position',[.13,.13,.775,.8107])
+
+
+%% Add equations to figure(1)
+figure(1);
+% Add the text
+tx = 2.2;
+ty = 12;
+h1 = text(tx,ty,'$U^+_{VD} = y^+$');
+h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.41+5.2$');
+set(h1, 'interpreter', 'latex','FontSize',FSa)
+set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',30)
 
 
 

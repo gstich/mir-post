@@ -210,14 +210,14 @@ Preliminary results from the coarse mesh simulation are presented here.  The com
 
 \subsection{Incoming Turbulent Boundary Layer}
 
-The incoming turbulent boundary layer is well captured by the medium and fine mesh LES.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by the coarse, medium and fine cases.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the medium and fine case are nearly identical.  The coarse case is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift in the log-law intersect.  This is attributed to the substantially large pressure gradient present at the throat.  Spallart et.al. found a shift in this value of --- \% for pressure gradient of ---.  The pressure gradient at the throat is ---- and the shift  was ---\%.
+The incoming turbulent boundary layer is well captured by the medium and fine mesh LES.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by the coarse, medium and fine cases.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the medium and fine case are nearly identical.  The coarse case is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift upward from the standard the log-law fit($U_{VD}^+ = \log(y^+) / .41+ b $), where $b$ is the intersect.  This is attributed to the substantially large pressure gradient present at the throat.  Spalart~\cite{Spalart:93} investigated the effect of a favorable pressure gradient on the velocity profiles in the boundary layer and found that for a normalized pressure gradient of $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.3$ there was a shift in $b$ of 20\%.  The pressure gradient at the throat for our current study was calculated to be $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.7$ and the shift  was 27\%.  The former study by Spalart and the converged LES profiles indicate that the calculation is accuratly capturing the boundary layer and the effect of the favorable pressure gradient.  
 
 
 
 \begin{figure}
 	\includegraphics[height=2.75in]{../../figs/mean.pdf}
 	\includegraphics[height=2.75in]{../../figs/rms.pdf}
-	\caption{(Left) Mean velocity profile (Van Driest transformed) in the wall normal direction ($+$ units) for the coarse (dashed), medium (dashed-dot) and fine (solid) mesh cases at the nozzle throat.  (Right) Diagonal components of the Reynolds stress for the three cases.
+	\caption{(Left) Mean velocity profile (Van Driest transformed) in the wall normal direction ($+$ units) for the coarse (dashed), medium (dashed-dot) and fine (solid) mesh cases at the nozzle throat.  Inner and log-law fits are plotted for reference.  (Right) Diagonal components of the Reynolds stress for the three cases.
 	\label{fig:BL_prof}
 	}
 \end{figure}
@@ -237,6 +237,7 @@ The mean pressure profile at the centerline and at the wall compare well to the 
 
 \begin{figure}
 	\includegraphics[height=2.75in]{../../figs/dPdx.pdf}
+	\includegraphics[height=2.75in]{../../figs/spalart.pdf}
 	\caption{ Normalized wall pressure gradient for the experiment (circles) and the LES (dashed) showing agreement passed the throat and its large favorability.
  	\label{fig:dPdx}
 	}
@@ -273,8 +274,10 @@ Figure~\ref{fig:schl} shows a comparison between a Schlieren photograph taken fr
 
 \begin{figure}[!htb]% order of placement preference: here, top, bottom
 	\begin{center}
-	\includegraphics[width=6.1in]{figs/papam_exp.png}
- 	\includegraphics[width=6in]{figs/papam_cLES.png}
+	%\includegraphics[width=6.1in]{figs/papam_exp.png}
+ 	%\includegraphics[width=6in]{figs/papam_cLES.png}
+	\includegraphics[width=3in]{../../figs/exp_montage.jpg}
+	\includegraphics[width=3in]{../../figs/sim_montage.jpg}
 	\end{center}
  	\caption{Schlieren from experiment \cite{Papam:09} (top) and contours of $||\nabla\rho||$ from a 2d slice of the coarse mesh LES (bottom).}
  	\label{fig:schl}
@@ -381,7 +384,10 @@ Turbulent Boundary Layer'', \emph{AIAA Journal}, 2010-4467, 2010.
  	P.B. Bookey, C. Wyckham, A.J. Smits, and M.P. Martin, ``New Experimental Data of STBLI at DNS/LES Accessible 
 Reynolds Numbers,''  AIAA Paper 2005-309, Jan. 2005.
 
-	
+\bibitem{Spalart:93}
+	P. Spalart and J. Watmuff, ``Experimental and numerical study of a turbulent boundary layer with pressure gradients,'' \emph{J. Fluid Mech.},
+vol. {\bf 249}, pp. 337-371 (1993)	
+
  
 	
 \end{thebibliography}
