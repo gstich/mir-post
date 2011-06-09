@@ -3,11 +3,23 @@ clc;
 
 close all;
 
+res = 'coarse';
 
 % Load the entire time history of the walls
-path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
-t1 = 500;
-tf = 1250;
+switch(res)
+    case('coarse')
+        path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
+        t1 = 800;%500;
+        tf = 2200;%1250;
+        ofile = 'DATA/Pbot_cor.mat';
+    case('medium')
+        path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
+        t1 = 500;
+        tf = 1280;%1250;
+        ofile = 'DATA/Pbot_med.mat';
+end
+
+
 
 
 dum = load_planes_mir_xz(path,'walls_bot',t1);
@@ -26,7 +38,8 @@ path = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d/vis0000/pressure.dat';
 pplot = load(path);
 X = pplot(:,1);
 
-save 'DATA/Pbot.mat' Pbot X;
+%save 'DATA/Pbot_cor.mat' Pbot X;
+save(ofile,'Pbot','X')
 
 
 
