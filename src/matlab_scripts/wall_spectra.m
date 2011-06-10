@@ -1,17 +1,31 @@
 function wall_spectra
 
 
-load('DATA/Pbot_cor.mat');
-Ptop = Pbot;
+res = 'coarse';
+res = 'medium';
 
-dx = 1;
-x1 = 100;
-xn = 460;
-xs = 5;
+switch(res)
+    case('coarse');
+        load('DATA/Pw_cor.mat');
+        dx = 1;
+        x1 = 100;
+        xn = 460;
+        xs = 5;
+        %Ptop = P;
+    case('medium')
+        load('DATA/Pw_med.mat');
+        dx = 1;
+        x1 = 170;
+        xn = 660;
+        xs = 8;
+        %Ptop = Pbot;
+end
+
+
 
 zs = 1;
 
-L = size(Ptop,3);
+L = size(Pw,3);
 NFFT = 2^nextpow2(L);
 Nt = NFFT/2+1;
 pgrid = zeros( (xn-x1)/xs, Nt);
@@ -23,12 +37,12 @@ for i=x1:xs:xn
 
     pspec = 0*pspec;
     zcount = 0;
-    for k=zs:zs:size(Ptop,2)
+    for k=zs:zs:size(Pw,2)
         
-        ptime(1:end) = Ptop(i,k,:);
+        ptime(1:end) = Pw(i,k,:);
         
         a = get_spectra(ptime);
-        a = a.*a;
+        %a = a.*a;
         
         pspec = pspec + a(2,:)';
         zcount = zcount + 1;
@@ -78,7 +92,7 @@ end
 %    pgrid = b;
 %end
 
-write_visit('DATA/sim_cor_spec.tec',XX(:,2:end),FF(:,2:end),pgrid(:,2:end));
+write_visit(['DATA/sim_',res,'_spec.tec'],XX(:,2:end),FF(:,2:end),pgrid(:,2:end));
 figure(2);
 contourf(XX,FF,pgrid,16,'edgecolor','none');
 xray = flipud(gray);

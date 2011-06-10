@@ -7,12 +7,12 @@ Ny = 360
 base='medium3dgradRHO_';
 fmt='.tiff'
 Iname = []
-Iname.append('1100')
-Iname.append('1125')
-Iname.append('1150')
-Iname.append('1175')
-Iname.append('1200')
-Iname.append('1225')
+#Iname.append('1100')
+#Iname.append('1125')
+Iname.append('0600')
+Iname.append('0625')
+Iname.append('0650')
+#Iname.append('1225')
 
 for i in range(len(Iname)):
     Iname[i] = base + Iname[i] + fmt;
@@ -49,11 +49,11 @@ ii = [0]*len(Iname)
 ii[0] = 0;
 ii[1] = 1;
 ii[2] = 2;
-ii[3] = 3;
-ii[4] = 4;
-ii[5] = 5;
+#ii[3] = 3;
+#ii[4] = 4;
+#ii[5] = 5;
 
-mN = 6;                    # Number of images in montage
+mN = 3;                    # Number of images in montage
 bdr = 5;                   # Border size
 mNx = Nxx                  # Nx
 mNy = Nyy*mN + bdr*(mN+1)  # Ny
