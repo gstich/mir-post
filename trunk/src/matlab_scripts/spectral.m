@@ -1,11 +1,19 @@
 function  spectral
 
 
-%npts = 6;
-%Bfile = 'DATA/ptot_time.med';
-npts = 19;
-Bfile = 'DATA/ptot_plume.med';
-%Bfile = 'DATA/ptot_plume.cor';
+res = 'medium';
+
+switch(res)
+    case('coarse');
+        Bfile = 'DATA/ptot_plume.cor';
+        npts = 19;
+        ofile = '../data/spectra/separation/spectra_coarse.mat';
+    case('medium')    
+        Bfile = 'DATA/ptot_plume.med';
+        npts = 19;
+        ofile = '../data/spectra/separation/spectra_medium.mat'   ;     
+end
+
 
 b = 0;
 for i=1:npts
@@ -27,13 +35,13 @@ end
 b = b/npts;
 
 
-tt = max(size(p))*5e-6
+tt = max(size(p))*5e-6 * 10;
 c = b(2,:).^2*tt;
-b(2,:) = c / c(1);
+b(2,:) = c ;%/ max(c);
 loglog(b(1,:),b(2,:));hold all; 
 
 psd_e = load('../data/experiment/psd_exp.dat');
-psd_e(:,2) = psd_e(:,2)/psd_e(1,2);
+%psd_e(:,2) = psd_e(:,2)/psd_e(1,2);
 loglog(psd_e(:,1),psd_e(:,2),'ro');
 
 xlabel('f H_t/U_p')
@@ -48,7 +56,7 @@ y = a*x.^m;
 %plot(x,y,'k--');
 
 
-%save ../data/spectra/separation/spectra_coarse.mat b psd_e;
+save(ofile, 'b', 'psd_e');
 
 %% Compare to exp. data
 %plot_exp;

@@ -55,21 +55,22 @@ os.system(cmd);
 
 ## Make a montage of the images
 ii = [0]*len(Iname)
-ii[0] = 2;
-ii[1] = 5;
-ii[2] = 4;
-ii[3] = 3;
-ii[4] = 0;
-ii[5] = 1;
+j=0;
+#ii[j] = 2;j=j+1
+ii[j] = 5;j=j+1
+ii[j] = 4;j=j+1
+ii[j] = 3;j=j+1
+#ii[j] = 0;j=j+1
+#ii[j] = 1;
 
-mN = 6;                    # Number of images in montage
+mN = 3;                    # Number of images in montage
 bdr = 5;                   # Border size
 mNx = Nxx                  # Nx
 mNy = Nyy*mN + bdr*(mN+1)  # Ny
 ofile = 'test.jpg'
 
 files = ' ';
-for i in range(len(Iname)):
+for i in range(mN):
     j = ii[i]
     files = files + ' ' + Iname[j] + " "
 
