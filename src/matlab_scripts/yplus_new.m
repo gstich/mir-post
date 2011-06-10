@@ -21,7 +21,7 @@ path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
 ofile = '../data/BLprof/medium.dat';
     case 'coarse',
 t1 = 1000;
-t2 = 1000;
+t2 = 1400;
 Nwall = 87;
 buff = 5;
 path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
