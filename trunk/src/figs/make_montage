@@ -4,7 +4,7 @@
 
 ## Linear stack of images
 bdr=2
-width=1800
+width=2400
 x="x"
 num=2
 outfile="XvSt_wall.jpg"

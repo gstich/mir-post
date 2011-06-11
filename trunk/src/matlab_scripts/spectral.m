@@ -1,7 +1,9 @@
 function  spectral
 
 
-res = 'medium';
+%res = 'medium';
+res = 'coarse';
+
 
 switch(res)
     case('coarse');
@@ -38,7 +40,7 @@ b = b/npts;
 tt = max(size(p))*5e-6 * 10;
 c = b(2,:).^2*tt;
 b(2,:) = c ;%/ max(c);
-loglog(b(1,:),b(2,:));hold all; 
+loglog(b(1,:),b(2,:),'k');hold all; 
 
 psd_e = load('../data/experiment/psd_exp.dat');
 %psd_e(:,2) = psd_e(:,2)/psd_e(1,2);
