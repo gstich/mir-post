@@ -3,8 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-%pdfE = true;
-pdfE = false;
+pdfE = true;
+%pdfE = false;
 rez = 'fine';
 
 Ht = 1.78;
@@ -91,7 +91,7 @@ figure(1);
 tx = 2.2;
 ty = 12;
 h1 = text(tx,ty,'$U^+_{VD} = y^+$');
-h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.37+5.2$');
+h2 = text(tx+25,ty,'$U^+_{VD} = \log(y^+)/.37+5.2$');
 set(h1, 'interpreter', 'latex','FontSize',FSa)
 set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',30)
 

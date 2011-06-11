@@ -4,13 +4,13 @@ close all;
 
 %% Plot the BL data: Mean and Reynolds stress
 pdfE = true;
-pdfE = false;
+%pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
 ref(1) = 1;
-ref(2) = 2;
-ref(3) = 2;
+ref(2) = 3;
+ref(3) = 3;
 
 % Figure name
 figs(1).name = 'mean';
@@ -79,8 +79,8 @@ h2 = ylabel('$U^+_{VD}$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 box on;
 set(gca,'FontSize',FSa);
-xlim([1 2e3]);
-ylim([0 25]);
+xlim([1 1e3]);
+ylim([0 28]);
 set(gca,'Position',[.13,.13,.775,.8107])
 
 figure(2);clf;
@@ -108,8 +108,8 @@ set(gca,'Position',[.13,.13,.775,.8107])
 
 
 figure(3);clf;
-semilogx(x1,x1,'k--');hold on;
-semilogx(x2,1/k*log(x2)+C,'k--');hold on;
+
+ref(3) = 3;
 for i=3:3
     
     % Get reference utau,del,delBL,tau_w
@@ -130,13 +130,30 @@ end
 dns = load('BLprof/spalart_dns.dat');
 plot( 10.^dns(:,1), dns(:,2),'k--','LineWidth',LW);
 
+% Fits
+semilogx(x1,x1,'k--');hold on;
+semilogx(x2,1/k*log(x2)+C,'k--');hold on;
+
+% Add the text
+tx = 2.2;
+ty = 12;
+h1 = text(tx,ty,'$U^+_{VD} = y^+$');
+h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.41+5.2$');
+set(h1, 'interpreter', 'latex','FontSize',FSa)
+set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',30)
+
+
+h = legend('Present LES','Spalart-DNS','Location','NorthWest');
+set(h,'interpreter','latex','FontSize',FSn);
+legend boxoff
+
 h1 = xlabel(['$y^+$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$U^+_{VD}$'); 
 set(h2,'Interpreter','latex','FontSize',FSn);
 box on;
 set(gca,'FontSize',FSa);
-xlim([1 2e3]);
+xlim([1 1e3]);
 ylim([0 25]);
 set(gca,'Position',[.13,.13,.775,.8107])
 
@@ -149,7 +166,7 @@ ty = 12;
 h1 = text(tx,ty,'$U^+_{VD} = y^+$');
 h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.41+5.2$');
 set(h1, 'interpreter', 'latex','FontSize',FSa)
-set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',30)
+set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',25)
 
 
 

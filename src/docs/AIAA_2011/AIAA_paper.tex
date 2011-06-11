@@ -3,6 +3,11 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 
+
+\usepackage{subfig}
+\usepackage{caption}
+\captionsetup[subfigure]{labelformat=empty}
+
  \title{Large-Eddy Simulation of an over-expanded planar nozzle}
 
  \author{
@@ -244,6 +249,16 @@ The mean pressure profile at the centerline and at the wall compare well to the 
 	}
 \end{figure}
 
+\begin{figure}
+	\begin{centering}
+	\includegraphics[height=3.75in]{../../figs/mean_st.pdf}
+
+	\caption{ Mean velocity profiles (Van Driest) at various stations along the length of the nozzle.  The sustained favorable pressure gradient causes a further upward shift in the mean profiles.
+ 	\label{fig:stations}
+	}
+	\end{centering}
+\end{figure}
+
 
 \begin{figure}
 	\includegraphics[height=2.75in]{../../figs/1dspancorr.pdf}
@@ -280,15 +295,54 @@ Figure~\ref{fig:schl} shows a comparison between a Schlieren photograph taken fr
 	\includegraphics[width=3in]{../../figs/exp_montage.jpg}
 	\includegraphics[width=3in]{../../figs/sim_montage.jpg}
 	\end{center}
- 	\caption{Schlieren from experiment \cite{Papam:09} (top) and contours of $||\nabla\rho||$ from a 2d slice of the coarse mesh LES (bottom).}
+ 	\caption{Schlieren images from experiment cite{Johnsen:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) show excellent qualitative agreement of the shock structure, the separated shear layer and the compression/expansion waves.  }
  	\label{fig:schl}
 \end{figure}
 
+
+\begin{figure}[!htb]% order of placement preference: here, top, bottom
+	\begin{center}
+	%\includegraphics[width=6.1in]{figs/papam_exp.png}
+ 	%\includegraphics[width=6in]{figs/papam_cLES.png}
+	\includegraphics[height=3in, angle=-90]{figs/plume_exp.png}
+	\includegraphics[height=3in, angle=-90]{figs/plume_les.png}
+	\end{center}
+ 	\caption{Schlieren images from experiment cite{Johnsen:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) show excellent qualitative agreement of the shock structure, the separated shear layer and the compression/expansion waves.  }
+ 	\label{fig:schl}
+\end{figure}
 
 
 \subsection{Flow asymmetries}
 The experimentalists also observed large asymmetries in the shock structure and in the separated shear layer.  Once a preferred side was selected by the flow it was maintained through the duration of the experiment.  This preferred side varied from run to run with a uniformly random distribution.  Again the coarse mesh calculation exhibited identical behavior, selecting a preferred side and maintaining that side for the duration of the simulation.  Both the lambda shock structure and the asymmetric shear layer from the calculation are shown in Figure~\ref{fig:asym}.  We can also observe a rapid change in the turbulent structure of the flow near the wall as the flow passes through the shock wave in Figure~\ref{fig:asymBL}.  The distinct differences in the top and bottom boundary layers illustrate clearly the shock asymmetry present in the flow.
 
+
+\begin{figure}
+  \centering
+  
+  \subfloat[$\tau=0$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0550.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=13.5$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0700.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=27$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0850.png}}
+  
+  
+  \subfloat[$\tau=4.5$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0600.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=18$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0750.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=31.5$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0900.png}}
+  
+  
+  \subfloat[$\tau=9$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0650.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=22.5$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0800.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=34$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0928.png}}
+  
+  \caption{Shock wave motion and the corresponding separated shear layer over one low-frequency period.  Contours of $||\nabla\rho||$ are shown in grayscale and colored regions depict negative velocity, where red represents a Mach number of approximately 0.1 and blue is zero.    }
+  
+  \label{fig:animals}
+\end{figure}
 
 
 \begin{figure}[!h]% order of placement preference: here, top, bottom
