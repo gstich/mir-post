@@ -105,7 +105,7 @@ end
 function a = get_spectra(ptot)
 
 Ht = 1.78;
-Up = 32940*1.93;
+Up = 32940*1.603;
 L=size(ptot,1);
 Fs = 200e3;
 hw = hanning(L,'periodic');
