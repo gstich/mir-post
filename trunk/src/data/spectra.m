@@ -3,8 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-%pdfE = true;
-pdfE = false;
+pdfE = true;
+%pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
@@ -44,12 +44,13 @@ figure(1);
 
 h1 = xlabel(['$fH_t/U_p$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
-h2 = ylabel('$PSD^*$');
+h2 = ylabel('$PSD(Pa^2/Hz)$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 box on;
 set(gca,'FontSize',FSa);
 xlim([10^-3 3]);
-ylim([10^-6 2]);
+%ylim([10^-6 2]);
+ylim([10^1 10^6]);
 set(gca,'Position',[.13,.13,.775,.8107])
 
 

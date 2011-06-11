@@ -184,10 +184,10 @@ The far field employs a non-reflecting characteristic boundary condition\cite{Po
 
 
 \begin{figure}[!htb]% order of placement preference: here, top, bottom
- %\includegraphics{figs/info_3d.png}
- \includegraphics{figs/info_slide2.pdf}
- \caption{Iso-volume of $|| \nabla\rho ||$  shaded by vorticity magnitude with contours of velocity magnitude in back plane. }
- \label{fig:info_3d}
+	\centering
+  	\includegraphics[trim = 0in 1.2in 0in 0in, clip, width = 7in]{figs/info_slide2.pdf}
+	\caption{Iso-volume of $|| \nabla\rho ||$  shaded by vorticity magnitude with contours of velocity magnitude in back plane. }
+ 	\label{fig:info_3d}
 \end{figure}
 
 \section{Experimental Setup}
@@ -341,25 +341,55 @@ The experimentalists also observed large asymmetries in the shock structure and 
   
   \caption{Shock wave motion and the corresponding separated shear layer over one low-frequency period.  Contours of $||\nabla\rho||$ are shown in grayscale and colored regions depict negative velocity, where red represents a Mach number of approximately 0.1 and blue is zero.    }
   
-  \label{fig:animals}
+  \label{fig:history}
 \end{figure}
 
 
-\begin{figure}[!h]% order of placement preference: here, top, bottom
-	\begin{center}
-	\includegraphics[width=6in]{figs/rho_941s.png}
-	\end{center}
- 	\caption{Contours of density from a 2d slice of the coarse mesh LES showing asymmetries in shock structure and separated shear layer}
- 	\label{fig:asym}
+\begin{figure}
+  \centering
+  
+  \subfloat[$\tau=0$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0550.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=13.5$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0700.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=27$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0850.png}}
+  
+  
+  \subfloat[$\tau=4.5$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0600.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=18$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0750.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=31.5$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0900.png}}
+  
+  
+  \subfloat[$\tau=9$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0650.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=22.5$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0800.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=34$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0928.png}}
+  
+  \caption{Grayscale is $C_f$ from -0.01 to 0.01 corresponding from black to white.  Colored region depicts $T_{ref}$ (.56,.94) isovolume at .60   }
+  
+  \label{fig:history}
 \end{figure}
 
-\begin{figure}[!h]% order of placement preference: here, top, bottom
-	\begin{center}
-	\includegraphics[width=6in]{figs/top_bottom.png}
-	\end{center}
- 	\caption{Contours of density from a 2d slice of the coarse mesh LES at $y^+ \approx 16$ showing asymmetries in shock structure and separated shear layer for top and bottom walls.}
- 	\label{fig:asymBL}
-\end{figure}
+
+
+%\begin{figure}[!h]% order of placement preference: here, top, bottom
+%	\begin{center}
+%	\includegraphics[width=6in]{figs/rho_941s.png}
+%	\end{center}
+% 	\caption{Contours of density from a 2d slice of the coarse mesh LES showing asymmetries in shock structure and separated shear layer}
+% 	\label{fig:asym}
+%\end{figure}
+%
+%\begin{figure}[!h]% order of placement preference: here, top, bottom
+%	\begin{center}
+%	\includegraphics[width=6in]{figs/top_bottom.png}
+%	\end{center}
+% 	\caption{Contours of density from a 2d slice of the coarse mesh LES at $y^+ \approx 16$ showing asymmetries in shock structure and separated shear layer for top and bottom walls.}
+% 	\label{fig:asymBL}
+%\end{figure}
 
 \subsection{Outlook for subsequent LES calculations}
 The preliminary coarse mesh calculations show surprisingly good results despite the poorly resolved turbulent boundary layer.  It is expected that the medium and fine meshes will produce data which is much richer and complete in the sense that more scales of motion are resolved.  These data sets will be used to compute more quantitative statistics which will be used to compare with the experiment and to advance the understanding of this problem and its complex, underlying physics.  We also plan to conduct a parametric variation with the nozzle pressure ratio to explore the flow regimes observed in the experiments.  
