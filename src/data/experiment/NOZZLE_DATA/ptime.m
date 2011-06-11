@@ -81,15 +81,17 @@ FF = logspace(log10(f1),log10(f2),N);
 for i=1:4
     b(i,:) = interp1(f,c(i,:),FF);
     b(i,:) = b(i,:) / sum(b(i,:));
+    %b(i,:) = b(i,:) / max(b(i,:));
 end
-b = b/N;
+
+%b = b/N;
 
 % Make a 2d Contour plot of exp. data
 lfreq = size(FF,2);
 x = zeros(4,lfreq);
 y = zeros(4,lfreq);
 for i=1:lfreq
-    x(:,i) = [0, 1.27, 2.54, 3.81] + 7;
+    x(:,i) = [0, 1.27, 2.54, 3.81] + 5.5;
     % Filter this term
     %for k=1:4
     %    for ii=2:min(size(b))-1
@@ -97,6 +99,8 @@ for i=1:lfreq
     %    end
     %end
 end
+Ht = 1.78;
+x = x / Ht;
 
 for i=1:4
     y(i,:) = FF*tt; %log10(FF*tt);
@@ -107,6 +111,8 @@ for i=1:4
         end
     end
 end
+b = b / max(max(b));
+
 
 write_visit('../../../matlab_scripts/DATA/exp_spec.tec',x,y,b);
 

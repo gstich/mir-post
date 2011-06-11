@@ -2,7 +2,7 @@ function wall_spectra
 
 
 res = 'coarse';
-res = 'medium';
+%res = 'medium';
 
 switch(res)
     case('coarse');
@@ -69,6 +69,8 @@ for i=1:xcount
     XX(i,:) = (i-1)*dx; 
 end
 pgrid = pgrid/Nt;
+% non- by max val
+pgrid = pgrid / max(max(pgrid));
 
 xcount = 0;
 for i=x1:xs:xn
