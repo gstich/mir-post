@@ -16,7 +16,7 @@ Source("utils.py")
 
 # Launch/request the procs
 e = Engine()
-e.open(nprocs=32,part="pbatch",bank="views",rtime="120:00")
+e.open(nprocs=64,part="pbatch",bank="views",rtime="120:00")
 
 
 # Load the file
@@ -38,6 +38,15 @@ odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_cor/"
 #t_viz = 1121;      # Start index for this render run...
 #resolution = "medium3d";
 #odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_med/"
+
+
+## Fine presets
+toff = 100;       # Offset for the 2d data set
+t1 = 100;         # Start index for viz
+tf = 233;        # End index for viz
+t_viz = 100;      # Start index for this render run...
+resolution = "fine3d";
+odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_fin/"
 
 var = "gradRHO";
 
