@@ -12,6 +12,7 @@ pref = 7.5e5;
 dt = 5.0e-6;
 
 res = 'coarse';
+res = 'medium';
 
 
 switch res
@@ -20,14 +21,14 @@ switch res
         data = '/p/lscratchd/olson45/nozzle/';
         dir = [data,'nozzlecoarse3d/'];
         pa = zeros(512,4);
-        intv = [800,2258];
+        intv = [800,2356];
         ofile = '../data/shock_history/coarse.mat';
 
     case('medium')
         data = '/p/lscratchd/olson45/nozzle/';
         dir = [data,'nozzlemedium3d/'];
         pa = zeros(768,4);
-        intv = [300,1283];
+        intv = [300,1333];
         ofile = '../data/shock_history/medium.mat';
 end
         
