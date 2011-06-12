@@ -106,13 +106,13 @@ a(1,:) = f*Ht/Up;
 a(2,:) = 2*abs(Y(1:NFFT/2+1)) / 3;
 
 figure(2);
-loglog( a(1,:), a(2,:).*a(2,:) ,'k')
+loglog( a(1,:), a(2,:).*a(2,:) ,'r-.','LineWidth',LW)
 
 hold on;
 eoff = 1;
 psd_e = load('experiment/shock_psd.dat');
 %psd_e(:,2) = psd_e(:,2)/psd_e(1,2);
-loglog(psd_e(eoff:end,1),psd_e(eoff:end,2),'ro');
+loglog(psd_e(eoff:end,1),psd_e(eoff:end,2),'k--','LineWidth',LW);
 
 
 % Read in the exp. data file		
@@ -150,12 +150,24 @@ plot(xdata+pxoff,ydata,'b-','LineWidth',LW);
 
 axis off;
 
-a = 1;
-b = 1;
-c = xpix;
-d = ypix;
-set(gcf,'Position',[a b c d])
 
+figure(2);
+xlim([.005 2]);
+ylim([10^-12 10^-4.5]);
+box on;
+h1 = xlabel(['$tU_p/H_t$']);
+set(h1,'Interpreter','latex','FontSize',FSn);
+h2 = ylabel('$S_{xx}(m^2/Hz)$');
+set(h2,'Interpreter','latex','FontSize',FSn);
+set(gca,'FontSize',FSa);
+
+
+%a = 1;
+%b = 1;
+%c = xpix;
+%d = ypix*.8;
+%set(gcf,'Position',[a b c d])
+%set(gcf, 'PaperSize', [10.5 3]);
 
 
 % Save the figures and convert them to .pdf

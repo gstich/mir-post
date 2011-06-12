@@ -287,11 +287,32 @@ The mean pressure profile at the centerline and at the wall compare well to the 
 \subsection{Shock Location}
 Figure~\ref{fig:schl} shows a comparison between a Schlieren photograph taken from the experiment to results taken from the coarse mesh calculation.  Contours of the density gradient magnitude ($||\nabla\rho|| $) show that the coarse mesh calculation is in good qualitative agreement with the experiment.  The shock location, (which was experimentally reported to oscillate left and right by a distance of +/- $\delta_N$ ) agrees quite well with the experiment.  Furthermore the secondary shocks or the ``aftershocks'' observed in the experiments are captured.  From the experimental Schlieren image, one can clearly observe that there are scales of motion present in the separated shear layer which are not resolved in the coarse mesh calculation, and hence the requirement for subsequent and refined simulations.
 
+\begin{figure}
+	\begin{centering}
+	\includegraphics[width=6.5in, height=2.5in, keepaspectratio=false]{../../figs/shock_compare.pdf}
+	\caption{ Compensated energy spectra for wall pressure fluctuations normalized such that the integral over frequency at each $x$ location is unity.  Experimental data (top) and LES data (bottom) show both depict the low frequency motion of the shock wave and the high frequency turbulent boundary and shear layer.
+ 	\label{fig:comp_spectra}
+	}
+	\end{centering}
+\end{figure}
+
+
+
+\begin{figure}[!htb]% order of placement preference: here, top, bottom
+	%\begin{center}
+	\centering
+	\includegraphics[height=2.5in]{../../figs/shock_history.pdf}
+	\includegraphics[height=2.5in]{../../figs/shock_spectra.pdf}
+	%\end{center}
+ 	\caption{Schlieren images from experiment cite{Johnsen:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) show excellent qualitative agreement of the shock structure, the separated shear layer and the compression/expansion waves.  }
+ 	\label{fig:schl}
+\end{figure}
+
+
+
 
 \begin{figure}[!htb]% order of placement preference: here, top, bottom
 	\begin{center}
-	%\includegraphics[width=6.1in]{figs/papam_exp.png}
- 	%\includegraphics[width=6in]{figs/papam_cLES.png}
 	\includegraphics[width=3in]{../../figs/exp_montage.jpg}
 	\includegraphics[width=3in]{../../figs/sim_montage.jpg}
 	\end{center}

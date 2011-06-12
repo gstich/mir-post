@@ -103,7 +103,7 @@ set(gca,'FontSize',FSa);
 box on;
 set(gca,'FontSize',FSa);
 xlim([0 1.2])
-ylim([0 3.5])
+ylim([0 3.0])
 set(gca,'Position',[.13,.13,.775,.8107])
 
 
