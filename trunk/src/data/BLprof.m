@@ -3,8 +3,8 @@ clc;
 close all;
 
 %% Plot the BL data: Mean and Reynolds stress
-pdfE = true;
-%pdfE = false;
+%pdfE = true;
+pdfE = false;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';

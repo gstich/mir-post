@@ -40,7 +40,7 @@ end
 figure(1);
 for i=1:5
     hold all;   
-    plot(tap(i).p(1000:4000))
+    plot(tap(i).p(1000:20000))
 end
 
 figure(2)
@@ -104,6 +104,7 @@ x = x / Ht;
 
 for i=1:4
     y(i,:) = FF*tt; %log10(FF*tt);
+    y(i,:) = log10(FF*tt);
     % Filter this term
     for k=1:2
         for ii=2:max(size(b))-1
@@ -114,13 +115,13 @@ end
 b = b / max(max(b));
 
 
-write_visit('../../../matlab_scripts/DATA/exp_spec.tec',x,y,b);
+%write_visit('../../../matlab_scripts/DATA/exp_spec.tec',x,y,b);
 
-%figure(7);
-%[cp,cp] = contourf(x,y,b,12);
-%set(cp,'edgecolor','none');
-%xray = flipud(gray);
-%colormap(xray)
+figure(7);
+[cp,cp] = contourf(x,y,b,12);
+set(cp,'edgecolor','none');
+xray = flipud(gray);
+colormap(xray)
 
 
 
