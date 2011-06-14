@@ -4,7 +4,7 @@ close all;
 
 
 %% Plot the BL data: Mean and Reynolds stress
-pdfE = true;
+%pdfE = true;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 ref = 2;
@@ -65,7 +65,7 @@ plot(  x/x(end) *.5, Cor(:,1) ,'k-','LineWidth',LW);
 plot(  x/x(end) *.5, Cor(:,106),'k--' ,'LineWidth',LW);
 plot(  x/x(end) *.5, Cor(:,237),'k-.','LineWidth',LW);
 box on;
-h1 = xlabel(['$z/ H_t$']);
+h1 = xlabel(['$z/ L_z$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$ R_{11}(u) $');
 set(h2,'Interpreter','latex','FontSize',FSn);
