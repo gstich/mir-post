@@ -57,11 +57,11 @@
 %We do a series of LES of Papam exp.  We show good agreement to exp. quantities and observe int. flow phenomenon not mentioned in exp.  We look at data and unsteady shock at level of detail that exp and RANS cant.}
 
 
-Large-eddy simulation (LES) of an over-expanded planar nozzle is performed to elucidate the complex interaction between the turbulent boundary layer, the internal shock wave and the separated shear layer downstream of the shock.  A high-order compact differencing scheme, which includes artificial diffusivities for capturing discontinuities, is used to resolve turbulent structures while introducing very limited amounts of numerical dissipation.   This numerical simulation seeks to model the experiments performed by Papamoschou et.al. and shed light on the underlying physics of the shock-boundary layer interaction and the Free-Shock Separation (FSS) which is present in over-expanded super-sonic nozzles.  To achieve a feasible cost for computing a solution, the Reynolds number of the simulation is approximately $1/15^{th}$ of the experimental value and the geometrical ratio of the boundary layer thickness to throat is increased by a factor of two.  Simulation results compare well with those obtained from the experiment despite the modeling approximations.  The LES captures the unsteady fluctuation of the shockwave as it interacts with the incoming turbulent boundary layer and the separated shear layer downstream.  The richness of the simulation allow for a much more in-depth exploration of the underlying physics and have led to a better understanding of the unsteady shock wave behavior. 
+Large-eddy simulation (LES) of an over-expanded planar nozzle is performed to elucidate the complex interaction between the turbulent boundary layer, the internal shock wave and the separated shear layer downstream of the shock.  A high-order compact differencing scheme, which includes artificial diffusivities for capturing discontinuities, is used to resolve turbulent structures while introducing very limited amounts of numerical dissipation.   This numerical simulation seeks to model one the experiments of Papamoschou et.al. and shed light on the underlying physics of the shock-boundary layer interaction and the Free-Shock Separation (FSS) which is present in over-expanded super-sonic nozzles.  To achieve a feasible cost for computing a solution, the Reynolds number of the simulation is approximately $1/4^{th}$ of the experimental value and the geometrical ratio of the boundary layer thickness to throat is increased by a factor of two.  Simulation results compare well with those obtained from the experiment despite the modeling approximations.  The LES captures the unsteady fluctuation of the shockwave as it interacts with the incoming turbulent boundary layer and the separated shear layer downstream.  The richness of the simulation data allow for a more in-depth exploration of the underlying physics and have led to a better understanding of the unsteady shock wave behavior. 
 \end{abstract}
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
 
 \section*{Nomenclature}
@@ -70,17 +70,17 @@ Large-eddy simulation (LES) of an over-expanded planar nozzle is performed to el
   XXXXXXXX \= \kill% this line sets tab stop
   $\beta$ \> bulk viscosity \\
   $\Delta\vec{x}$ \> grid spacing \\
-  $\delta$  \> boundary layer thickness \\  \>(99\% velocity thickness) \\
+  $\delta$  \> boundary layer thickness (99\% velocity thickness) \\
   $\ten{\delta}$ \> unit tensor \\
   $E$ \> total energy \\
   $\gamma$ \> ratio of specific heats \\
   $\vec{g}$ \> gravitational acceleration \\
   $\kappa$ \> thermal conductivity \\
   $H_t$ \> nozzle throat height \\
-  $L_z$ \> domain extend in the span-wise \\ \>direction \\
+  $L_z$ \> domain extend in the span-wise direction \\
   $\mu$ \> dynamic viscosity \\
   $M$ \> Mach number \\
-  $N_\xi,N_\eta,N_\zeta$ \> number of grid \\ \>points in computational mesh \\
+  $N_\xi,N_\eta,N_\zeta$ \> number of grid points in computational mesh \\
   $NPR$ \> nozzle pressure ratio, $p_{0_{i}}/p_\infty$ \\
   $p$ \> static pressure \\
   $\rho$ \> density \\
@@ -107,32 +107,35 @@ Large-eddy simulation (LES) of an over-expanded planar nozzle is performed to el
  \end{tabbing}
  
  
- \end{multicols}
+% \end{multicols}
  
- \begin{multicols}{2}
+% \begin{multicols}{2}
 
 %\vspace{4in}
 \section{Introduction}
 
 %\emph{ Shock waves affect the design of nozzle.... interaction with BL is not fully understood.  Exp. Papam sought to look at this phenomenon and found bla... RANS was used on this and found BLA... LES is very handy for this stuff.  We do LES.}
 
-Internal shock waves are a major consideration in the design of super-sonic devices.  In supersonic converging-diverging nozzles, the unsteady shock wave can become asymmetric and generate large ``side loads''~\cite{Ostlund:05} on the nozzle interior during engine start-up or under certain over-expanded conditions.  Although the occurrence of this phenomenon can be approximated, there is still a great deal which is not understood due to inherit complexities of the shock-boundary layer interaction.  Conversely, the presence of shock waves inside a nozzle has recently been shown in experiments \cite{Papam:10} to enhance the downstream mixing of the nozzle jet.  Such an outcome might be desirable for engineering applications involving combustion related flows. 
+Internal shock waves are a major consideration in the design of super-sonic devices.  In supersonic converging-diverging nozzles, the unsteady shock wave can become asymmetric and generate large ``side loads''~\cite{Ostlund:05} on the nozzle interior during engine start-up or under certain over-expanded conditions.  Although the occurrence of this phenomenon can be approximated, there is still a great deal which is not understood due to inherit complexities of the shock-boundary layer interaction.  Furthermore, the presence of shock waves inside a nozzle has recently been shown in experiments \cite{Papam:10} to enhance the downstream mixing of the nozzle jet.  Such an outcome might be desirable for engineering applications involving combustion related flows. 
 
 
-The boundary layer separation caused by shock waves in the nozzle takes two forms.  The first, restricted shock separation (RSS), is typical of nozzles which contain a small internal shock (such as in thrust optimized nozzles) and which are over expanded.  In this interaction, the flow separates from the wall and then reattaches forming a separation bubble.  This process is analogous to several other canonical shock boundary layer interactions~\cite{Dussauge:09,Bookey:05}.  The second, free shock separation (FSS), is common in ideally contoured nozzles and is unique in that the separated boundary layer fails to reattach downstream.  Rather there is a sub-sonic shear layer which persists down the length of the nozzle.  The coupling between the downstream separation region and the shock location is more complex for FSS than RSS and as a result is less understood\cite{Ostlund:05}.  Furthermore, the ``side loads'' tend to be largest in the FSS regime.
+The boundary layer separation caused by shock waves in the nozzle takes two forms.  The first, restricted shock separation (RSS), is typical of nozzles which contain a small internal shock (such as in thrust optimized nozzles) and which are over expanded.  In this interaction, the flow separates from the wall and then reattaches forming a separation bubble.  This process is analogous to several other canonical shock boundary layer interactions~\cite{Dussauge:09,Bookey:05}.  The second, free shock separation (FSS), is common in ideally contoured nozzles and is unique in that the separated boundary layer fails to reattach downstream.  Rather there is a separated shear layer which persists down the length of the nozzle.  The coupling between the downstream separation region and the shock location is more complex for FSS than RSS and as a result is less understood\cite{Ostlund:05}.  Furthermore, the ``side loads'' tend to be largest in the FSS regime.
 
-Recent experiments by Papamoshchou et. al.\cite{Papam:09,Papam:10,Papam:06} of a planar nozzle have further elucidated the unsteady nature of the FSS.  Interesting flow features such as an asymmetric lambda-shock structure in the nozzle and largely enhanced mixing in the downstream jet of over-expanded nozzles have been observed.  These experiments quantified the shock's unsteady motion and found a broad-band range of frequencies present in the shock's motion.  The higher frequencies are independent of the shock strength/location and are governed by the incoming turbulent boundary layer.  The lower frequencies, however, depend greatly on the shock strength and the shock location becomes much more unstable with increasing shock strength.  The experimental data show a very intuitive correlation between the shock location and total pressure fluctuation downstream of the shock.  As the shock moves up/down stream, the strength of the shock will vary, thus altering the total pressure loss in the flow.  However, the available time resolved measurements of the turbulent boundary layer and the separated shear layer downstream are limited.  Thus, the effect of the boundary layer on the shock motion, and subsequently the separated shear layer, cannot be quantified.  Although, this effect could be small, recent studies of similar flows have that turbulent structures do indeed effect the low frequency shock motion~\cite{Touber:09} (reference Tauber and Sadham..others).  To our knowledge, the only simulation of this experiment was performed by Xiao et al \cite{Xiao:07}, which constituted a steady 2d Reynolds Averaged Navier-Stokes (RANS) solution.  That study had agreeable results with the mean statistics of the experimental data.  However, as is the nature of steady RANS, unsteady phenomenon were not captured and no additional insights about the unsteady coupling between boundary layer, shock location and downstream shear layer can be made.
+Recent experiments by Papamoshchou et. al.\cite{Papam:09,Papam:10,Papam:06} of a planar nozzle have further elucidated the unsteady nature of the FSS.  Interesting flow features such as an asymmetric lambda-shock structure in the nozzle and largely enhanced mixing in the downstream jet of over-expanded nozzles have been observed.  These experiments quantified the shock's unsteady motion and found a broad-band range of frequencies present in the shock's motion.  The higher frequencies are independent of the shock strength/location and are governed by the incoming turbulent boundary layer.  The lower frequencies, however, depend greatly on the shock strength and the shock location becomes much more unstable with increasing shock strength.  The experimental data show a very intuitive correlation between the shock location and total pressure fluctuation downstream of the shock.  As the shock moves up/down stream, the strength of the shock will vary, thus altering the total pressure loss in the flow.  However, the available time resolved measurements of the turbulent boundary layer and the separated shear layer downstream are limited.  Thus, the effect of the boundary layer on the shock motion, and subsequently the separated shear layer, cannot be quantified.  Although, this effect could be small, recent studies of similar flows have that turbulent structures do indeed effect the low frequency shock motion~\cite{Touber:09}.  To our knowledge, the only simulation of this experiment was performed by Xiao et al \cite{Xiao:07}, which constituted a steady two dimensional Reynolds Averaged Navier-Stokes (RANS) solution.  That study had agreeable results with the mean statistics of the experimental data.  However, as is the nature of steady RANS, unsteady phenomenon were not captured and no additional insights about the unsteady coupling between boundary layer, shock location and downstream shear layer were made.
 
 Large Eddy Simulation (LES) has recently had excellent success in capturing the unsteady flow physics of shock wave boundary layer interactions.\cite{Morgan:10b,Kawai:10aiaa,Touber:09,Pirozzoli:09}  Favorable comparison to experiments at ever increasing Reynolds numbers is demonstrating that LES is a valuable tool for engineering design and fundamental scientific research.  We have leveraged this technique to generate a rich data set which can be interrogated at a higher level of sophistication than is possible with experimental data or RANS.  We provide a brief summary of the methodology for the LES we are conducting and present results of a coarse, medium and fine mesh calculation which show excellent agreement with the experimental data.  We also report observations made from the numerical Schlieren and offer an intuitive hypothesis for the mechanism governing the low frequency shock motion.  
-\end{multicols}
 
-\clearpage
-\begin{multicols}{2}
+
+%\end{multicols}
+%\clearpage
+%\begin{multicols}{2}
+
+
 \section{LES Methodology}
 
 \subsection{Governing Equations}
 
-The compressible Navier-Stokes  equations can be written as:
+The compressible Navier-Stokes  equations can be written as
 
 \begin{equation}
   \pd{\rho}{t} + \divg \pth{ \rho\bgk{u} }  = 0 ,
@@ -148,7 +151,7 @@ The compressible Navier-Stokes  equations can be written as:
 \end{equation}
 
 
-where we have,
+where
 
 
 \begin{align}
@@ -164,19 +167,26 @@ Equations~\ref{eq:mass}-\ref{eq:energy} are numerically solved in conservation f
 \subsection{Numerical Methods}
 
 
-All first derivatives comprising the gradient and divergence operators in the governing equations are computed using a 10th-order compact scheme \cite{Lele:92}.  This scheme has high wave-number resolution which is desirable in the boundary and shear layers.  High-wave-number-biased artificial diffusivities \cite{Kawai:10,Cook:07,CookCabot:05} are used to smooth out sharp discontinuities in the flow and act as the sub-grid scale model.  These diffusivities are modified slightly to alleviate the prohibitive numerical stiffness which arises in the high aspect-ratio grid near the viscous boundary layer and shock.
+All first derivatives comprising the gradient and divergence operators in the governing equations are computed using a 10th-order compact central differencing scheme \cite{Lele:92}.  The high wave-number resolution of this scheme is desirable in the boundary and shear layers were turbulent fluctuations need to be resolved.  High-wave-number-biased artificial diffusivities \cite{Kawai:10,Cook:07,CookCabot:05} are used to smooth out sharp discontinuities (such as shock waves) in the flow and act as the sub-grid scale model.  These diffusivities are modified to alleviate the prohibitive numerical stiffness which arises in the high aspect-ratio grid near the viscous boundary layer and shock.
 
 The equations are advanced in time using a 5-stage, fourth-order Runge-Kutta scheme\cite{Kennedy:00} chosen for its broad stability properties in both convective and diffusive terms.  At the completion of every sub-iteration, an 8th-order filter is applied to the conserved variables to remove the top $1/10^{th}$ of wave numbers as sharply as possible.  The Courant-Friedrichs-Lewy (CFL) stability limit is near unity for the entirety of the calculation.
 
 \subsection{Mesh}
 
 The computational mesh is generated by mapping a single structured mesh to the boundary on the planar nozzle.  The same mesh then diverges and coarsens to form a background mesh which models the far-field conditions of the experiment.  The radius of the corner where the background mesh meets the nozzle mesh is larger then in the experiment, but is the size of the turbulent boundary layer length scale, $\delta$.  The converging portion of the nozzle is also modeled and is discussed in the following section.   
- For the given resolution requirements given in table~\ref{tbl:mesh}, we use a nozzle height Reynolds number of $2.5\times 10^4$.  Table~\ref{tbl:mesh} shows parameters of the completed coarse mesh and the anticipated medium and fine mesh simulations which define the wall spacing in viscous units and the overall grid size.  
+ For the given resolution requirements in table~\ref{tbl:mesh}, a nozzle height Reynolds number of $90\times 10^3$ is used.  This Reynolds number is approximately four times larger than that observed in the experiment.  Table~\ref{tbl:mesh} shows parameters of the completed coarse, medium and fine mesh simulations which define the wall spacing in viscous units and give the overall grid size.  
 
-\begin{table}[!h]
+
+\subsection{Boundary Conditions}
+
+The far field employs a non-reflecting characteristic boundary condition\cite{Poinsot:92} with a ``buffer'' region applied at the last few grid point which smooths out gradients and enforces the ambient conditions.  The nozzle walls are viscous (no slip) and adiabatic, e.g. $\vec{u}_w=0$ and $\vec{q}_w\cdot\vec{n}_w = 0$.  The span-wise direction is periodic, which is an approximation to the experimental geometry which has side walls.  It is computationally infeasible (for the present LES) to resolve the boundary layer of the entire converging section of the nozzle.  Therefore, the computational domain begins at the throat of the nozzle and we use the method of recycling-rescaling\cite{Lund:98} to continuously feed the simulation an accurately evolving turbulent boundary layer.  The boundary layer thickness to nozzle throat height ratio ($\delta/H_t$) exceeds the observed experimental ratio by a factor of 2.  At the throat this gives a momentum thickness Reynolds number of 1100.  The mean inlet variables ($\vec{u}$, $p$,$\rho$) are given by the quasi-1d approximation.  Figure~\ref{fig:info_3d} shows the inflow and nozzle portion of the domain and depicts the recycling-rescaling section.
+
+
+%\end{multicols}
+\begin{table*}[!h]
 
 \begin{center}
-	\caption{Computational mesh parameters for various levels of refinement.  The value of $L_z$ of the experiment\cite{Papam:10} was $2.7H_t$.
+	\caption{Computational mesh parameters for various levels of refinement.  The value of $L_z$ of the experiment\cite{Papam:10} was $3.5H_t$.
 	\label{tbl:mesh}
 	}
 	\begin{tabular}{lcccccccr}
@@ -189,55 +199,55 @@ The computational mesh is generated by mapping a single structured mesh to the b
 	Fine & 1024 & 386 &              386            & 2.3$H_t$ & 20 & 1-14 & 15 & 152.6 M
 	\end{tabular}
 \end{center}
-\end{table}
+\end{table*}
+
+%\begin{multicols}{2}
 
 
-\subsection{Boundary Conditions}
-
-The far field employs a non-reflecting characteristic boundary condition\cite{Poinsot:92} with a ``buffer'' region applied at the last few grid point which smooths out gradients and enforces the ambient conditions.  The nozzle walls are viscous (no slip) and adiabatic, e.g. $\vec{u}_w=0$ and $\vec{q}_w\cdot\vec{n}_w = 0$.  The span-wise direction is periodic, which is an approximation to the experimental geometry which has side walls.  It is computationally infeasible (for the present LES) to resolve the boundary layer of the entire converging section of the nozzle.  Therefore, the computational domain begins at the throat of the nozzle and we use the method of recycling-rescaling\cite{Lund:98} to continuously feed the simulation an accurately evolving turbulent boundary layer.  The ratio this boundary layer thickness to nozzle throat height, that is $\delta/H_t$, exceeds the observed experimental ratio by a factor of 2.  At the throat his gives an momentum thickness Reynolds number of 1500.  The mean inlet variables $\vec{u}_i$, $p$ and $\rho$ are given by the quasi-1d approximation.  Figure~\ref{fig:info_3d} shows the inflow and nozzle portion of the domain and depicts the recycling-rescaling section.
-
-\end{multicols}
+%\end{multicols}
 
 
 
-\clearpage
+%\clearpage
 
 \begin{figure}[!htb]% order of placement preference: here, top, bottom
 	\centering
   	\includegraphics[trim = 0in 1.2in 0in 0in, clip, width = 7in]{figs/info_slide2.pdf}
-	\caption{Iso-volume of $|| \nabla\rho ||$  shaded by vorticity magnitude with contours of velocity magnitude in back plane. }
+	\caption{Iso-volume of the Q-criterion colored by Mach number show the incoming turbulent boundary layer and the large separated shear layer.  The shock is visualized by an iso-volume of $\nabla\cdot\vec{u}$.  The back plane shows a slice of $||\nabla\rho||$, depicting the smaller shear layer.  The throat location is indicated as is the region which recycles and rescales the incoming turbulent boundary layer.}
  	\label{fig:info_3d}
 \end{figure}
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
+\clearpage
 \section{Experimental Setup}
 
 
 The particular experimental configuration modeled by the present LES was published the Johnson and Papamoshcou.~\cite{Papam:10}.  The geometry for the diverging section is fully defined by the given throat height, $H_t$ and area ratio, $A_e/A_t$.  The contour of the nozzle is simply the solution to a 4th order polynomial with boundary conditions.  Furthermore, the measure of the nozzle's over-expansion is given by the ratio of driver pressure to ambient pressure, or the nozzle pressure ratio (NPR=$p_{res}/p_0$).  The present LES models case 3 from this experiment with an area ratio of 1.6 and NPR of 1.7.  This configuration had the most experimental data available and also generated large asymmetries in both the shock structure and the subsequent separated shear layer.  
 
-Measurement devices included an array of static pressure ports on the nozzle wall.  A dynamic pitot tube was used to obtain a centerline mean pressure profile and also total pressure rms values in the separated shear layer.  Four of the static pressure ports were simultaneously sampled at a frequency of 30 kHz.  This instantaneous pressure profile was fit to a characteristic shape resembling a shock-wave.  Doing so, yielded an approximate location for the shock wave and thus a time history of the shock location.  Johnson showed that the shock location time history was relative insensitive to the particular shape used in the fit.  The experimentalists also captured high resolution Schlieren images of the diverging section and the exit plume of the nozzle.
+Measurement devices included an array of static pressure ports on the nozzle wall.  A dynamic pitot tube was used to obtain a centerline mean pressure profile and total pressure rms values in the separated shear layer.  Four of the static pressure ports were simultaneously sampled at a frequency of 30 kHz.  This instantaneous pressure profile was fit to a characteristic shape resembling a shock-wave.  Doing so, yielded an approximate location for the shock wave and thus a time history of the shock location.  Johnson showed that the shock position time history was insensitive to the particular shape used in the fit.  High resolution Schlieren images of the diverging section and the exit plume of the nozzle were also captured.
 
-\end{multicols}
+%\end{multicols}
 
 \begin{figure}[!h]% order of placement preference: here, top, bottom
 	\centering
-  	\includegraphics[width = 3.5in]{../../data/experiment/exp_setup.png}
+  	\includegraphics[width = 6in]{../../data/experiment/exp_setup.png}
 	\caption{Experimental setup~\cite{Papam:10} showing the converging and diverging section of the nozzle.  The present LES only explicitly models the diverging section and uses recycled turbulence and the quasi-1D equations to model converging portion. }
  	\label{fig:exp_setup}
 \end{figure}
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
+\clearpage
 \section{Results}
 
-The accuracy of our LES calculation must be established before these data can be used to explore the underlying physics.  This accuracy is measured by comparing against experimental data and performing a mesh refinement study.  Data from the mesh refinement study show the incoming turbulent boundary layer is being captured well.  The periodic span-wise direction, although not truly periodic in the experiment, is sufficiently large for flow structures to be independent of the periodic boundary.  Furthermore, our LES calculations show excellent agreement with both the mean and time dependent quantities from the experiment.  The aforementioned results are shown here to establish the fidelity of our LES database.
+The accuracy of our LES calculation must be established before these data can be used to confidently explore the underlying physics.  This accuracy is measured by comparing against experimental data and performing a mesh refinement study.  Data from the mesh refinement study show the incoming turbulent boundary layer is being captured well.  The periodic span-wise direction, although not truly periodic in the experiment, is sufficiently large for flow structures to be independent of the periodic boundary.  Furthermore, our LES calculations show excellent agreement with both the mean and time dependent quantities from the experiment.  The aforementioned results are shown here to establish the fidelity of our LES database.
 
 %Preliminary results from the coarse mesh simulation are presented here.  The computation ran on 256 processors for 2 days which was long enough to wash out initial transients, develop the boundary layer and capture the low frequency oscillations of the shock location.  The coarse calculation attempts to match the particular experimental configuration from Papamoschou et.al.\cite{Papam:09} with a given nozzle pressure ratio ($NPR$) of 1.77 and an area ratio ($A_e/A_t$) of 1.4.  Figure~\ref{fig:info_3d} shows the main features of the over-expanded nozzle experiment.  A normal shock wave is set up inside the nozzle and forces the turbulent boundary layer to separate.  The flow does not reattach and there is a large shear layer downstream as the flow exits into the ambient conditions outside the nozzle.
 
 \subsection{Incoming Turbulent Boundary Layer}
 
-The incoming turbulent boundary layer is well captured by the medium and fine mesh LES.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by the coarse, medium and fine cases.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the medium and fine case are nearly identical.  The momentum thickness Reynolds number, $Re_\theta$ was 1100.  The coarse case is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift upward from the standard the log-law fit ($U_{VD}^+ = \log(y^+) / \kappa+ b $), where $\kappa$ is the Von Karman constant and $b$ is the intersect.  The medium and fine mesh calculations have profiles shifted from the common parameters for $\kappa$ and $b$ of 0.41 and 5.2 respectively.  This is attributed to the substantially large pressure gradient present at the throat.  Spalart~\cite{Spalart:93} investigated the effect of a favorable pressure gradient on the velocity profiles in the boundary layer and found that for a normalized pressure gradient of $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.3$ there was a shift in $b$ of 20\%, as $\kappa$ is kept constant.  The pressure gradient at the throat for the current study was $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.7$ and the shift  was 27\%.  Figure~\ref{fig:dPdx} shows a comparison in mean velocity profiles between the present LES and the DNS of Spalart.  The results of Spalart and the converged LES profiles indicate that the calculation is accurately capturing the boundary layer and the effect of the favorable pressure gradient.  
+The incoming turbulent boundary layer is well captured by the medium and fine mesh LES.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by the coarse, medium and fine cases.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the medium and fine case are nearly identical.  The momentum thickness Reynolds number, $Re_\theta$ was 1100.  The coarse case is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift upward from the standard log-law fit ($U_{VD}^+ = \log(y^+) / \kappa+ b $), where $\kappa$ is the Von Karman constant and $b$ is the intersect.  The medium and fine mesh calculations have profiles shifted from the common parameters for $\kappa$ and $b$ of 0.41 and 5.2 respectively.  This is attributed to the substantially large pressure gradient present at the throat.  Spalart~\cite{Spalart:93} investigated the effect of a favorable pressure gradient on the velocity profiles in the boundary layer and found that for a normalized pressure gradient of $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.3$ there was a shift in $b$ of 20\%, as $\kappa$ is kept constant.  The pressure gradient at the throat for the current study was $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.7$ and the shift  was 27\%.  Figure~\ref{fig:dPdx} shows a comparison in mean velocity profiles between the present LES and the DNS of Spalart.  The results of Spalart and the converged LES profiles indicate that the calculation is accurately capturing the boundary layer and the effect of the favorable pressure gradient.  
 
 %\end{multicols}
 
@@ -247,7 +257,7 @@ The incoming turbulent boundary layer is well captured by the medium and fine me
 
 Downstream of the throat, the pressure gradient remains favorable.  This sustained acceleration of the flow causes the profiles to tend toward re-laminarization.  Neither experiment or the LES actually re-laminarize yet there is a clear shift in the mean profiles that could potentially effect the shock motion.  Figure~\ref{fig:stations} shows the mean profile at various stations between the throat ($x/H_t=0$) and mean shock location ($x/H_t=3.5$).
 
-\end{multicols}
+%\end{multicols}
 
 
 \begin{figure}[!ht]
@@ -259,7 +269,7 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 \end{figure}
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
 \begin{figure*}[!ht]
 	\includegraphics[height=2.75in]{../../figs/dPdx.pdf}
@@ -275,7 +285,7 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 	\begin{centering}
 	\includegraphics[height=3.75in]{../../figs/mean_st.pdf}
 
-	\caption{ Mean velocity profiles (Van Driest) at various stations along the length of the nozzle.  The sustained favorable pressure gradient causes a further upward shift in the mean profiles.
+	\caption{ Mean velocity profiles (Van Driest) at various stations along the length of the nozzle.  The sustained favorable pressure gradient causes a further shift upward in the mean profiles.
  	\label{fig:stations}
 	}
 	\end{centering}
@@ -284,9 +294,16 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 %\begin{multicols}{2}
 
 
-\end{multicols}
-\clearpage
+%\end{multicols}
 
+
+
+
+%\begin{multicols}{2}
+
+\clearpage
+\subsection{Mean Pressure Profiles}
+The LES mean pressure profiles at the centerline and at the wall compare well to the experimental data.  Upstream on the nozzle throat, centerline pressure does not agree with the experiment.  This is expected, as our approach models the converging section using the quasi-1d flow relations and the method recycling-rescaling for the inflow variables and turbulent boundary layer.  Figure \ref{fig:P_prof} show excellent agreement with the experimental data after the throat ($x=0$) indicating that the modeling of the converging section has a minimal effect on the flow past the throat.
 
 \begin{figure*}[!ht]
 	\includegraphics[height=2.75in]{../../figs/Pcenter.pdf}
@@ -296,16 +313,11 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 	}
 \end{figure*}
 
-\begin{multicols}{2}
-\subsection{Mean Pressure Profiles}
-The mean pressure profile at the centerline and at the wall compare well to the experimental data.  Upstream on the nozzle throat, centerline pressure does not agree with the experiment.  This is expected, as our approach models the converging section using the quasi-1d flow relations and the method recycling-rescaling for the inflow variables and turbulent boundary layer.  Figure \ref{fig:P_prof} show excellent agreement with the experimental data after the throat ($x=0$) indicating that the modeling of the converging section has a minimal effect on the flow past the throat.
-
-
 
 \subsection{Span-wise extent and the turbulent shear layer }
-As previously mentioned, the LES calculations use periodic boundary conditions in the span-wise($z$) direction.  This approximates the experiment which has physical walls on these boundaries.  The aspect ratio of the experiment (width to height at the throat) was $\approx 3.5$ and the effect of this quantity on the shock-wave behavior was unknown.  It is expected the the span-wise domain must be sufficiently large in order to represent the large structures in the flow.  A smaller domain will directly impact the dynamics and evolution of the flow will become dependent on that spatial extent.  To determine the length scales present in the nozzle a two-point a correlation of stream-wise velocity was computed and averaged over time for 3 locations in the flow.  Figure~\ref{fig:span_corr} shows $R_{11}$ in the span-wise direction (normalized by span extent, $L_z$) at a location in the boundary layer ahead of the shock, directly behind the shock and in the separated shear layer.  Furthermore, the Taylor microscale, $\lambda_g$ is a function of $R_{11}$ and is calculated on a sub-domain of the diverging section.  Contours of $\lambda_g$ are shown in Figure~\ref{fig:span_corr} for the coarse and medium resolution cases.  The incoming turbulent boundary layer, as expected, has the smallest length scales.  The location directly downstream of the normal shock and in the region directly between the shear layers has the largest values for $\lambda_g$.  For the coarse and medium resolutions the value of $\lambda_g / L_z$ doesn't exceed 0.2.  The decay of $R_{11}$ and small maximum values of $\lambda_g/L_z$ indicate that the effect of the span has a diminishing effect on the structures.
+As previously mentioned, the LES calculations use periodic boundary conditions in the span-wise($z$) direction.  This approximates the experiment which has physical walls on these boundaries.  The aspect ratio of the experiment (width to height at the throat) was $\approx 3.5$ and the effect of this quantity on the shock-wave behavior is unknown.  It is expected the the span-wise domain must be sufficiently large in order to represent the large structures in the flow.  A smaller domain will directly impact the dynamics and evolution of the flow.  To determine the length scales present in the nozzle, a two-point a correlation of stream-wise velocity was computed and averaged over time for 3 locations in the flow.  Figure~\ref{fig:span_corr} shows $R_{11}$ in the span-wise direction (normalized by span extent, $L_z$) at a location in the boundary layer ahead of the shock, directly behind the shock and in the separated shear layer.  Furthermore, the Taylor microscale, $\lambda_g$ is a function of $R_{11}$ and is calculated on a sub-domain of the diverging section.  Contours of $\lambda_g$ are shown in Figure~\ref{fig:span_corr} for the coarse and medium resolution cases.  The incoming turbulent boundary layer, as expected, has the smallest length scales.  The location directly downstream of the normal shock and in the region directly between the shear layers has the largest values for $\lambda_g$.  For the coarse and medium resolutions the value of $\lambda_g / L_z$ doesn't exceed 0.2.  The decay of $R_{11}$ and small maximum values of $\lambda_g/L_z$ indicate that the effect of the span has a diminishing effect on the structures.
 
-\end{multicols}
+%\end{multicols}
 
 
 
@@ -318,7 +330,7 @@ As previously mentioned, the LES calculations use periodic boundary conditions i
 \end{figure*}
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
 With sufficient domain size, the LES captures the energy containing scales of the separated shear layer well.  Total pressure fluctuations were recorded in the large separated shear layer ($x=x_{exit}$ and $y/H_t = 0.32)$ in the experiment.  Figure~\ref{fig:PSD_comp} shows the power spectral density (PSD) from the experiment and the coarse LES at an identical probe location.  Agreement is excellent and show that the energy containing scales and their cascade are being accurately captured.  
 
@@ -326,15 +338,29 @@ With sufficient domain size, the LES captures the energy containing scales of th
 \begin{figure*}
 	\centering
 	\includegraphics[height=3.75in]{../../figs/PSD_compare.pdf}
-	\caption{ Normalized Power Spectral Density (PSD) at a point in the large separated shear layer for the LES (solid) and experiment (circles) vs. Strouhal number.  The LES captures the PSD over a large frequency range extremely well, indicating the method is capturing the significant energy containing scales.
+	\caption{ Power Spectral Density (PSD) at a point in the large separated shear layer for the LES (solid) and experiment (circles) vs. Strouhal number.  The LES captures the PSD over a large frequency range extremely well, indicating the method is capturing the significant energy containing scales.
  	\label{fig:PSD_comp}
 	}
 \end{figure*}
 
 
-\clearpage
+%\clearpage
 
-\end{multicols}
+%\end{multicols}
+
+
+%\begin{multicols}{2}
+
+\clearpage
+\subsection{Shock wave motion}
+
+A primary feature of the planar nozzle flow field is the large internal shock wave.  As mentioned, shock waves of this nature have numerous engineering implications.  Capturing the unsteady motion of the shock is necessary to fully quantify the underlying physical processes of the flow.  Here we show three comparisons to experimental data that demonstrate the shock is being adequately represented by the LES.  The three comparisons are: 1) wall pressure, 2) time history of the shock location and 3) Schlieren photography.
+
+
+
+\subsubsection{Wall pressure}
+
+To compare ``apples to apples'' with the experimental data, we extract wall pressure time histories from the data set, just as the experimentalist have done.  The compensated energy spectra, $kE(k)$, are computed for each probe location along the $x$-drection on the wall with the large separated shear layer.  Figure~\ref{fig:comp_spectra} show contours of $kE(k)$ (normalized so the integral under the each spectrum is unity) as a function of $x$ and Strouhal number ($St=fH_t/U_p$) for the experiment (top) and the LES (bottom).  The red band for $St>200$ and to the left of $x/H_t=3$ represents the energy contained in the incoming turbulent boundary layer.  Near the shock location ($x/H_t=3$) lower frequencies are more prevalent peaking for a Strouhal number between $10^{-2}$ and $10^{-1}$ in both the experiment and the LES.  Downstream of the shock, the energy becomes more broadband and the separated shear layer interacts with the wall.  
 
 \begin{figure*}[!h]
 	\begin{centering}
@@ -345,25 +371,13 @@ With sufficient domain size, the LES captures the energy containing scales of th
 	\end{centering}
 \end{figure*}
 
-\begin{multicols}{2}
-
-\subsection{Shock wave motion}
-
-A primary feature of the planar nozzle flow field is the large internal shock wave.  As mentioned, shock waves of this nature have numerous engineering implications.  Capturing the unsteady motion of the shock is necessary to fully quantify the underlying physical processes of the flow.  Here we show three comparisons to experimental data that demonstrate the shock is being adequately captured by the LES.  The three comparisons are: 1) wall pressure, 2) time history of the shock location and 3) Schlieren photography.
-
-
-
-\subsubsection{Wall pressure}
-
-To compare ``apples to apples'' with the experimental data, we extract wall pressure time histories from the data set, just as the experimentalist have done.  The compensated energy spectra, $kE(k)$, are computed for each probe location along the $x$-drection on the wall with the large separated shear layer.  Figure~\ref{fig:comp_spectra} show contours of $kE(k)$ (normalized so the integral under the each spectrum is unity) as a function of $x$ and Strouhal number ($St=fH_t/U_p$) for the experiment (top) and the LES (bottom).  The red band for $St>200$ and to the left of $x/H_t=3$ represents the energy contained in the incoming turbulent boundary layer.  Near the shock location ($x/H_t=3$) lower frequencies are more prevalent peaking for a Strouhal number between $10^{-2}$ and $10^{-1}$ in both the experiment and the LES.  Downstream of the shock, the energy becomes more broadband and the separated shear layer interacts with the wall.  
-
 
 
 \subsubsection{Time history of shock wave location }
 
 From the instantaneous wall pressure profile, the shock location is determined.  The experimentalists fit the pressure profiles to a curve that approximated the pressure profile across a shock.  Our approach, however, simply tracks the minimum value of pressure along an $x$-profile which was taken at top, bottom and centerline locations in the diverging section of the nozzle.  Figure~\ref{fig:shock_history} shows the temporal behavior of the shock location based on the pressure profiles (top,bottom,center) and illustrates the asymmetry of the shock.  Autospectra of this time history are also shown for the experiment and coarse and medium meshes.  The LES spectra lack in low frequency resolution and as a result, there are discrepancies from the experiment at lower Strouhal numbers.  The coarse calculation has nearly 2 times the samples as the medium resolution case and has a substantially better spectrum at the lower wave numbers.  Capturing more low frequency periods is expected to improve this measure.  
 
-\end{multicols}
+%\end{multicols}
 
 
 \begin{figure*}[!h]% order of placement preference: here, top, bottom
@@ -387,16 +401,16 @@ From the instantaneous wall pressure profile, the shock location is determined. 
 \end{figure*}
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
 \subsubsection{Schlieren photography}
 
 
-Figures~\ref{fig:schl} and~\ref{fig:schl_ex} show a comparison between Schlieren photographs taken from the experiment and results taken from the medium mesh calculation in the diverging and exit sections of the nozzle.  Contours of the density gradient magnitude ($||\nabla\rho|| $) show that LES calculation is in good qualitative agreement with the experiment.  The shock location, (which was experimentally reported to oscillate left and right by a distance of +/- $\delta_N$ ) agrees quite well with the experiment.  Furthermore the secondary shocks or the ``aftershocks'' observed in the experiment are captured.  The asymmetry of the lambda shock as well as the separated shear layers is clearly captured.
+Figures~\ref{fig:schl} and~\ref{fig:schl_ex} show a comparison between Schlieren photographs taken from the experiment and results taken from the medium mesh calculation in the diverging and exit sections of the nozzle.  Contours of the density gradient magnitude ($||\nabla\rho|| $) show that LES calculation is in good qualitative agreement with the experiment.  The shock location, (which was experimentally reported to oscillate left and right by a distance of +/- $\delta_N$ ) agrees quite well with the experiment.  Furthermore the secondary shocks or the ``aftershocks'' observed in the experiment are captured.  The asymmetry of the lambda shock as well as the separated shear layers are clearly captured.
 
 
-\end{multicols}
-\clearpage
+%\end{multicols}
+%\clearpage
 
 \begin{figure}[!h]% order of placement preference: here, top, bottom
 	\begin{center}
@@ -415,22 +429,37 @@ Figures~\ref{fig:schl} and~\ref{fig:schl_ex} show a comparison between Schlieren
 	\includegraphics[height=3in, angle=-90]{figs/plume_exp.png}
 	\includegraphics[height=3in, angle=-90]{figs/plume_les.png}
 	\end{center}
- 	\caption{Schlieren images from experiment \cite{Johnsen:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) in the exit region of the diverging section of the nozzle.  }
+ 	\caption{Schlieren images from experiment \cite{Papam:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) in the exit region of the diverging section of the nozzle.  }
  	\label{fig:schl_ex}
 \end{figure}
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 \section{Low Frequency Motion of the Shock}
 
-One of the main findings of the experiment~\cite{Papam:10} was the correlation between the large separated shear layer and the shock wave location.  Intuitively, the authors found that in the shear layer, the total pressure fluctuations became more intense as the shock became stronger and collocated further downstream.   The effect of the compression/expansion waves downstream of the shock was found to have little effect on the shear layer.
+One of the main findings of the experiment~\cite{Papam:10} was the correlation between the large separated shear layer and the shock wave location.  Intuitively, the total pressure fluctuations in the shear layer became more intense as the shock became stronger and collocated further downstream.   The effect of the compression/expansion waves downstream of the shock was found to have little effect on the shear layer.
 
 From the LES data, we have observed results consistent with the experimental findings.  Although the experimental data corroborate the LES findings, no cause or mechanism for the shock motion was given.  Indeed with the limited temporal, spatial and variable dimensions measured in the experiment, such conclusions are difficult to make.  Informed by the LES data, we offer here a candidate explanation of the physical mechanism which couples the shock and the shear layer and which governs the shock motion and downstream exit plume mixing.
 
-\end{multicols}
+%\end{multicols}
 
-\clearpage
+%\clearpage
 %\vspace{-10in}
+
+
+This mechanism is best understood by visualizing one low frequency period of the shock motion.  Figure~\ref{fig:history} shows the shock structure and separated shear layer in black and white and the region of reversed flow where $U<0$ is shown is color.  The sequence of events leading to one low frequency period goes as follows:  The shock wave is location upstream of its mean position and the nozzle is under-expanded (meaning the exit pressure is higher than the ambient pressure).  At this location, the shocks is weaker and it does not create any flow reversal.  The effect of mismatched pressure forces the shock downstream.  Moving downstream increases the Mach number of the shock and the adverse pressure gradient across the shock forces separation to occur.  Once the flow separates the shear layer is thickened and becomes more intense.  This thickening obstructs the core mean flow and decreases the effective area of the section.  As area has decreased, so will pressure.  This decrease in pressure causes the nozzle exit pressure to be less than the ambient pressure.  This mismatch forces the shock back upstream.  The shock strength weakens and the separated shear layer will reattach alleviating the confinement from the large shear layer.  As the effective area is increased, the pressure at the exit becomes larger than the ambient pressure and the shock moves downstream.  The cycle then repeats.
+
+The aforementioned mechanism for the low frequency shock motion is summarized below and makes reference to the times and features shown in Figure~\ref{fig:history}.
+\begin{itemize}
+	\item Shock is upstream \& $P_e > P_{\infty}$. ($\tau=0$)
+	\item Shock moves downstream, separation occurs. ($\tau=4.5$)
+	\item Shear layer thickens, causing blockage \& reduced area. ($\tau=13.5$)
+	\item Area reduction decreases pressure \& $P_e < P_{\infty}$
+	\item Shock moves upstream, flow reattaches. ($\tau=22.5$)
+	\item Shear layer thins, relieving blockage \& increase area. ($\tau=31.5$)
+	\item Area increase increases pressure \& $P_e > P_{\infty}$
+\end{itemize}
+
 \begin{figure}[!ht]
   \centering
   
@@ -457,31 +486,20 @@ From the LES data, we have observed results consistent with the experimental fin
   \hspace{0.1in}	
   \subfloat[$\tau=34$]{\includegraphics[width=2in]{figs/medium_figs/medium3dgradRHO_sep_0928.png}}
   
-  \caption{Shock wave motion and the corresponding separated shear layer over one low-frequency period.  Contours of $||\nabla\rho||$ are shown in grayscale and colored regions depict negative velocity, where red represents a Mach number of approximately 0.1 and blue is zero.    }
+  \caption{Shock wave motion and the corresponding separated shear layer over one low-frequency period.  Contours of $||\nabla\rho||$ are shown in grayscale and colored regions depict negative $U$ velocity, where red represents a Mach number of approximately 0.1 and blue is zero.    }
   
   \label{fig:history}
 \end{figure}
 
 
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
-This mechanism is best understood by visualizing one low frequency period of the shock motion.  Figure~\ref{fig:history} shows the shock structure and separated shear layer in black and white and the region of reversed flow where $U<0$ is shown is color.  The sequence of events leading to one low frequency period goes as follows:  The shock wave is location upstream of its mean position and the nozzle is under-expanded (meaning the exit pressure is higher than the ambient pressure).  At this location, the shocks is weaker and it does not create any flow reversal.  The effect of mismatched pressure forces the shock downstream.  Moving downstream increases the Mach number of the shock and the adverse pressure gradient across the shock forces separation to occur.  Once the flow separates the shear layer is thickened and becomes more intense.  This thickening obstructs the core mean flow and decreases the effective area of the section.  As area has decreased, so will pressure.  This decrease in pressure causes the nozzle exit pressure to be less than the ambient pressure.  This mismatch forces the shock back upstream.  The shock strength weakens and the separated shear layer will reattach alleviating the confinement from the large shear layer.  As the effective area is increased, the pressure at the exit becomes larger than the ambient pressure and the shock moves downstream.  The cycle then repeats.
 
-The aforementioned mechanism for the low frequency shock motion is summarized below and makes reference to the times and features shown in Figure~\ref{fig:history}.
-\begin{itemize}
-	\item Shock is upstream \& $P_e > P_{amb}$. ($\tau=0$)
-	\item Shock moves downstream, separation occurs. ($\tau=4.5$)
-	\item Shear layer thickens, causing blockage \& reduced area. ($\tau=13.5$)
-	\item Area reduction decreases pressure \& $P_e < P_{amb}$
-	\item Shock moves upstream, flow reattaches. ($\tau=22.5$)
-	\item Shear layer thins, relieving blockage \& increase area. ($\tau=31.5$)
-	\item Area increase increases pressure \& $P_e > P_{amb}$
-\end{itemize}
 
-\end{multicols}
+%\end{multicols}
 
-\clearpage
+%\clearpage
 
 \begin{figure*}
   \centering
@@ -506,26 +524,21 @@ The aforementioned mechanism for the low frequency shock motion is summarized be
   \hspace{0.1in}	
   \subfloat[$\tau=34$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0928.png}}
   
-  \caption{Grayscale is $C_f$ from -0.01 to 0.01 corresponding from black to white.  Colored region are contours of temperature on a range of $T_{amb}(.56,.94)$ isovolume at $.60T_{amb}$.  The entrainment of the hot air by the separated flow is clearly illustrated as the shock undulates.  }
+  \caption{Grayscale is $C_f$ from -0.01 to 0.01 corresponding from black to white.  Colored region are contours of temperature on a range of $T_{\infty}(.56,.94)$ isovolume at $.60T_{\infty}$.  The entrainment of the hot air by the separated flow is clearly illustrated as the shock undulates.  }
   
   \label{fig:whistory}
 \end{figure*}
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 The separated shear layer acts a lung, inhaling and expanding to force the shock upstream and exhaling and contracting to allow the shock to traverse downstream.  During this breathing motion there is an observed latency between shock re-location and shear layer reattachment or separation.  It is this latency that causes the cycle to constantly over compensate in its adjustments to match pressure and hence the motion is inherently unstable.  
 
 This cycle occurs on a broad range of time and length scales.  The advancing or retreating of the shock is dictated by the separating or reattaching of the shear layer.  It has been shown (Fig.~\ref{fig:PSD_comp}) that the total pressure spectrum in the shear layer is broad-band and correlates strongly with the shock motion.
 
-The breathing of the shear layer is further illustrated in Figure~\ref{fig:whistory} which shows the friction coefficient, $C_f$ in black and white and contours of temperature above $0.6 \ T_{amb}$ on a 2d projection of the nozzle wall.  Temperature above this value is only found in the ambient flow field, hence its presence in the nozzle is a good surrogate tracer for reversed flow.  Hot gas is sucked in as the flow separates and then pushed out as the flow reattaches.
+The breathing of the shear layer is further illustrated in Figure~\ref{fig:whistory} which shows the friction coefficient, $C_f$ in black and white and contours of temperature above $0.6 \ T_{\infty}$ on a two dimensional projection of the nozzle wall.  Temperature above this value is only found in the ambient flow field, hence its presence in the nozzle is a good surrogate tracer for reversed flow.  Hot gas is sucked in as the flow separates and then pushed out as the flow reattaches.
 
 
 
 
-\end{multicols}
-
-
-\clearpage
-\begin{multicols}{2}
 \section{Conclusion}
 We have conducted a series of LES calculations to model an experiment of a shock boundary layer interaction in a planar nozzle.  The LES data show excellent agreement with the reported experimental results and indicate that the proper physics are being captured by the LES model.  Convergence studies show that the turbulent boundary layer is sufficiently resolved near the wall.  The unsteady motion of the shock is accurately represented by the LES, although the lower frequencies have yet to be sufficiently resolved.  We proposed an intuitive mechanism for the unsteady shock motion which couples the shock location, shear layer instability and separated region and which agrees with the conclusions made by Johnsen and Papamoschou.  Although the  mechanism has only thus far been supported by observation, the richness of the LES data will allow for a much more in depth analysis of the unsteady flow physics and allow for further advances in the understanding of shock-boundary layer interactions. 
 
@@ -610,7 +623,6 @@ vol. {\bf 249}, pp. 337-371 (1993)
 	
 \end{thebibliography}
 
-\end{multicols}
 
 \end{document}
 

@@ -10,7 +10,7 @@ figs(3).name = 'shock_compare';
 pdfE = false;
 
 res = 'coarse';
-%res = 'medium';
+res = 'medium';
 
 
 % Figure option
@@ -28,10 +28,12 @@ switch(res)
     case('coarse')
         load shock_history/coarse.mat;
         Xs_cor = XSS;
+        sym = 'r-.';
         %Xs_cor = Xs_cor / Ht + 3;
     case('medium')
         load shock_history/medium.mat;
         Xs_med = XSS;
+        sym = 'b-.';
         %Xs_med = Xs_med / Ht + 3;
 end
 
@@ -106,7 +108,7 @@ a(1,:) = f*Ht/Up;
 a(2,:) = 2*abs(Y(1:NFFT/2+1)) / 3;
 
 figure(2);
-loglog( a(1,:), a(2,:).*a(2,:) ,'r-.','LineWidth',LW)
+loglog( a(1,:), a(2,:).*a(2,:) ,sym,'LineWidth',LW)
 
 hold on;
 eoff = 1;
