@@ -9,7 +9,7 @@ Ru = 8.314472e7;
 mw = 28.966;
 R = Ru/mw;
 
-resolution = 'coarse';
+resolution = 'fine';
 
 switch resolution
     case 'medium',
@@ -200,7 +200,7 @@ pprof(:,12) = tauw + 0*y1;
 key1 = '%% < 1-5  > y(cm), y+, del, u(cm/s),u+';
 key2 = '%% < 6-10 > uvd, utau, uu, vv, ww';
 key3 = '%% < 11-12> delBL, tauw';
-dlmwrite(ofile,key1,'delimiter',' ');
-dlmwrite(ofile,key2 ,'delimiter',' ','-append');
-dlmwrite(ofile,pprof,'delimiter',' ','-append');
+%dlmwrite(ofile,key1,'delimiter',' ');
+%dlmwrite(ofile,key2 ,'delimiter',' ','-append');
+%dlmwrite(ofile,pprof,'delimiter',' ','-append');
 
