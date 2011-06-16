@@ -24,29 +24,29 @@ base = "/p/lscratchd/olson45/nozzle/post_proc";
 
 
 ## Coarse presets
-toff = 600;       # Offset for the 2d data set
-t1 = 600;         # Start index for viz
-tf = 2258;        # End index for viz
-t_viz = 600;      # Start index for this render run...
+toff = 800;       # Offset for the 2d data set
+t1 = 800;         # Start index for viz
+tf = 2548;        # End index for viz
+t_viz = 800;      # Start index for this render run...
 resolution = "coarse3d";
 odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_cor/"
 
 ## Medium presets
 #toff = 200;       # Offset for the 2d data set
 #t1 = 200;         # Start index for viz
-#tf = 1128;        # End index for viz
-#t_viz = 1121;      # Start index for this render run...
+#tf = 1412;        # End index for viz
+#t_viz = 200;      # Start index for this render run...
 #resolution = "medium3d";
 #odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_med/"
 
 
 ## Fine presets
-toff = 100;       # Offset for the 2d data set
-t1 = 100;         # Start index for viz
-tf = 233;        # End index for viz
-t_viz = 100;      # Start index for this render run...
-resolution = "fine3d";
-odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_fin/"
+#toff = 100;       # Offset for the 2d data set
+#t1 = 100;         # Start index for viz
+#tf = 233;        # End index for viz
+#t_viz = 100;      # Start index for this render run...
+#resolution = "fine3d";
+#odir = "/p/lscratchd/olson45/NOZ_VIZ/2d_fin/"
 
 var = "gradRHO";
 
@@ -84,6 +84,8 @@ AddPlot("Pseudocolor",var);
 psdo_atts = PseudocolorAttributes();
 psdo_atts.centering = psdo_atts.Nodal;
 psdo_atts.colorTableName = "xray";
+psdo_atts.minFlag = 1;
+psdo_atts.min = 0.0;  #.075 (sch)x
 psdo_atts.maxFlag = 1;
 psdo_atts.max = .005;  #.075 (sch)x
 SetPlotOptions(psdo_atts);

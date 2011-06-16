@@ -12,4 +12,12 @@ DATA(:,1,:) = X';
 DATA(:,2,:) = Y';
 DATA(:,3,:) = V';
 
-dlmwrite(file,DATA,'delimiter',' ','-append','precision','%12.12f');
+%dlmwrite(file,DATA,'delimiter',' ','-append','precision','%12.12f');
+
+
+for j=1:ny
+    for i=1:nx
+        dlmwrite(file,DATA(j,:,i),'delimiter',' ','-append','precision','%12.12f');
+    end
+    disp(j);
+end

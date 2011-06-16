@@ -1,5 +1,5 @@
 clc;
-%clear all;
+clear all;
 
 P0 = 1e6;
 L0 = 1.78;
@@ -9,20 +9,20 @@ U=1; V=2; W=3; RHO=5; P=4; T=6;UU=7;VV=8;WW=9;
 MU=16;MUa=17;MUb=18;MUc=19;
 
 resolution = 'medium';
-%resolution = 'coarse';
+resolution = 'coarse';
 
 switch resolution
 
     case 'medium'
     t1 = 400;
-    t2 = 530;
+    t2 = 1000;%530;
     path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
     ofile = '../data/pressure/medium.dat';
     xoff = -.24;
 
     case 'coarse'
-    t1 = 1000;
-    t2 = 1200;
+    t1 = 1000; %1000
+    t2 = 2200; %1200
     path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
     ofile = '../data/pressure/coarse.dat'; 
     xoff = -.24;
@@ -65,7 +65,7 @@ press(:,3) = x(:,1)/L0;
 press(:,4) = Pmean(:,1,P)/P0;
 press(:,5) = Pmean(:,end,P)/P0;
 
-save ofile press
+%save ofile press
 key1 = '%% < 1-4  > x/H, P_cen/P0, x/H, P_wall/P0 (lower),(upper)';
 dlmwrite(ofile,key1,'delimiter',' ');
 dlmwrite(ofile,press,'delimiter',' ','-append');
