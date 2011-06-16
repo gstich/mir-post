@@ -47,10 +47,13 @@ s = 200;
 f = size(XSS,1);
 
 figure(1);hold on;
+toff = 550;
 
+t1 = toff;
+tf = 1213;
 time = time*Up/Ht/1e3;
-time2 = time(450:900)-time(450);
-shk = XSS(450:900,3);
+time2 = time(t1:tf)-time(t1);
+shk = XSS(t1:tf,3);
 
 for i=1:50
 shk = gfilter(shk);
@@ -60,9 +63,11 @@ plot(time2,shk,'k','LineWidth',LW);hold on;
 
 
 % Load the exit plane data
+
 dt = time2(2)-time2(1);
-exit_data = load('mechanism/exit_plane.med');
-time3 = exit_data(:,1)-exit_data(1,1);
+exit_data = load('mechanism/exit_plane.med.full');
+exit_data = load('mechanism/exit_plane.med.full.wide');
+time3 = exit_data(:,1)-exit_data(1,1) - toff;
 time3 = time3*dt;
 
 pexit = exit_data(:,5);
@@ -79,23 +84,30 @@ for i=1:50
 uexit = gfilter(uexit);
 end
 
-plot(time3,pexit*30,'b','LineWidth',LW);hold on;
+figure(1);
+plot(time3,pexit*10,'b','LineWidth',LW);hold on;
 plot(time3,uexit*5,'r','LineWidth',LW);hold on;
 
 
-%% Load the separatio region 
+%% Load the separation region 
+toff = 0;
 sep_data = load('mechanism/sep_length.dat');
-time4 = (sep_data(:,1)-sep_data(1,1))*dt;
+time4 = (sep_data(:,1)-sep_data(1,1) + toff)*dt;
 delU = sep_data(:,2);
 delL = sep_data(:,3);
 core = delU-delL;
 core = (core-mean(core)) * 2 ;%/(1.78*1.6); 
+core = gfilter(core);
 
+figure(1);hold on;
 plot(time4,core,'g','LineWidth',LW);
 
+xline = linspace(0,100,10);
+figure(1);hold on;
+plot(xline,0*xline,'k-.','LineWidth',1)
 
-
-ylim([-1.6 1.6]);
+xlim([0 66]);
+ylim([-1. 1.]);
 box on;
 h1 = xlabel(['$tU_p/H_t$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
