@@ -28,7 +28,7 @@ switch res
         data = '/p/lscratchd/olson45/nozzle/';
         dir = [data,'nozzlemedium3d/'];
         pa = zeros(768,4);
-        intv = [300,1412];
+        intv = [200,1412];
         ofile = '../data/shock_history/medium.mat';
 end
         
@@ -83,7 +83,7 @@ time = time * 1000;  % make mili-seconds
 
 plot(time,XSS(:,1),time,XSS(:,2),time,XSS(:,3));
 
-%save(ofile,'time','XSS');
+save(ofile,'time','XSS');
 
 
 
