@@ -83,7 +83,8 @@ PROGRAM span
            
            ! Get the next viz-directory and call kernal
            CALL viz_name(jobdir,iviz,vfile)
-           CALL get_coor(vfile,ix1+j-1,iy1+k-1,corr)
+
+           CALL get_coor(vfile,ix1+j-1,iy1+k-1,corr,p)
      
            corrM = corrM + corr
            count = count + one
@@ -179,7 +180,7 @@ END SUBROUTINE write_tec
 
 
 
-SUBROUTINE get_coor(vfile,xslc,yslc,spc)
+SUBROUTINE get_coor(vfile,xslc,yslc,spc,ivar)
   USE operators
   USE globals
   USE span_data
@@ -187,6 +188,7 @@ SUBROUTINE get_coor(vfile,xslc,yslc,spc)
   INTEGER, INTENT(IN) :: xslc,yslc
   CHARACTER(LEN=flen), INTENT(IN) :: vfile
   DOUBLE PRECISION, DIMENSION(nz/2), INTENT(OUT) :: spc
+  INTEGER,INTENT(IN) :: ivar
 
   INTEGER :: i
   INTEGER, DIMENSION(2,2) :: stride
@@ -199,7 +201,7 @@ SUBROUTINE get_coor(vfile,xslc,yslc,spc)
   DOUBLE PRECISION :: smean
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: sflc
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: corr
-  INTEGER :: ivar
+
   INTEGER :: rr,ii
 
   INTEGER :: nviz,iviz,funit=34
@@ -218,7 +220,7 @@ SUBROUTINE get_coor(vfile,xslc,yslc,spc)
 
   
   !! Use the profile, to make spatial correlation
-  ivar = p
+  !ivar = p
   ALLOCATE(sflc(nz*2))
   ALLOCATE(corr(nz))
 

@@ -80,7 +80,7 @@ tay = tay*dz/Lt;
 contourf(XX,YY,tay,32,'edgecolor','none');
 colorbar;
 
-save '../data/span_corr/cor.mat' XX YY tay Pmap Cor
+%save '../data/span_corr/cor.mat' XX YY tay Pmap Cor
 
 end
 
