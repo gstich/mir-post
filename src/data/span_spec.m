@@ -4,7 +4,8 @@ close all;
 
 
 %% Plot the BL data: Mean and Reynolds stress
-pdfE = false; %true;
+pdfE = false; %
+pdfE = true;
 res(1).name = 'coarse';
 res(2).name = 'medium';
 res(3).name = 'fine';
@@ -15,8 +16,8 @@ res(2).Lz = 256*.014;
 res(3).Lz = 384*.0105;
 
 % Figure name
-figs(1).name = '2dspancorr';
-figs(2).name = '1dspancorr';
+figs(1).name = 'spec_span_u';
+figs(2).name = 'corr_span_p';
 
 % Plot symbols
 res(1).sym = '--';
@@ -59,7 +60,7 @@ end
 
 
 
-xlim([.25 70])
+xlim([.25 65])
 ylim([10^5 2*10^8])
 box on;
 h1 = xlabel(['$k_z$']);
@@ -68,7 +69,10 @@ h2 = ylabel('$ E_u(k) $');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
 
-
+h = figure(1);
+set(h,'Position',[300,395,560*1.5,420*1.5])
+set(h,'PaperSize',[8,7]);
+set(h,'PaperPositionMode','auto');
 
 
 %% Figure 2: Corr of pressure
