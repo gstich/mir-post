@@ -180,7 +180,7 @@ For the given resolution requirements in table~\ref{tbl:mesh}, a nozzle height R
 	\centering
   	\includegraphics[width = 3in]{figs/full5.png}
 	\includegraphics[width = 3in]{figs/zoom10.png}
-	\caption{Computational mesh showing every 10th gridline in the over all domain (left) and every 5th grid line in the diverging section of the nozzle(right).  }
+	\caption{Computational mesh showing every 5th gridline in the over all domain (left) and every 10th grid line in the diverging section of the nozzle(right).  }
  	\label{fig:mesh}
 \end{figure}
 
@@ -272,8 +272,8 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 
 
 \begin{figure}[!ht]
-	\includegraphics[height=2.75in]{../../figs/mean.pdf}
-	\includegraphics[height=2.75in]{../../figs/rms.pdf}
+	\subfloat[(a)]{\includegraphics[height=2.5in]{../../figs/mean.pdf}}
+	\subfloat[(b)]{\includegraphics[height=2.5in]{../../figs/rms.pdf} }
 	\caption{ {\bf Left:} Mean velocity profile (Van Driest transformed) in the wall normal direction ($+$ units) for the cases of mesh A (dashed), B (dashed-dot) and C (solid) at the nozzle throat.  Inner and log-law fits are plotted for reference.  {\bf Right:} Diagonal components of the Reynolds stress for the three cases.
 	\label{fig:BL_prof}
 	}
@@ -281,8 +281,8 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 
 
 \begin{figure*}[!ht]
-	\includegraphics[height=2.75in]{../../figs/dPdx.pdf}
-	\includegraphics[height=2.75in]{../../figs/spalart.pdf}
+	\subfloat[(a)]{\includegraphics[height=2.5in]{../../figs/dPdx.pdf}}
+	\subfloat[(b)]{\includegraphics[height=2.5in]{../../figs/spalart.pdf}}
 	\caption{ {\bf Left:} Normalized wall pressure gradient ($\frac{dP}{dx} \frac{\delta^*}{\tau_w}$)from the experiment (circles) and the LES (dashed) showing agreement beyond the throat location ($x=0$) and its favorable nature.  {\bf Right:} Mean velocity profiles from the present LES (solid) and DNS performed by Spalart~\cite{Spalart:93} showing expected upward shift in the boundary layer profile.
  	\label{fig:dPdx}
 	}
@@ -306,8 +306,8 @@ Downstream of the throat, the pressure gradient remains favorable.  This sustain
 The LES mean pressure profiles at the centerline and at the wall compare well to the experimental data.  Upstream on the nozzle throat, centerline pressure does not agree with the experiment.  This is expected, as our approach models the converging section using the quasi-1d flow relations and the method recycling-rescaling for the inflow variables and turbulent boundary layer.  Figure \ref{fig:P_prof} show good agreement with the experimental data after the throat ($x=0$) indicating that the modeling of the converging section has a minimal effect on the flow past the throat.  The modeled converging section does however, shift the virtual throat location of the nozzle upstream by 2\% of the nozzle length.  This shift is accounted for in the remainder of the data and was constant for all three LES cases.  The oscillations behind the shock are resolved physical compression and expansion waves which are physical and after long time averaging, still remain.
 
 \begin{figure*}[!ht]
-	\includegraphics[height=2.75in]{../../figs/Pcenter.pdf}
-	\includegraphics[height=2.75in]{../../figs/Pwall.pdf}
+	\subfloat[ (a) ] {\includegraphics[height=2.5in]{../../figs/Pcenter.pdf} }
+	\subfloat[ (b) ] {\includegraphics[height=2.5in]{../../figs/Pwall.pdf} }
 	\caption{ Mean pressure profiles from the experiment (circles),  LES case A (dashed) and LES case B(dashed-dotted) along the centerline (left) and wall (right). 
 	\label{fig:P_prof}
 	}
@@ -367,19 +367,20 @@ A primary feature of the planar nozzle flow field is the large internal shock wa
 To compare ``apples to apples'' with the experimental data, we extract wall pressure time histories from the data set, just as the experimentalist have done.  The compensated energy spectra, $kE(k)$, are computed for each probe location along the $x$-direction on the wall which has the larger separated shear layer.  Figure~\ref{fig:comp_spectra} show contours of $kE(k)$ (normalized so the integral under the each spectrum is unity) as a function of $x$ and Strouhal number ($St=fH_t/U_p$) for the experiment (top) and the LES (bottom).  The red band for $St>200$ and to the left of $x/H_t=3$ represents the energy contained in the incoming turbulent boundary layer.  Near the shock location ($x/H_t=3$) lower frequencies are more prevalent peaking for a Strouhal number between $10^{-2}$ and $10^{-1}$ in both the experiment and the LES.  Downstream of the shock, the energy becomes more broadband and the separated shear layer interacts with the wall.  
 
 \begin{figure*}[!h]
-	\begin{centering}
-	\includegraphics[height=3.75in]{../../figs/XvSt_wall.jpg}
+	%\begin{centering}
+	\subfloat[(a)] { \label{fig:comp_spectra} \includegraphics[height=2.5in]{../../figs/XvSt_wall.jpg}}
+	\subfloat[(b)] { \label{fig:var_comp} \includegraphics[height=2.in]{../../figs/p_var.pdf} }
 	\caption{ Compensated energy spectra for wall pressure fluctuations normalized such that the integral over frequency at each $x$ location is unity.  Experimental data (top) and LES data (bottom) show both depict the low frequency motion of the shock wave and the high frequency turbulent boundary and shear layer.
- 	\label{fig:comp_spectra}
+ 	%\label{fig:comp_spectra}
 	}
-	\end{centering}
+	%\end{centering}
 \end{figure*}
 
 
 
 \subsubsection{Time history of shock wave location }
 
-From the instantaneous wall pressure profile, the shock location is determined.  The experimentalists fit the pressure profiles to a curve that approximated the pressure profile across a shock.  Our approach, however, simply tracks the minimum value of pressure along an $x$-profile which was taken at top, bottom and centerline locations in the diverging section of the nozzle.  Figure~\ref{fig:shock_history} shows the temporal behavior of the shock location based on the pressure profiles (top,bottom,center) and illustrates the asymmetry of the shock.  Autospectra of this time history are also shown for the experiment and LES cases A and B.  The LES spectra lack in low frequency resolution and as a result, there are discrepancies from the experiment at lower Strouhal numbers.  The case A calculation has nearly 2 times the samples as case B and has a substantially better spectrum at the lower wave numbers.  Capturing more low frequency periods is expected to improve this measure.  
+From the instantaneous wall pressure profile, the shock location is determined.  The experimentalists fit the pressure profiles to a curve that approximated the pressure profile across a shock.  Our approach, however, simply tracks the minimum value of pressure along an $x$-profile which was taken at top, bottom and centerline locations in the diverging section of the nozzle.  Figure~\ref{fig:shock_history} shows the temporal behavior of the shock location based on the pressure profiles (top,bottom,center) and illustrates the asymmetry of the shock.  Autospectra of this time history are also shown for the experiment and LES cases A and B in Fig.~\ref{fig:shock_spectra}.  The LES spectra lack in low frequency resolution and as a result, there are discrepancies from the experiment at lower Strouhal numbers.  The case A calculation has nearly 2 times the samples as case B and has a substantially better spectrum at the lower wave numbers.  Capturing more low frequency periods is expected to improve this measure.  
 
 %\end{multicols}
 
@@ -387,18 +388,18 @@ From the instantaneous wall pressure profile, the shock location is determined. 
 \begin{figure*}[!h]% order of placement preference: here, top, bottom
 	%\begin{center}
 	\centering
-	\includegraphics[height=2.5in]{../../figs/shock_history.pdf}
-	\includegraphics[height=2.5in]{../../figs/shock_spectra.pdf}
+	\subfloat[(a)]{\label{fig:shock_history} \includegraphics[height=2.5in]{../../figs/shock_history.pdf}}
+	\subfloat[(b)]{\label{fig:shock_spectra} \includegraphics[height=2.5in]{../../figs/shock_spectra.pdf}}
 	%\end{center}
  	\caption{ {\bf Left}: Shock location vs. time based on pressure profiles at three locations. {\bf Right:} Autospectra of shock position fluctuation for the experiment (dashed-black), LES case A (dashed dot-red) and LES case B(dashed-dot blue) mesh calculations. }
- 	\label{fig:shock_history}
+ 	
 \end{figure*}
 
 
 \begin{figure*}[!h]
 	\begin{centering}
 	\includegraphics[width=6.5in, height=2.5in, keepaspectratio=false]{../../figs/shock_compare.pdf}
-	\caption{ Shock wave position time history from the experimental measurements~\cite{Papam:10} are shown as the original figure in black.  The over-layed blue line represents data from case A of the LES and shows good qualitative agreement.
+	\caption{ Shock wave position time history from the experimental measurements~\cite{Papam:10} are shown as the original figure in black.  The over-layed red line represents data from case A of the LES and shows good qualitative agreement.
  	\label{fig:shock_compare}
 	}
 	\end{centering}
@@ -418,8 +419,8 @@ Figures~\ref{fig:schl} and~\ref{fig:schl_ex} show a comparison between Schlieren
 
 \begin{figure}[!h]% order of placement preference: here, top, bottom
 	\begin{center}
-	\includegraphics[width=3in]{../../figs/exp_montage.jpg}
-	\includegraphics[width=3in]{../../figs/sim_montage.jpg}
+	\subfloat[(a)]{\includegraphics[width=3in]{../../figs/exp_montage.jpg}}
+	\subfloat[(b)]{\includegraphics[width=3in]{../../figs/sim_montage.jpg}}
 	\end{center}
  	\caption{Schlieren images from experiment \cite{Papam:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) show excellent qualitative agreement of the shock structure, the separated shear layer and the compression/expansion waves.  }
  	\label{fig:schl}
@@ -428,10 +429,8 @@ Figures~\ref{fig:schl} and~\ref{fig:schl_ex} show a comparison between Schlieren
 
 \begin{figure}[!h]% order of placement preference: here, top, bottom
 	\begin{center}
-	%\includegraphics[width=6.1in]{figs/papam_exp.png}
- 	%\includegraphics[width=6in]{figs/papam_cLES.png}
-	\includegraphics[height=3in, angle=-90]{figs/plume_exp.png}
-	\includegraphics[height=3in, angle=-90]{figs/plume_les.png}
+	\subfloat[(a)]{\includegraphics[height=3in, angle=-90]{figs/plume_exp.png}}
+	\subfloat[(b)]{\includegraphics[height=3in, angle=-90]{figs/plume_les.png}}
 	\end{center}
  	\caption{Schlieren images from experiment \cite{Papam:10} (left) and $z$-averaged contours of $||\nabla\rho||$ from the medium mesh LES (right) in the exit region of the diverging section of the nozzle.  }
  	\label{fig:schl_ex}
@@ -527,7 +526,7 @@ The aforementioned mechanism for the low frequency shock motion is summarized be
   \hspace{0.1in}	
   \subfloat[$\tau=34$]{\includegraphics[width=2in]{figs/wall/medium3dwall_0928.png}}
   
-  \caption{Grayscale is $C_f$ from -0.01 to 0.01 corresponding from black to white.  Colored region are contours of temperature on a range from $.56T_{\infty}$ to $.94T_{\infty}$ which have been thresholded below $.60T_{\infty}$.  The entrainment of the hot air by the separated flow is clearly illustrated as the shock undulates.  }
+  \caption{Grayscale is $C_f$ from -0.01 to 0.01 corresponding from black to white.  Colored region are contours of temperature on a range from $.56T_{\infty}$ to $.94T_{\infty}$ which have been thresholded to not show values below $.60T_{\infty}$.  The entrainment of the hot air by the separated flow is clearly illustrated as the shock undulates.  }
   
   \label{fig:whistory}
 \end{figure*}

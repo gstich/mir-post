@@ -148,7 +148,24 @@ ydata = ydata * (LL(2)-UR(2)) + UR(2);
 %		
 pxoff = xoff*xpix;
 hold on;		
-plot(xdata+pxoff,ydata,'b-','LineWidth',LW);
+plot(xdata+pxoff,ydata,'r-','LineWidth',LW);
+
+% Add the arrows
+pt1 = [1490,41];
+pt0 = [1495,41];
+arrow(pt1,pt0,'BaseAngle',90,'Length',20,'TipAngle',28);
+
+pt1 = [950,41];
+pt0 = [941,41];
+arrow(pt1,pt0,'BaseAngle',90,'Length',20,'TipAngle',28);
+
+xA = linspace(950,1480.2,100);
+yA = xA*0 + 41;
+
+hold on;
+plot(xA,yA,'k','LineWidth',2);
+
+text(1220,80,'Simulation','HorizontalAlignment','center','Fontname','Times','FontSize',16);
 
 axis off;
 
@@ -163,6 +180,22 @@ h2 = ylabel('$S_{xx}(m^2/Hz)$');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
 
+h = figure(3);
+set(h,'Position',[1000,395,xpix/2,ypix/2])
+set(h,'PaperSize',[8,7]);
+set(h,'PaperPositionMode','auto');
+
+
+h = figure(1);
+set(h,'Position',[300,395,560*1.5,420*1.5])
+set(h,'PaperSize',[8,6]);
+set(h,'PaperPositionMode','auto');
+
+
+h = figure(2);
+set(h,'Position',[300,395,560*1.5,450*1.5])
+set(h,'PaperSize',[8,7]);
+set(h,'PaperPositionMode','auto');
 
 %a = 1;
 %b = 1;

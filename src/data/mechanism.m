@@ -111,6 +111,15 @@ xline = linspace(0,100,10);
 figure(1);hold on;
 plot(xline,0*xline,'k-.','LineWidth',1)
 
+
+% Plot the points correspodning to the viz-
+tviz = [0,7.4,14.8,22.2,29.7,37.1,44.5,51.9,56.06];
+iviz = [550,600,650,700,750,800,850,900,928];
+iviz = iviz - 550 + 1;
+sviz = shk(iviz); 
+figure(1);hold on;
+plot(tviz,sviz,'ko','LineWidth',2,'MarkerEdgeColor','k','MarkerFaceColor','r','MarkerSize',8)
+
 xlim([0 66]);
 ylim([-2.0 2.0]);
 box on;
