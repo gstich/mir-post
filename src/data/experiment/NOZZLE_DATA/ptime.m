@@ -63,6 +63,11 @@ c(i-1,:) = 2*abs(f'.*Y(1:NFFT/2+1));
 %semilogx(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
 %loglog(f,2*abs(f'.*Y(1:NFFT/2+1)));hold all; 
 %xlim([f(ceil(size(f,2)/2)) f(end) ])
+
+% Get the variance of p over x
+evar(i) = sum((tap(i).p - tap(i).pbar).^2)/max(size(tap(i).p)) / tap(i).pbar^2;
+
+
 end
 %title('Single-Sided Amplitude Spectrum of y(t)')
 %xlabel('Frequency (Hz)')
@@ -124,5 +129,13 @@ xray = flipud(gray);
 colormap(xray)
 
 
+figure(2);
+eX = x(:,1);
+plot(eX,evar(2:5),'ko');
 
+figure(2);hold on
+load('../sim_var.mat')
+sX = X(1:max(size(var)));
+plot(sX,var);
 
+save var_comp.mat sX var eX evar;
