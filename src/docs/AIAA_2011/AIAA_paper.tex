@@ -479,18 +479,26 @@ One of the main findings of the experiment~\cite{Papam:10} was the correlation b
 From the LES data, we have observed results consistent with the experimental findings.  Although the experimental data corroborate the LES findings, no cause or mechanism for the shock motion was given.  Indeed with the limited temporal and spatial dimensions and flow-variables measured in the experiment, such conclusions are difficult to make.  Informed by the LES data, we offer here a candidate explanation of the physical mechanism which couples the shock and the shear layer and which governs the shock motion and downstream exit plume mixing.
 
 
-This mechanism is best understood by visualizing one low frequency period of the shock motion.  Figure~\ref{fig:history} shows the shock structure and separated shear layer in black and white and the region of reversed flow where $U<0$ is shown is color.  The sequence of events leading to one low frequency period goes as follows:  The shock wave is located upstream of its mean position and the nozzle is under-expanded (i.e. the exit pressure is higher than the ambient pressure).  At this location, the shock is weaker and it does not create any flow reversal.  The effect of mismatched pressure forces the shock downstream.  Moving downstream increases the Mach number of the shock and the larger adverse pressure gradient across the shock causes separation to occur.  Once the flow separates the reversed flow causes the shear layer to thicken.  This thickening obstructs the core mean flow and decreases the effective area of the section.  As area decreases, the flow accelerates and the pressure drops.  This decrease in pressure causes the nozzle exit pressure to be less than the ambient pressure.  This mismatch in pressure forces the shock back upstream.  The shock strength weakens and the separated shear layer will reattach alleviating the confinement from the large shear layer.  As the effective area is increased, the exit pressure becomes larger than the ambient pressure and the shock moves downstream.  The cycle then repeats.
+This mechanism is best understood by visualizing one low frequency period of the shock motion.  Figure~\ref{fig:history} shows the shock structure and separated shear layer in black and white and the region of reversed flow where $U<0$ is shown is color.  The sequence of events leading to one low frequency period goes as follows:  
+%Shock is at its most upstream location, and weakest at $\tau=37.1$ ($6^{th}$) snapshot) . From this time moving forward (over a cycle) and coming to snapshot 1 after 4 frames the shock is nearly normal, the boundary layer on the bottom wall mildly separates (incipient separation with no mean reversed flow) and we have a weak separation shock. During this phase the exit pressure decreases and the exit velocity increases (both with different phase delays). From here on going to snapshot 2 a significant reversed flow begins, the separation shock intensifies, the shear layer deflects and the exit area blockage increases. Increased blockage raises exit pressure and even under-expanded state as the reversed flow keeps building strength (snaphots 3 and 4) and then the normal shock begins moving upstream allowing the exit pressure to drop, exit velocity to increase which eliminate the reversed flow.
+
+%As the shock location reaches its furthest downstream position,($\tau=7.4$), the
+
+
+%The shock wave is located upstream of its mean position and the nozzle is under-expanded (i.e. the exit pressure is higher than the ambient pressure).  At this location, the shock is weaker and it does not create any flow reversal.  The effect of mismatched pressure forces the shock downstream.  
+
+At $\tau=0.0$ the shock is traversing downstream and the incipient separation (with no mean flow reversal) is mild.  As the shock moves further downstream, the Mach number of the shock increases and the larger adverse pressure gradient across the shock causes the flow to begin to reverse ($\tau=7.4$).  The reversed flow causes the shear layer to dramatically thicken.  This thickening obstructs the core mean flow and decreases the effective area of the exit.  As area decreases, the flow accelerates and the pressure drops, as in quasi-1d subsonic flow ($\tau=14.8-29.7$).  To compensate for the area confinement and pressure drop, the shock begins to move upstream as it adjusts to increase pressure with some characteristic time lag ($\tau=14.8-37.1$).  The shock strength is weaker upstream and the separated shear layer becomes milder and the flow ceases to reverse, thus alleviating the confinement from the large shear layer.  As the effective area is increased, the exit pressure becomes larger than the ambient pressure and the shock moves downstream ($\tau=44.5-51.9$).   The cycle then repeats.
 
 The aforementioned mechanism for the low frequency shock motion is summarized below and makes reference to the times and features shown in Figure~\ref{fig:history}.
 \begin{itemize}
 	%\item Shock is upstream \& $P_e > P_{\infty}$. ($\tau=0$)
-	\item Shock moves downstream, separation occurs. ($\tau=0-7.4$)
+	\item Shock moves downstream, mean flow reversal occurs. ($\tau=0-7.4$)
 	\item Shear layer thickens, causing blockage \& reduced area. ($\tau=14.8-22.2$)
 	\item Area reduction decreases pressure \& $P_e < P_{\infty}$ ($\tau=22.2-29.7$)
 	\item Shock moves upstream, flow reattaches. ($\tau=37.1$)
 	\item Shear layer thins, relieving blockage \& increase area. ($\tau=44.5$)
 	\item Area increase increases pressure \& $P_e > P_{\infty}$ ($\tau=44.5-51.9$)
-	\item Shock moves downstream ($\tau=51.9-56.06$)
+	\item Shock moves downstream, cycle repeats ($\tau=51.9-56.06$)
 \end{itemize}
 
 \begin{figure}[!ht]
