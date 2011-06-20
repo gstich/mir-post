@@ -61,7 +61,7 @@ end
 
 
 xlim([.25 65])
-ylim([10^5 2*10^8])
+ylim([10^3 2*10^6])
 box on;
 h1 = xlabel(['$k_z$']);
 set(h1,'Interpreter','latex','FontSize',FSn);

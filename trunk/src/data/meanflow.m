@@ -3,7 +3,7 @@ clc;
 close all
 
 
-pdfE = false;
+pdfE = true;
 
 res(1).name = 'coarse';
 res(2).name = 'medium';
@@ -27,9 +27,15 @@ figs(4).name = 'v_mean_med';
 figs(5).name = 'p_mean_cor';
 figs(6).name = 'p_mean_med';
 figs(7).name = 'uu_cor';
-figs(8).name = 'vv_cor';
-figs(9).name = 'ww_cor';
-figs(10).name = 'uv_cor';
+figs(8).name = 'uu_med';
+figs(9).name = 'vv_cor';
+figs(10).name = 'vv_med';
+figs(11).name = 'ww_cor';
+figs(12).name = 'ww_med';
+figs(13).name = 'uv_cor';
+figs(14).name = 'uv_med';
+figs(15).name = 'ptpt_cor';
+figs(16).name = 'ptpt_med';
 
 % Plot symbols
 res(1).sym = '--';
@@ -66,11 +72,11 @@ res(i).u = tmp(xoff:end,:,key.u)/Up;
 res(i).v = tmp(xoff:end,:,key.v)/Up;
 res(i).w = tmp(xoff:end,:,key.w)/Up;
 res(i).p = tmp(xoff:end,:,key.p)/P0;
-res(i).uu = tmp(xoff:end,:,key.uu);
-res(i).vv = tmp(xoff:end,:,key.vv);
-res(i).ww = tmp(xoff:end,:,key.ww);
-res(i).uv = tmp(xoff:end,:,key.uv);
-res(i).ptpt = tmp(xoff:end,:,key.ptpt);
+res(i).uu = sqrt(tmp(xoff:end,:,key.uu))/Up;
+res(i).vv = sqrt(tmp(xoff:end,:,key.vv))/Up;
+res(i).ww = sqrt(tmp(xoff:end,:,key.ww))/Up;
+res(i).uv = tmp(xoff:end,:,key.uv)/Up^2;
+res(i).ptpt = sqrt(tmp(xoff:end,:,key.ptpt))/P0;
 clear tmp MEAN_cor;
 
 % Medium
@@ -82,15 +88,15 @@ res(i).u = tmp(xoff:end,:,key.u)/Up;
 res(i).v = tmp(xoff:end,:,key.v)/Up;
 res(i).w = tmp(xoff:end,:,key.w)/Up;
 res(i).p = tmp(xoff:end,:,key.p)/P0;
-res(i).uu = tmp(xoff:end,:,key.uu);
-res(i).vv = tmp(xoff:end,:,key.vv);
-res(i).ww = tmp(xoff:end,:,key.ww);
-res(i).uv = tmp(xoff:end,:,key.uv);
-res(i).ptpt = tmp(xoff:end,:,key.ptpt);
+res(i).uu = sqrt(tmp(xoff:end,:,key.uu))/Up;
+res(i).vv = sqrt(tmp(xoff:end,:,key.vv))/Up;
+res(i).ww = sqrt(tmp(xoff:end,:,key.ww))/Up;
+res(i).uv = tmp(xoff:end,:,key.uv)/Up^2;
+res(i).ptpt = sqrt(tmp(xoff:end,:,key.ptpt))/P0;
 clear tmp MEAN_med;
 
 
-xmin = 0;
+xmin = -.25;
 xmax = 8;
 ymin = -1;
 ymax = 1;
@@ -109,8 +115,8 @@ cbL = '$u/U_p$';
 mean_contour(res(j).x,res(j).y,res(j).u,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 ix = [380,87] - xoff;
 iy = [80,18];
-plot(res(j).x(ix(1),iy(1)),res(j).y(ix(1),iy(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);hold on
-plot(res(j).x(ix(2),iy(2)),res(j).y(ix(2),iy(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);
+%plot(res(j).x(ix(1),iy(1)),res(j).y(ix(1),iy(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',15);hold on
+%plot(res(j).x(ix(2),iy(2)),res(j).y(ix(2),iy(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',15);
 
 j=2;iFig=iFig+1;
 vrng = [-.1,.8];
@@ -118,10 +124,10 @@ xL = '$x/H_t$';
 yL = '$y/H_t$';
 cbL = '$u/U_p$';
 mean_contour(res(j).x,res(j).y,res(j).u,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
-ix = [577,131] - xoff;
-iy = [95,21];
-plot(res(j).x(ix(1),iy(1)),res(j).y(ix(1),iy(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);hold on
-plot(res(j).x(ix(2),iy(2)),res(j).y(ix(2),iy(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);
+ixm = [577,131] - xoff;
+iym = [95,21];
+%plot(res(j).x(ixm(1),iym(1)),res(j).y(ixm(1),iym(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',15);hold on
+%plot(res(j).x(ixm(2),iym(2)),res(j).y(ixm(2),iym(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',15);
 
 
 %% V-velocity
@@ -145,14 +151,14 @@ j=1;iFig=iFig+1;
 vrng = [.4,1];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$p/p_0$';
+cbL = '$P/P_{0,\infty}$';
 mean_contour(res(j).x,res(j).y,res(j).p,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 j=2;iFig=iFig+1;
 vrng = [.4,1];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$p/p_0$';
+cbL = '$P/P_{0,\infty}$';
 mean_contour(res(j).x,res(j).y,res(j).p,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 %% u'u'
@@ -160,7 +166,14 @@ j=1;iFig=iFig+1;
 vrng = [0,0];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$u_{rms}$';
+cbL = '$u_{rms}/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).uu,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$u_{rms}/U_p$';
 mean_contour(res(j).x,res(j).y,res(j).uu,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 %% v'v'
@@ -168,7 +181,14 @@ j=1;iFig=iFig+1;
 vrng = [0,0];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$v_{rms}$';
+cbL = '$v_{rms}/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).vv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$v_{rms}/U_p$';
 mean_contour(res(j).x,res(j).y,res(j).vv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 %% w'w'
@@ -176,7 +196,14 @@ j=1;iFig=iFig+1;
 vrng = [0,0];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$w_{rms}$';
+cbL = '$w_{rms}/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).ww,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$w_{rms}/U_p$';
 mean_contour(res(j).x,res(j).y,res(j).ww,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 %% u'v''
@@ -184,7 +211,14 @@ j=1;iFig=iFig+1;
 vrng = [0,0];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$uv_{rms}$';
+cbL = '$\langle u^\prime v^\prime \rangle/U_p^2$';
+mean_contour(res(j).x,res(j).y,res(j).uv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$\langle u^\prime v^\prime \rangle/U_p^2$';
 mean_contour(res(j).x,res(j).y,res(j).uv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 
@@ -193,7 +227,14 @@ j=1;iFig=iFig+1;
 vrng = [0,0];
 xL = '$x/H_t$';
 yL = '$y/H_t$';
-cbL = '$Pt_{rms}$';
+cbL = '$P_{0,rms}/P_{0,\infty}$';
+mean_contour(res(j).x,res(j).y,res(j).ptpt,xrng,yrng,vrng,64,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$P_{0,rms}/P_{0,\infty}$';
 mean_contour(res(j).x,res(j).y,res(j).ptpt,xrng,yrng,vrng,64,iFig,xL,yL,cbL);
 
 
