@@ -17,35 +17,25 @@ cmax = .2;      % Contour Level Max
 ncon = 32;      % Number of contour level
 Ht = 1.78;
 Up = 32940*1.603;
+P0 = 1e6;
 
 % Figure name
 figs(1).name = 'u_mean_cor';
-figs(2).name = 'corr_span_p';
+figs(2).name = 'u_mean_med';
+figs(3).name = 'v_mean_cor';
+figs(4).name = 'v_mean_med';
+figs(5).name = 'p_mean_cor';
+figs(6).name = 'p_mean_med';
+figs(7).name = 'uu_cor';
+figs(8).name = 'vv_cor';
+figs(9).name = 'ww_cor';
+figs(10).name = 'uv_cor';
 
 % Plot symbols
 res(1).sym = '--';
 res(2).sym = '-.';
 res(3).sym = '-';
 
-%   1 U-vel 1  -4.881238E+03   4.168567E+04
-%   2V-vel 1  -1.148853E+04   1.558692E+04
-%   3W-vel 1  -3.861968E+03   4.124843E+03
-%   4pressure 1   5.215437E+05   1.098364E+06
-%   5density 1   7.277217E-04   1.462052E-03
-%   6temperature 1   2.022830E+02   4.736444E+02
-%   7uu 1   0.000000E+00   1.055002E+08
-%   8vv 1   0.000000E+00   3.295886E+07
-%   9ww 1   0.000000E+00   3.729177E+07
-%   10uv 1  -3.837980E+07   2.020928E+07
-%   11uw 1  -1.397939E+07   1.539493E+07
-%   12vw 1  -1.035138E+07   1.123789E+07
-%   13Ptot 1   5.658663E+05   1.597028E+06
-%   14PtPt 1   0.000000E+00   3.453763E+10
-%   gradRHO 1  -5.410950E-05   2.364354E-02
-%   mu 1   6.183936E-04   1.186228E-03
-%   muA 1   6.294615E-04   5.261340E-02
-%   muB 1   6.268612E-04   2.042488E-02
-%   muC 1   6.282928E-04   6.297713E-03
 
 key.u = 1;      key.v = 2;  key.w = 3;  key.p = 4; key.rho = 5; key.T = 6;
 key.uu = 7;     key.vv = 8; key.ww = 9; key.uv = 10;
@@ -72,9 +62,10 @@ i=1;
 tmp = MEAN_cor;
 res(i).x = tmp(xoff:end,:,key.x)/Ht;
 res(i).y = tmp(xoff:end,:,key.y)/Ht;
-res(i).u = tmp(xoff:end,:,key.u);
-res(i).v = tmp(xoff:end,:,key.v);
-res(i).w = tmp(xoff:end,:,key.w);
+res(i).u = tmp(xoff:end,:,key.u)/Up;
+res(i).v = tmp(xoff:end,:,key.v)/Up;
+res(i).w = tmp(xoff:end,:,key.w)/Up;
+res(i).p = tmp(xoff:end,:,key.p)/P0;
 res(i).uu = tmp(xoff:end,:,key.uu);
 res(i).vv = tmp(xoff:end,:,key.vv);
 res(i).ww = tmp(xoff:end,:,key.ww);
@@ -87,9 +78,10 @@ i=2;
 tmp = MEAN_med;
 res(i).x = tmp(xoff:end,:,key.x)/Ht;
 res(i).y = tmp(xoff:end,:,key.y)/Ht;
-res(i).u = tmp(xoff:end,:,key.u);
-res(i).v = tmp(xoff:end,:,key.v);
-res(i).w = tmp(xoff:end,:,key.w);
+res(i).u = tmp(xoff:end,:,key.u)/Up;
+res(i).v = tmp(xoff:end,:,key.v)/Up;
+res(i).w = tmp(xoff:end,:,key.w)/Up;
+res(i).p = tmp(xoff:end,:,key.p)/P0;
 res(i).uu = tmp(xoff:end,:,key.uu);
 res(i).vv = tmp(xoff:end,:,key.vv);
 res(i).ww = tmp(xoff:end,:,key.ww);
@@ -106,42 +98,103 @@ ymax = 1;
 AR = (xmax-xmin) / (ymax-ymin);
 
 i=0;
+xrng = [xmin xmax];
+yrng = [ymin ymax];
+
+j=1;iFig=1;
+vrng = [-.1,.8];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$u/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).u,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+ix = [380,87] - xoff;
+iy = [80,18];
+plot(res(j).x(ix(1),iy(1)),res(j).y(ix(1),iy(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);hold on
+plot(res(j).x(ix(2),iy(2)),res(j).y(ix(2),iy(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);
+
+j=2;iFig=iFig+1;
+vrng = [-.1,.8];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$u/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).u,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+ix = [577,131] - xoff;
+iy = [95,21];
+plot(res(j).x(ix(1),iy(1)),res(j).y(ix(1),iy(1)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);hold on
+plot(res(j).x(ix(2),iy(2)),res(j).y(ix(2),iy(2)),'go','LineWidth',2,'MarkerFaceColor','k','MarkerSize',10);
 
 
-%% U-mean
-vmin = -.32e4; vmax = 4e4;
-Ncon = linspace(vmin,vmax,ncon);
-ix = [70,250] - xoff;
-iy = [32,64];
-i=i+1;
-figure(i);
-j=1;
-[cc,hh] = contourf(res(j).x,res(j).y,res(j).u,Ncon,'EdgeColor','none');
-axis equal; xlim([xmin xmax]); ylim([ymin ymax]); hold on; 
-cb = colorbar; h2 = ylabel(cb,'$cm/s$');set(h2,'Interpreter','latex','FontSize',FSn);
-h = xlabel('$x/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
-h1 = ylabel('$y/H_t$'); set(h1,'Interpreter','latex','FontSize',FSn);
-plot(res(j).x(ix(1)),res(j).y(iy(1)),'ko','LineWidth',2,'MarkerFaceColor','k');hold on
-plot(res(j).x(ix(2)),res(j).y(iy(2)),'ko','LineWidth',2,'MarkerFaceColor','k');
-set(gca,'FontSize',FSa);
+%% V-velocity
+j=1;iFig=iFig+1;
+vrng = [-.1,.1];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$v/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).v,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+j=2;iFig=iFig+1;
+vrng = [-.1,.1];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$v/U_p$';
+mean_contour(res(j).x,res(j).y,res(j).v,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
 
-g = figure(i);
-set(g,'Position',[200,395,250*AR+50,250+50])
-set(g,'PaperSize',[8,8/AR]);
-set(g,'PaperPositionMode','auto');
+%% Pressure
+j=1;iFig=iFig+1;
+vrng = [.4,1];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$p/p_0$';
+mean_contour(res(j).x,res(j).y,res(j).p,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
 
-ix = [110,350] - xoff;
-iy = [32,64];
-i=i+1;
-figure(i);
-j=2;
-contourf(res(j).x,res(j).y,max(res(j).u,vmin),Ncon,'EdgeColor','none');
-axis equal; xlim([xmin xmax]); ylim([ymin ymax]); hold on; colorbar;
-h = xlabel('$x/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
-h1 = ylabel('$y/H_t$'); set(h1,'Interpreter','latex','FontSize',FSn);
-plot(res(j).x(ix(1)),res(j).y(iy(1)),'ko','LineWidth',2,'MarkerFaceColor','k');hold on
-plot(res(j).x(ix(2)),res(j).y(iy(2)),'ko','LineWidth',2,'MarkerFaceColor','k');
+j=2;iFig=iFig+1;
+vrng = [.4,1];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$p/p_0$';
+mean_contour(res(j).x,res(j).y,res(j).p,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+%% u'u'
+j=1;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$u_{rms}$';
+mean_contour(res(j).x,res(j).y,res(j).uu,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+%% v'v'
+j=1;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$v_{rms}$';
+mean_contour(res(j).x,res(j).y,res(j).vv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+%% w'w'
+j=1;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$w_{rms}$';
+mean_contour(res(j).x,res(j).y,res(j).ww,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+%% u'v''
+j=1;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$uv_{rms}$';
+mean_contour(res(j).x,res(j).y,res(j).uv,xrng,yrng,vrng,ncon,iFig,xL,yL,cbL);
+
+
+%% Ptot'Ptot'
+j=1;iFig=iFig+1;
+vrng = [0,0];
+xL = '$x/H_t$';
+yL = '$y/H_t$';
+cbL = '$Pt_{rms}$';
+mean_contour(res(j).x,res(j).y,res(j).ptpt,xrng,yrng,vrng,64,iFig,xL,yL,cbL);
 
 
 
