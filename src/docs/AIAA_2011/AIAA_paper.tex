@@ -318,23 +318,34 @@ The LES mean pressure profiles at the centerline and at the wall compare well to
 
 
 \subsection{Span-wise extent and the turbulent shear layer }
-As previously mentioned, the LES calculations use periodic boundary conditions in the span-wise($z$) direction.  This approximates the experiment which has physical walls on these boundaries.  The aspect ratio of the experiment (width to height at the throat) was $\approx 3.5$ and the effect of this quantity on the shock-wave behavior is unknown.  It is expected the span-wise domain must be sufficiently large in order to represent the large structures in the flow.  A smaller domain will directly impact the dynamics and evolution of the flow.  To determine the length scales present in the nozzle, a two-point correlation of stream-wise velocity, span-wise velocity and pressure was computed and averaged over time for 2 locations in the flow.  Figure~\ref{fig:span_corr} shows $R_{11}$ of pressure in the span-wise direction (normalized by span extent, $L_z$) at a location in the boundary layer ahead of the shock and in the separated shear layer.  The other variables are not shown here but exhibited similar behavior to the pressure correlation.  The correlations have substantially decayed for the regions in both the boundary layer and the shear layer, indicating sufficient span length, $L_z$.  Figure~\ref{fig:span_spec} shows the spectra for these same two location and the three mesh resolutions.
+As previously mentioned, the LES calculations use periodic boundary conditions in the span-wise($z$) direction.  This approximates the experiment which has physical walls on these boundaries.  The aspect ratio of the experiment (width to height at the throat) was $\approx 3.5$ and the effect of this quantity on the shock-wave behavior is unknown.  It is expected the span-wise domain must be sufficiently large in order to represent the large structures in the flow.  A smaller domain will directly impact the dynamics and evolution of the flow.  To determine the length scales present in the nozzle, a two-point correlation of stream-wise velocity, span-wise velocity and pressure was computed and averaged over time for 2 locations in the flow.  Figure~\ref{fig:span_corr} shows $R_{11}$ of pressure in the span-wise direction (normalized by span extent, $L_z$) at a location in the boundary layer ahead of the shock and in the separated shear layer.  The other variables are not shown here but exhibited similar behavior to the pressure correlation.  The correlations have substantially decayed for the regions in both the boundary layer and the shear layer, indicating sufficient span length, $L_z$.  
+
+Figure~\ref{fig:span_spec} shows the spectra for these same two location and the three mesh resolutions.  The spectra indicate the range of energetic scales present in the shear layer is substantially larger than in the shear layer.  The lack of collapse of the spectra for the three meshes is somewhat expected given the slight difference in probe location among the meshes and quantity of temporal data available for each mesh.  Mesh A has several low frequency periods of data while mesh B has only one.  Mesh C has yet to complete a entire oscillation.  The probe locations can been seen in Figure~\ref{fig:mean} and \ref{fig:RMS} which show mean and rms values for the flow variables for the various meshes.  Taking into account that the large shear layer between cases A and B is located on opposite sides, the results are qualitatively agreeing between the two meshes.  One clear distinction between the two averaged solutions is the diffuseness of the shock for case B.  This can be seen by comparing the static pressure of the two meshes in Figure~\ref{fig:mean}e-f.
+
 
 %Furthermore, the Taylor microscale, $\lambda_g$ is a function of $R_{11}$ and is calculated on a sub-domain of the diverging section.  Contours of $\lambda_g$ are shown in Figure~\ref{fig:span_corr} for the coarse and medium resolution cases.  The incoming turbulent boundary layer, as expected, has the smallest length scales.  The location directly downstream of the normal shock and in the region directly between the shear layers has the largest values for $\lambda_g$.  For the coarse and medium resolutions the value of $\lambda_g / L_z$ doesn't exceed 0.2.  The decay of $R_{11}$ and small maximum values of $\lambda_g/L_z$ indicate that the effect of the span has a diminishing effect on the structures.
 
 %\end{multicols}
 
 
+\begin{figure}
+	%\centering
+	\hspace{-.65in}
+	\subfloat[(a) Stream-wise velocity, mesh A]{ \includegraphics[width=3.75in]{../../figs/u_mean_cor.pdf}}
+	\subfloat[(b) Stream-wise velocity, mesh B]{ \includegraphics[width=3.75in]{../../figs/u_mean_med.pdf}}
+	
+	\hspace{-.65in}
+	\subfloat[(c) Vertical velocity, mesh A]{ \includegraphics[width=3.75in]{../../figs/v_mean_cor.pdf}}
+	\subfloat[(d) Vertical velocity, mesh B]{ \includegraphics[width=3.75in]{../../figs/v_mean_med.pdf}}
+	
+	\hspace{-.65in}
+	\subfloat[(e) Static Pressure, mesh A]{\includegraphics[width=3.75in]{../../figs/p_mean_cor.pdf}}
+	\subfloat[(f) Static Pressure, mesh B]{ \includegraphics[width=3.75in]{../../figs/p_mean_med.pdf}}
+	\caption{ Time averaged flow quantities showing the results from mesh A (left) and mesh B (right).  Mesh B has less time information available does not appear as smooth as mesh A.  Mesh C contains far too few temporal data for reasonable temporal averaging.  The plots of stream wise velocity show probe locations in black for data shown in Figure~\ref{fig:span}.
+ 	}
+	\label{fig:mean}
+\end{figure}
 
-%\begin{figure*}[!ht]
-%	\centering
-%	\includegraphics[height=2.75in]{../../figs/1dspancorr.pdf}
-%	%\includegraphics[height=2.75in]{../../figs/2dspancorr.pdf}
-%	\caption{ Two point auto-correlation for the stream-wise component of velocity vs. distance for a point in the pre-shock boundary layer (solid), post-shock boundary layer (dashed) and large separated shear layer (dashed-dotted).  
-%	%{\bf Right:} Contours of the Taylor microscale ($\lambda_g/L_z$) for the coarse (top) and medium (bottom) calculations.  Data suggest that the LES has sufficient length in the periodic direction($L_z$) for minimal effect of the periodic boundary condition.
-% 	\label{fig:span_corr}
-%	}
-%\end{figure*}
 
 \begin{figure*}[!ht]
 	\centering
@@ -343,6 +354,7 @@ As previously mentioned, the LES calculations use periodic boundary conditions i
 	\caption{ {\bf Left:} Two point auto-correlation for pressure fluctuation in $z$ vs. distance for a point in the pre-shock boundary layer (black) and large separated shear layer (blue), for mesh A (dashed), B (dashed-dot) and C (solid).  
 	{\bf Right:} Energy spectra for the same two locations and 3 resolutions with identical color coding as in Fig.~\ref{fig:span_corr}.
  	}
+	\label{fig:span}
 \end{figure*}
 
 
@@ -360,12 +372,22 @@ With sufficient domain size, the LES captures the energy containing scales of th
 \end{figure*}
 
 
-%\clearpage
-
-%\end{multicols}
-
-
-%\begin{multicols}{2}
+\begin{figure}
+	%\centering
+	\hspace{-.65in}
+	\subfloat[(a) Stream-wise velocity fluctuations]{ \includegraphics[width=3.75in]{../../figs/uu_cor.pdf}}
+	\subfloat[(b) Vertical velocity fluctuations]{ \includegraphics[width=3.75in]{../../figs/vv_cor.pdf}}
+	
+	\hspace{-.65in}
+	\subfloat[(c) Span-wise velocity fluctuations]{\includegraphics[width=3.75in]{../../figs/ww_cor.pdf}}
+	\subfloat[(d) Span-wise/Vertical velocity fluctuations]{ \includegraphics[width=3.75in]{../../figs/uv_cor.pdf}}
+	
+	\centering
+	\subfloat[(e) Total Pressure fluctuations]{ \includegraphics[width=3.75in]{../../figs/ptpt_cor.pdf}}
+	\caption{ Time averaged fluctuating quantities depict the asymmetry of the shear layer for mesh A.
+ 	}
+	\label{fig:RMS}
+\end{figure}
 
 \clearpage
 \subsection{Shock wave motion}
@@ -509,7 +531,7 @@ The aforementioned mechanism for the low frequency shock motion is summarized be
 	\includegraphics[trim = 3in 0in 2in 0in, clip,width=2.085in]{figs/phase_key.pdf}
 	\includegraphics[width=3.5in]{../../figs/mech_phase.pdf}
 	\end{center}
- 	\caption{Time histories of shock position, exit pressure, exit velocity and effective exit area.  Data has been low-pass filtered to bring focus on the low-frequency motion and normalized to show trends and time relationships.  Phase lag between shock position (black) and effective exit area (green) is clearly shown.  Pressure and velocity (shown in blue and red respectively) have other modes present in their behavior.  Red dots correspond to the images of Fig.~\ref{fig:history} and \ref{fig:whistory}   }
+ 	\caption{Time histories of shock position, exit pressure, exit velocity and effective exit area.  The key to the left of the plot indicates for each variable or quantity what a positive or negative value on the plot represents.  Data has been low-pass filtered to bring focus on the low-frequency motion and normalized to show trends and time relationships.  Phase lag between shock position (black) and effective exit area (green) is clearly shown.  Pressure and velocity (shown in blue and red respectively) have other modes present in their behavior.  Red dots correspond to the images of Fig.~\ref{fig:history} and \ref{fig:whistory}   }
  	\label{fig:phase}
 \end{figure}
 
