@@ -93,6 +93,7 @@ Large-eddy simulation (LES) of an over-expanded planar nozzle is performed to el
   $t$ \> time \\
   $T$ \> static temperature \\
   $\vec{u}$ \> velocity vector \\
+  $U_p$ \> Ideally expanded super-sonic velocity scale \\ 
   $\xi,\eta,\zeta$ \> generalized coordinate directions \\
   \\
   \textit{Subscript}\\
@@ -263,7 +264,7 @@ The accuracy of our LES calculation must be established before these data can be
 
 \subsection{Incoming Turbulent Boundary Layer}
 
-The incoming turbulent boundary layer is well captured by the LES case A and B.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by cases A, B and C.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the B and C meshes are nearly identical.  The momentum thickness Reynolds number, $Re_\theta$ was 1100.  Case A is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift upward from the standard log-law fit ($U_{VD}^+ = \log(y^+) / \kappa+ b $), where $\kappa$ is the Von Karman constant and $b$ is the intersect.  The converged profile of the calculations is shifted from the common parameters for $\kappa$ and $b$ of 0.41 and 5.2 respectively.  This is attributed to the substantially large pressure gradient present at the throat.  Spalart~\cite{Spalart:93} investigated the effect of a favorable pressure gradient on the velocity profiles in the boundary layer and found that for a normalized pressure gradient of $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.3$ there was an observed shift in $\kappa$ of 8\%, as $b$ is kept constant.  The pressure gradient at the throat for the current study was $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.7$ and the observed shift is 10\%.  Figure~\ref{fig:dPdx} shows a comparison in mean velocity profiles between the present LES and the DNS of Spalart.  The results of Spalart and the converged LES profiles indicate that the calculation is accurately capturing the boundary layer and the effect of the favorable pressure gradient.  In the converging section of the throat, the LES does not model the geometry and hence will have a different pressure gradient than the experiment (Fig.~\ref{fig:dPdx}).
+The incoming turbulent boundary layer is well captured by the LES case A and B.  Viscous length scales near the wall are explicitly modeled with varying grid spacing by cases A, B and C.  These spacings are given in viscous wall units in Table~\ref{tbl:mesh} for the different resolution cases.  Mean velocity and RMS profiles (Fig.~\ref{fig:BL_prof}) for the B and C meshes are nearly identical.  The momentum thickness Reynolds number, $Re_\theta$ was 1100.  Case A is shifted upward, indicating a lack of resolution near the wall.  It is also important to note here, the shift upward from the standard log-law fit ($U_{VD}^+ = \log(y^+) / \kappa+ b $), where $\kappa$ is the Von Karman constant and $b$ is the intersect.  The converged profile of the calculations is shifted from the common parameters for $\kappa$ and $b$ of 0.41 and 5.2 respectively.  This is attributed to the substantially large pressure gradient present at the throat.  Spalart~\cite{Spalart:93} investigated the effect of a favorable pressure gradient on the velocity profiles in the boundary layer and found that for a normalized pressure gradient of $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.3$ there was an observed shift in $\kappa$ of 8\%, as $b$ is kept constant.  The pressure gradient at the throat for the current study was $\frac{dP}{dx}\frac{\delta}{\tau_w} = -0.7$ and the observed shift is 10\%.  Figure~\ref{fig:dPdx} shows a comparison in mean velocity profiles between the present LES and the DNS of Spalart.  Furthermore, this shift of $\kappa$ for both the present LES and DNS of Spalart are within the predicted range given recently by Dixit and Ramesh~\cite{Dixit:08}.  The results of Spalart and the converged LES profiles indicate that the calculation is accurately capturing the boundary layer and the effect of the favorable pressure gradient.  In the converging section of the throat, the LES does not model the geometry and hence will have a different pressure gradient than the experiment (Fig.~\ref{fig:dPdx}).
 
 %\end{multicols}
 
@@ -320,7 +321,7 @@ The LES mean pressure profiles at the centerline and at the wall compare well to
 \subsection{Span-wise extent and the turbulent shear layer }
 As previously mentioned, the LES calculations use periodic boundary conditions in the span-wise($z$) direction.  This approximates the experiment which has physical walls on these boundaries.  The aspect ratio of the experiment (width to height at the throat) was $\approx 3.5$ and the effect of this quantity on the shock-wave behavior is unknown.  It is expected the span-wise domain must be sufficiently large in order to represent the large structures in the flow.  A smaller domain will directly impact the dynamics and evolution of the flow.  To determine the length scales present in the nozzle, a two-point correlation of stream-wise velocity, span-wise velocity and pressure was computed and averaged over time for 2 locations in the flow.  Figure~\ref{fig:span_corr} shows $R_{11}$ of pressure in the span-wise direction (normalized by span extent, $L_z$) at a location in the boundary layer ahead of the shock and in the separated shear layer.  The other variables are not shown here but exhibited similar behavior to the pressure correlation.  The correlations have substantially decayed for the regions in both the boundary layer and the shear layer, indicating sufficient span length, $L_z$.  
 
-Figure~\ref{fig:span_spec} shows the spectra for these same two location and the three mesh resolutions.  The spectra indicate the range of energetic scales present in the shear layer is substantially larger than in the shear layer.  The lack of collapse of the spectra for the three meshes is somewhat expected given the slight difference in probe location among the meshes and quantity of temporal data available for each mesh.  Mesh A has several low frequency periods of data while mesh B has only one.  Mesh C has yet to complete a entire oscillation.  The probe locations can been seen in Figure~\ref{fig:mean} and \ref{fig:RMS} which show mean and rms values for the flow variables for the various meshes.  Taking into account that the large shear layer between cases A and B is located on opposite sides, the results are qualitatively agreeing between the two meshes.  One clear distinction between the two averaged solutions is the diffuseness of the shock for case B.  This can be seen by comparing the static pressure of the two meshes in Figure~\ref{fig:mean}e-f.
+Figure~\ref{fig:span_spec} shows the spectra for these same two location and the three mesh resolutions.  The spectra indicate the range of energetic scales present in the shear layer is substantially larger than in the boundary layer.  The lack of collapse of the spectra for the three meshes is somewhat expected given the slight difference in probe location among the meshes and quantity of temporal data available for each mesh.  Mesh A has several low frequency periods of data while mesh B has only one.  Mesh C has yet to complete as entire low frequency oscillation.  The probe locations can been seen in Figure~\ref{fig:mean} and \ref{fig:RMS} which show mean and rms values for the flow variables for the various meshes.  Taking into account that the large shear layer between cases A and B is located on opposite sides, the results are qualitatively agreeing between the two meshes.  One clear distinction between the two averaged solutions is the diffuseness of the shock for case B.  This can be seen by comparing the static pressure of the two meshes in Figure~\ref{fig:mean}e-f.
 
 
 %Furthermore, the Taylor microscale, $\lambda_g$ is a function of $R_{11}$ and is calculated on a sub-domain of the diverging section.  Contours of $\lambda_g$ are shown in Figure~\ref{fig:span_corr} for the coarse and medium resolution cases.  The incoming turbulent boundary layer, as expected, has the smallest length scales.  The location directly downstream of the normal shock and in the region directly between the shear layers has the largest values for $\lambda_g$.  For the coarse and medium resolutions the value of $\lambda_g / L_z$ doesn't exceed 0.2.  The decay of $R_{11}$ and small maximum values of $\lambda_g/L_z$ indicate that the effect of the span has a diminishing effect on the structures.
@@ -341,7 +342,7 @@ Figure~\ref{fig:span_spec} shows the spectra for these same two location and the
 	\hspace{-.65in}
 	\subfloat[(e) Static Pressure, mesh A]{\includegraphics[width=3.75in]{../../figs/p_mean_cor.pdf}}
 	\subfloat[(f) Static Pressure, mesh B]{ \includegraphics[width=3.75in]{../../figs/p_mean_med.pdf}}
-	\caption{ Time averaged flow quantities showing the results from mesh A (left) and mesh B (right).  Mesh B has less time information available does not appear as smooth as mesh A.  Mesh C contains far too few temporal data for reasonable temporal averaging.  The plots of stream wise velocity show probe locations in black for data shown in Figure~\ref{fig:span}.
+	\caption{ Time averaged flow quantities showing the results from mesh A (left) and mesh B (right).  Mesh C contains far too few temporal data for reasonable temporal averaging.  The contour plots show probe locations in black for data shown in Figure~\ref{fig:span} and are normalized by the ideally expanded velocity scale ($U_p$) and ambient pressure.
  	}
 	\label{fig:mean}
 \end{figure}
@@ -380,7 +381,7 @@ With sufficient domain size, the LES captures the energy containing scales of th
 	
 	\hspace{-.65in}
 	\subfloat[(c) Span-wise velocity fluctuations]{\includegraphics[width=3.75in]{../../figs/ww_cor.pdf}}
-	\subfloat[(d) Span-wise/Vertical velocity fluctuations]{ \includegraphics[width=3.75in]{../../figs/uv_cor.pdf}}
+	\subfloat[(d) Reynolds shear stress]{ \includegraphics[width=3.75in]{../../figs/uv_cor.pdf}}
 	
 	\centering
 	\subfloat[(e) Total Pressure fluctuations]{ \includegraphics[width=3.75in]{../../figs/ptpt_cor.pdf}}
@@ -544,6 +545,37 @@ The aforementioned mechanism for the low frequency shock motion is summarized be
 \end{figure}
 
 
+\begin{figure}[!ht]
+  \centering
+  
+  
+  \subfloat[$\tau=0$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0550.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=22.2$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0700.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=44.5$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0850.png}}
+  
+  \vspace{-.1in}
+  
+  \subfloat[$\tau=7.4$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0600.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=29.7$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0750.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=51.9$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0900.png}}
+  
+  \vspace{-.1in}
+  
+  \subfloat[$\tau=14.8$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0650.png}}    
+  \hspace{0.1in}	            
+  \subfloat[$\tau=37.1$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0800.png}}
+  \hspace{0.1in}	
+  \subfloat[$\tau=56.06$]{\includegraphics[width=2in]{figs/med_Mach/medium3dMach_0928.png}}
+  
+  \caption{Contours of Mach number from 0 (blue) to 1.5 (red) and sonic line (black line) show the supersonic and subsonic regions of flow in the nozzle.  Small localized regions of the flow downstream of the shock are supersonic.  The Mach number at the exit is always subsonic.}
+  
+  \label{fig:mhistory}
+\end{figure}
+
 
 \begin{figure*}
   \centering
@@ -662,6 +694,9 @@ Reynolds Numbers,''  AIAA Paper 2005-309, Jan. 2005.
 \bibitem{Spalart:93}
 	P. Spalart and J. Watmuff, ``Experimental and numerical study of a turbulent boundary layer with pressure gradients,'' \emph{J. Fluid Mech.},
 vol. {\bf 249}, pp. 337-371 (1993)	
+
+\bibitem{Dixit:08}
+	S.A. Dixit, O.N. Ramesh, ``Pressure-gradient-dependent logarithmic laws in sink flow turbulent boundary layers,'' \emph{J. Fluid Mech.}, vol {\bf 615}, pp. 445-475 (2008)
 
  
 	

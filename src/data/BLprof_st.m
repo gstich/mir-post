@@ -4,7 +4,7 @@ close all;
 
 %% Plot the BL data: Mean and Reynolds stress
 pdfE = true;
-%pdfE = false;
+pdfE = false;
 rez = 'fine';
 
 Ht = 1.78;
@@ -57,7 +57,6 @@ for i=1:size(res,2)
     del = res(ref(i)).data(1,key.del,ss);
     delBL = res(ref(i)).data(1,key.delBL,ss);
     tauw = res(ref(i)).data(1,key.tauw,ss);
-    
     y = res(i).data(:,key.y,ss) / del; y = y - y(1);
     u = res(i).data(:,key.u,ss) / utau;
     utau_i = res(i).data(1,key.utau,ss);
