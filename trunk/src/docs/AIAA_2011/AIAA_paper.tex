@@ -194,7 +194,7 @@ Increasing the boundary layer thickness and reducing the Reynolds number is one 
 
 \subsection{Boundary Conditions}
 
-The far field uses a non-reflecting characteristic boundary condition\cite{Poinsot:92}.  Furthermore a ``buffer'' region is applied at the last few grid points which smoothly damps the flow to ambient conditions without reflections.  The nozzle walls are viscous (no slip) and adiabatic, e.g. $\vec{u}_w=0$ and $\vec{q}_w\cdot\vec{n}_w = 0$.  The span-wise direction is periodic, which is an approximation to the experimental geometry which has side walls.  It is computationally infeasible (for the present LES) to resolve the boundary layer of the entire converging section of the nozzle.  Therefore, the computational domain begins at the throat of the nozzle and we use the method of recycling-rescaling\cite{Lund:98} to continuously feed the simulation an accurately evolving turbulent boundary layer.  The boundary layer thickness to nozzle throat height ratio ($\delta/H_t$) exceeds the observed experimental ratio by a factor of 2.  At the throat this gives a momentum thickness Reynolds number of 1100.  The mean inlet variables ($\vec{u}$, $p$,$\rho$) are given by the quasi-1d approximation.  Figure~\ref{fig:info_3d} shows the inflow and nozzle portion of the domain and depicts the recycling-rescaling section.
+The far field uses a non-reflecting characteristic boundary condition\cite{Poinsot:92}.  Furthermore a ``buffer'' region is applied at the last few grid points which smoothly damps the flow to ambient conditions without reflections.  The nozzle walls are viscous (no slip) and adiabatic, e.g. $\vec{u}_w=0$ and $\vec{q}_w\cdot\vec{n}_w = 0$.  The span-wise direction is periodic, which is an approximation to the experimental geometry which has side walls.  It is computationally infeasible (for the present LES) to resolve the boundary layer of the entire converging section of the nozzle.  Therefore, the computational domain begins at the throat of the nozzle and we use the method of recycling-rescaling\cite{Lund:98,Urban:01} to continuously feed the simulation an accurately evolving turbulent boundary layer.  The boundary layer thickness to nozzle throat height ratio ($\delta/H_t$) exceeds the observed experimental ratio by a factor of 2.  At the throat this gives a momentum thickness Reynolds number of 1100.  The mean inlet variables ($\vec{u}$, $p$,$\rho$) are given by the quasi-1d approximation.  Figure~\ref{fig:info_3d} shows the inflow and nozzle portion of the domain and depicts the recycling-rescaling section.
 
 
 %\end{multicols}
@@ -481,7 +481,8 @@ From the LES data, we have observed results consistent with the experimental fin
 
 
 This mechanism is best understood by visualizing one low frequency period of the shock motion.  Figure~\ref{fig:history} shows the shock structure and separated shear layer in black and white and the region of reversed flow where $U<0$ is shown is color.  The sequence of events leading to one low frequency period goes as follows:  
-%Shock is at its most upstream location, and weakest at $\tau=37.1$ ($6^{th}$) snapshot) . From this time moving forward (over a cycle) and coming to snapshot 1 after 4 frames the shock is nearly normal, the boundary layer on the bottom wall mildly separates (incipient separation with no mean reversed flow) and we have a weak separation shock. During this phase the exit pressure decreases and the exit velocity increases (both with different phase delays). From here on going to snapshot 2 a significant reversed flow begins, the separation shock intensifies, the shear layer deflects and the exit area blockage increases. Increased blockage raises exit pressure and even under-expanded state as the reversed flow keeps building strength (snaphots 3 and 4) and then the normal shock begins moving upstream allowing the exit pressure to drop, exit velocity to increase which eliminate the reversed flow.
+
+%Shock is at its most upstream location, and weakest at $\tau=37.1$ ($6^{th}$) snapshot) . From this time moving forward (over a cycle) and coming to snapshot 1 after 4 frames the shock is nearly normal, the boundary layer on the bottom wall mildly separates (incipient separation with no mean reversed flow) and we have a weak separation shock. During this phase the exit pressure decreases and the exit velocity increases (both with different phase delays). From here on going to snapshot 2 a significant reversed flow begins, the separation shock intensifies, the shear layer deflects and the exit area blockage increases. Increased blockage raises exit pressure and even under-expanded state as the reversed flow keeps building strength (snaphots 3 and 4) and then the normal shock begins moving upstream allowing the exit pressure to drop, exit velocity to increase which eliminate the reversed flow.
 
 %As the shock location reaches its furthest downstream position,($\tau=7.4$), the
 
@@ -678,6 +679,9 @@ This work is supported by the Department of Energy SciDAC2 Grant (Grant DE-FC02-
  \bibitem{Lund:98}
  	T.S. Lund, X. Wu, and K.D. Squires, ``Generation of Turbulent Inflow Data for Spatially-Developing Boundary Layer 
 Simulations,'' \emph{Journal of Computational Physics}, Vol. 140, No. 2, 1998, pp. 233-258.
+
+\bibitem{Urban:01}
+	G. Urban, D. Knight, ``Large-Eddy Simulation of a Supersonic Boundary Layer Using an Unstructured Grid'', \emph{AIAA JOURNAL} {\bf Vol.} 39, No. 7, July 2001
 
  %\bibitem{Morgan:10a} 
 % 	B. Morgan, J. Larsson, S. Kawai and S.K. Lele, ``An Improved Method for Prescribing Turbulent Boundary Layer 

@@ -13,13 +13,13 @@ ref(2) = 3;
 ref(3) = 3;
 
 % Figure name
-figs(1).name = 'mean';
-figs(2).name = 'rms';
+figs(1).name = 'mean_aiaa';
+figs(2).name = 'rms_aiaa';
 figs(3).name = 'spalart';
 
 % Plot symbols
-res(1).sym = 'k--';
-res(2).sym = 'k-.';
+res(1).sym = 'b-';
+res(2).sym = 'g-';
 res(3).sym = 'k-';
 
 % Figure option
@@ -44,9 +44,9 @@ end
 
 x1 = logspace(-1,1.2,20);
 x2 = logspace(.8,3,20);
-%k = .375;
+k = .37;
 %C = 6.4;
-k = .41;
+%k = .41;
 C = 5.1;
 
 %% Mean Profiles
@@ -164,7 +164,7 @@ figure(1);
 tx = 2.2;
 ty = 12;
 h1 = text(tx,ty,'$U^+_{VD} = y^+$');
-h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.41+5.2$');
+h2 = text(tx+30,ty,'$U^+_{VD} = \log(y^+)/.37+5.2$');
 set(h1, 'interpreter', 'latex','FontSize',FSa)
 set(h2, 'interpreter', 'latex','FontSize',FSa,'rotation',25)
 

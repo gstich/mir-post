@@ -174,7 +174,7 @@ figure(2);
 xlim([.005 2]);
 ylim([10^-12 10^-4.5]);
 box on;
-h1 = xlabel(['$tU_p/H_t$']);
+h1 = xlabel(['$f H_t/U_p$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$S_{xx}(m^2/Hz)$');
 set(h2,'Interpreter','latex','FontSize',FSn);

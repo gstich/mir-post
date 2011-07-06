@@ -5,7 +5,7 @@ clc;
 % Figure name
 figs(1).name = 'mech_phase';
 
-pdfE = true;
+pdfE = false;
 
 %res = 'coarse';
 res = 'medium';
@@ -55,6 +55,7 @@ time = time*Up/Ht/1e3;
 time2 = time(t1:tf)-time(t1);
 shk = XSS(t1:tf,3);
 
+% Low pass filter
 for i=1:50
 shk = gfilter(shk);
 end
@@ -89,8 +90,8 @@ end
 pexit = pexit / top_bot_bound(pexit(t1:end-200));
 uexit = uexit / top_bot_bound(uexit(t1:end-200));
 figure(1);
-plot(time3,pexit,'b','LineWidth',LW);hold on;
-plot(time3,uexit,'r','LineWidth',LW);hold on;
+%plot(time3,pexit,'b','LineWidth',LW);hold on;
+%plot(time3,uexit,'r','LineWidth',LW);hold on;
 
 
 %% Load the separation region 
@@ -128,8 +129,8 @@ set(h1,'Interpreter','latex','FontSize',FSn);
 %h2 = ylabel('$X_s / H_t$');
 %set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
-h3 = legend('$X_{shock}$','$P_{exit}$','$U_{exit}$','$A_{exit}$');set(gcf,'Position',[1000,395,560,480])
-set(h3,'Interpreter','latex','FontSize',FSn);
+%h3 = legend('$X_{shock}$','$P_{exit}$','$U_{exit}$','$A_{exit}$');set(gcf,'Position',[1000,395,560,480])
+%set(h3,'Interpreter','latex','FontSize',FSn);
 legend boxoff;
 
 h = figure(1);
