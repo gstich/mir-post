@@ -3,7 +3,7 @@ clc;
 close all
 
 
-pdfE = true;
+pdfE = false;
 
 res(1).name = 'coarse';
 res(2).name = 'medium';

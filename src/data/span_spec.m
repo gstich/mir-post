@@ -16,8 +16,8 @@ res(2).Lz = 256*.014;
 res(3).Lz = 384*.0105;
 
 % Figure name
-figs(1).name = 'spec_span_u';
-figs(2).name = 'corr_span_p';
+figs(1).name = 'spec_span_u_aiaa';
+figs(2).name = 'corr_span_p_aiaa';
 
 % Plot symbols
 res(1).sym = '--';
@@ -35,9 +35,15 @@ Ht = 1.78;
 
 %% Plot 1- u' spectra in LB
 var = 'u';
-for i=1:3
+for i=3:3
     fdat = ['span_spec/',res(i).name,'-',var,'.mat'];
     load(fdat);
+    fil(:,1)=spec(:,3,2);
+    fil = gfilter(fil);
+    spec(:,3,2) = fil;
+    fil(:,1)=spec(:,4,2);
+    fil = gfilter(fil);
+    spec(:,4,2) = fil;
     res(i).spec = spec;
     res(i).corr = corr;
 end
@@ -45,14 +51,14 @@ end
 %% spec ( k , npts, 2)
 
 figure(1);
-for i=1:3
+for i=3:3
     nn = size(res(i).spec,1)-1;
     knorm = linspace(1,nn,nn)/res(i).Lz;
     loglog(knorm,res(i).spec(2:end,4,2),['k',res(i).sym],'LineWidth',LW);hold on;
 end
 
 figure(1);
-for i=1:3
+for i=3:3
     nn = size(res(i).spec,1)-1;
     knorm = linspace(1,nn,nn)/res(i).Lz;
     loglog(knorm,res(i).spec(2:end,3,2),['b',res(i).sym],'LineWidth',LW);hold on;
@@ -68,6 +74,9 @@ set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$ E_u(k) $');
 set(h2,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
+h3 = legend('Boundary Layer','Shear Layer');
+set(h3,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
 
 h = figure(1);
 set(h,'Position',[300,395,560*1.5,420*1.5])
@@ -78,7 +87,7 @@ set(h,'PaperPositionMode','auto');
 %% Figure 2: Corr of pressure
 %% Plot 1- u' spectra in LB
 var = 'p';
-for i=1:3
+for i=3:3
     fdat = ['span_spec/',res(i).name,'-',var,'.mat'];
     load(fdat);
     res(i).spec = spec;
@@ -87,13 +96,13 @@ end
 
 % Corr( Z, npts)
 figure(2);hold on;
-for i=1:3
+for i=3:3
     nn = size(res(i).corr,1) / 2;
     knorm = linspace(0,.5,nn);
     plot(knorm,res(i).corr(1:end/2,4),['k',res(i).sym],'LineWidth',LW);
 end
 
-for i=1:3
+for i=3:3
     nn = size(res(i).corr,1) / 2;
     knorm = linspace(0,.5,nn);
     plot(knorm,res(i).corr(1:end/2,3),['b',res(i).sym],'LineWidth',LW);
@@ -108,6 +117,9 @@ h1 = xlabel(['$z/L_z$']);
 set(h1,'Interpreter','latex','FontSize',FSn);
 h2 = ylabel('$ R_{11}(p) $');
 set(h2,'Interpreter','latex','FontSize',FSn);
+h3 = legend('Boundary Layer','Shear Layer');
+set(h3,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
 set(gca,'FontSize',FSa);
 
 
