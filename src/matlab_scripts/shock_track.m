@@ -2,7 +2,7 @@ function shock_track
 
 clear all;
 clc;
-close all;
+%close all;
 
 %% Load the pressure data on interval... average and plot
 
@@ -12,7 +12,7 @@ pref = 7.5e5;
 dt = 5.0e-6;
 
 res = 'coarse';
-res = 'medium';
+%res = 'medium';
 
 
 switch res
@@ -21,14 +21,14 @@ switch res
         data = '/p/lscratchd/olson45/nozzle/';
         dir = [data,'nozzlecoarse3d/'];
         pa = zeros(512,4);
-        intv = [800,2356];
+        intv = [800,3045];
         ofile = '../data/shock_history/coarse.mat';
 
     case('medium')
         data = '/p/lscratchd/olson45/nozzle/';
         dir = [data,'nozzlemedium3d/'];
         pa = zeros(768,4);
-        intv = [200,1412];
+        intv = [200,1904];
         ofile = '../data/shock_history/medium.mat';
 end
         
