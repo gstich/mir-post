@@ -3,11 +3,11 @@ function data = load_planes_mir(path,field,t)
 % This script will open up the 2d span averaged data and operate on themes
 
 % Get the number of variables from the .mir file
-mir_path = [path,'/mean.mir'];
-%mir_path = [path,'/',field,'.mir'];
+%mir_path = [path,'/mean.mir'];
+mir_path = [path,'/',field,'.mir'];
 [h,d] = hdrload(mir_path);
 nvar = sscanf( h(10,12:end),'%i');
-len = sscanf( h(6,12:end),'%i')
+len = sscanf( h(6,12:end),'%i');
 nx = len(1);
 ny = len(2);
 

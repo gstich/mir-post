@@ -11,25 +11,48 @@ clc;
 pref = 7.5e5;
 dt = 5.0e-6;
 
-res = 'coarse';
-%res = 'medium';
+%res = 'coarse';
+res = 'mediumv2';
 
 
 switch res
     case('coarse')
 
-        data = '/p/lscratchd/olson45/nozzle/';
-        dir = [data,'nozzlecoarse3d/'];
+        %data = '/p/lscratchd/olson45/nozzle/';
+        data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
+        dir = [data,'LEScoarse/'];
         pa = zeros(512,4);
-        intv = [800,3045];
+        intv = [100,3045];
         ofile = '../data/shock_history/coarse.mat';
+        %ofile = '../data/shock_history/coarsev2.mat';
+    case('coarsev2')
+
+        %data = '/p/lscratchd/olson45/nozzle/';
+        data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
+        dir = [data,'LESc_v2/'];
+        pa = zeros(512,4);
+        intv = [0,3120];
+        %ofile = '../data/shock_history/coarse.mat';
+        ofile = '../data/shock_history/coarsev2.mat';
 
     case('medium')
-        data = '/p/lscratchd/olson45/nozzle/';
-        dir = [data,'nozzlemedium3d/'];
+        %data = '/p/lscratchd/olson45/nozzle/';
+        data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
+        dir = [data,'LESmedium/'];
         pa = zeros(768,4);
-        intv = [200,1904];
+        intv = [200,3226];
         ofile = '../data/shock_history/medium.mat';
+        
+    case('mediumv2')
+
+        %data = '/p/lscratchd/olson45/nozzle/';
+        data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
+        dir = [data,'LESm_v2/'];
+        pa = zeros(768,4);
+        intv = [0,2254];
+        %ofile = '../data/shock_history/coarse.mat';
+        ofile = '../data/shock_history/mediumv2.mat';
+        
 end
         
 %weight = abs(intv(1)-intv(2)) + 1;
@@ -37,7 +60,7 @@ end
 ii = 0;
 for i=intv(1):intv(2)
     ii = ii + 1;
-    file = [ dir ,'vis',num2str(i,'%4.4i'),'/pressure.dat' ]
+    file = [ dir ,'post',num2str(i,'%4.4i'),'/pressure.dat' ]
     
     pf = load(file);
     

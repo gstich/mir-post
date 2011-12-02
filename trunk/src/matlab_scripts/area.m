@@ -2,33 +2,47 @@ clc;
 clear all;
 close all;
 
-% Some parameters for ease of use
-X=20; Y=21; U=1; V=2; W=3; RHO=5; P=4; T=6;UU=7;VV=8;WW=9;
-MU=16;MUa=17;MUb=18;MUc=19;
+
 
 
 %% Parameters
 res = 'coarse';
-%res = 'medium';
+res = 'medium';
+res = 'coarsev2';
+
+var_map;
 
 P0 = 1.0e6;
 Ht = 1.78;
 switch (res)
     case 'coarse'
         path = '/p/lscratchd/olson45/nozzle/post_proccoarse3d';
+        path = '/Volumes/Macintosh HD 2/bolson/nozzle_data/LEScoarse';
         nx = 512;
         ny = 128;
         t1 = 1000;  
-        tf = 2548;
+        tf = 3045;
         xbound = [0,11];
+        ofile = 'area_data_coarse_long';
+        
+    case 'coarsev2'
+        path = '/Volumes/Macintosh HD 2/bolson/nozzle_data/LESc_v2';
+        nx = 512;
+        ny = 128;
+        t1 = 308;  
+        tf = 3118;
+        xbound = [0,11];
+        ofile = 'area_data_coarsev2';
         
     case 'medium'
         path = '/p/lscratchd/olson45/nozzle/post_procmedium3d';
+        path = '/Volumes/Macintosh HD 2/bolson/nozzle_data/LESmedium';
         nx = 768;
         ny = 256;
-        t1 = 400;  
-        tf = 1100;
+        t1 = 500;  
+        tf = 3226;
         xbound = [0,11];
+        ofile = 'area_data_medium'
 end
 
 
@@ -73,8 +87,10 @@ for tt=t1:tf
   
   % Get the min pressure
   p = data(:,ny/2,P);
-  [pmin,imin] = min(p);
-  xs = x_c(imin,ny/2);
+  %[pmin,imin] = min(p);
+  %xs = x_c(imin,ny/2);
+  
+  % Fit parabola to pressure min... better than above
   [xs,pmin] = get_shock_location(x_c(:,ny/2),p);
   
   % Add to the map... bins
@@ -82,6 +98,8 @@ for tt=t1:tf
   %map(imin,:) = map(imin,:) + off;
   %weight(imin,:) = weight(imin,:) + 1;
   
+  
+  if (1==100)  % Map of A(Xs)
   width = Ht/10;   % width of the gauss
   gauss = zeros(size(data,1),size(data,1));
   wght = gauss;
@@ -94,7 +112,13 @@ for tt=t1:tf
   % Add to map ... gauss'
   map = map + gauss;
   weight = weight + wght;
+  end
   
+  dt = 5.0e-6;
+  time(it) = it*dt;
+  
+  shock(it) = xs/Ht;
+  a_exit(it,:) = off;
   
   %figure(1);clf;
   %off = (wall'-W)/Ht;
@@ -103,20 +127,35 @@ for tt=t1:tf
   %ylim([0 .5])
 end
 
-map = map./weight;
+%map = map./weight;
 
-%figure(2);
-%contour(x_c(:,ny/2),x_c(:,ny/2),map');
+
+%figure(3);
+%contourf(x_c(:,ny/2),x_c(:,ny/2),map',32,'edgecolor','none');
 %ylim([6 11.5]);xlabel('Shock Location')
 %xlim([6.5 10]);ylabel('Nozzle Length')
 
-figure(3);
-contourf(x_c(:,ny/2),x_c(:,ny/2),map',32,'edgecolor','none');
-ylim([6 11.5]);xlabel('Shock Location')
-xlim([6.5 10]);ylabel('Nozzle Length')
+%figure(3);hold on;
+%plot(x_c(:,ny/2),weight(:,1)/max(max(weight))+6.5,'k-','Linewidth',2)
 
-figure(3);hold on;
-plot(x_c(:,ny/2),weight(:,1)/max(max(weight))+6.5,'k-','Linewidth',2)
+figure(1);
+plot( time, shock);
+figure(2);
+plot(time,a_exit(:,end));
 
+LES_time = time;
+LES_area = a_exit;   % (w - w') / Ht
+LES_Xs = shock;      % xs/ht
+LES_XX = x_c/Ht;     % x/ht
 
+%switch (res)
+%    case{'coarse'}
+%        save area_data_coarse_long LES_time LES_Xs LES_area LES_XX;
+%        
+%    case{'medium'}
+%        save area_data_medium LES_time LES_Xs LES_area LES_XX;
+%end
+
+save(ofile,'LES_time', 'LES_Xs', 'LES_area', 'LES_XX' )
+        
 

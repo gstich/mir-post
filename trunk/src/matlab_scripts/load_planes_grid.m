@@ -4,6 +4,7 @@ function data = load_planes_grid(path)
 
 % Get the number of variables from the .mir file
 mir_path = [path,'/mean.mir'];
+mir_path = [path,'/post.mir'];
 [h,d] = hdrload(mir_path);
 len = sscanf( h(6,12:end),'%i');
 nx = len(1);
