@@ -15,3 +15,9 @@ grid = load_planes_grid(path);
 
 nvar = size(data,3);
 data(:,:,nvar+1:nvar+2) = grid;
+
+% Fix the wierd thing at the inlet
+bdata = data;
+clear data;
+
+data = bdata(10:end,:,:);
