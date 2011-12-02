@@ -38,15 +38,25 @@ prob(ii).fname = '../data/shock_history/mediumv2.mat';
 prob(ii).side = mid;
 prob(ii).Pcol = 'c';
 
-% exp(1).fname = '../data/shock_history/exp.mat';
-% exp(1).side = top;
-% exp(1).Pcol = 'g';
-% xFs = 200e3;
+expS(1).fname = '../data/shock_history/exp.mat';
+expS(1).side = top;
+expS(1).Pcol = 'g';
+xFs = 200e3;
+
+% PDF x sample space
+xx = linspace(-2,2,400);
+ssig = .1^2;
 
 for i=1:size(prob,2)
 
     load(prob(i).fname);
     Xs = XSS(:,prob(i).side);
+    %if ( i == 1)
+    %    Xs = XSS(end/2:end,prob(i).side);
+    %    tt = time;
+    %    clear time
+    %    time = tt(end/2:end);
+    %end
     mean(Xs)
     Xs = (Xs - mean(Xs))/Ht;
     FXs = compute_spectra(Xs);
@@ -70,18 +80,25 @@ for i=1:size(prob,2)
     
     
     % PDF (rms f(x))
-    %for j = 1:size(Xs,2)
-    %    w
+    w = xx * 0.0;
+    for j = 1:size(Xs,1)
+        w = w + exp( -(xx-Xs(j)).^2/ssig );
+    end
+    w = w/size(Xs,1);
+    
+    figure(4);
+    plot(xx,w,prob(i).Pcol);
+    hold all;
     
 end
 
 
 
 
-for i=1:size(exp,2)
+for i=1:size(expS,2)
 
     lim = 3000;
-    load(exp(i).fname);
+    load(expS(i).fname);
     %Xs = xnorm';
     Xs = xnorm(1:lim)';
     timeT = time(1:lim);
@@ -92,18 +109,29 @@ for i=1:size(exp,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),exp(i).Pcol);
+    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol);
     hold all
     
     % Compensated spectra
     figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),exp(i).Pcol);
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
     hold all
     
     % Raw data
     figure(3)
-    plot(timeT,Xs,exp(i).Pcol);
+    plot(timeT,Xs,expS(i).Pcol);
     hold all
+    
+    % PDF (rms f(x))
+    w = xx * 0.0;
+    for j = 1:size(Xs,1)
+        w = w + exp( -(xx-Xs(j)).^2/ssig );
+    end
+    w = w/size(Xs,1);
+    
+    figure(4);
+    plot(xx,w,expS(i).Pcol);
+    hold all;
     
 end
 
