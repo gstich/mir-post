@@ -31,12 +31,14 @@ ii=1;
 prob(ii).fname = '../data/shock_history/coarsev2.mat';
 prob(ii).side = top;
 prob(ii).Pcol = 'r';
+prob(ii).range = [1,1500,3100];
 ii=ii+1;
 
 
 prob(ii).fname = '../data/shock_history/mediumv2.mat';
 prob(ii).side = mid;
 prob(ii).Pcol = 'c';
+prob(ii).range = [1,500,1500];
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
@@ -51,12 +53,15 @@ for i=1:size(prob,2)
 
     load(prob(i).fname);
     Xs = XSS(:,prob(i).side);
-    %if ( i == 1)
-    %    Xs = XSS(end/2:end,prob(i).side);
-    %    tt = time;
-    %    clear time
-    %    time = tt(end/2:end);
-    %end
+    if (prob(i).range(1) == 1)
+        i1 = prob(i).range(2);
+        iN = prob(i).range(3);
+        Xs = XSS(i1:iN,prob(i).side);
+        tt = time;
+        clear time
+        time = tt(i1:iN);
+        time = time - time(1);
+    end
     mean(Xs)
     Xs = (Xs - mean(Xs))/Ht;
     FXs = compute_spectra(Xs);
@@ -113,9 +118,9 @@ for i=1:size(expS,2)
     hold all
     
     % Compensated spectra
-    figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
-    hold all
+    %figure(2)
+    %semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
+    %hold all
     
     % Raw data
     figure(3)
