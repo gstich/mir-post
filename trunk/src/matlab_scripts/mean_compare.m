@@ -10,19 +10,27 @@ LW = 2;         % LineWidth
 FSn = 25;       % FontSize labels
 FSa = 18;       % FontSize axis
 
+%pdfE = false;
+pdfE = true;
+
 %path = '~/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 path = '/Users/bolson/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 
 % Figure 1- 2d Contours of U velocity
-pfig(1) = 0;
+pfig(1) = 1;
+f(1).name = 'Ucontours';
 % Figure 2- Line rake of U velocity in plume
 pfig(2) = 0;
+f(2).name = 'Uplume';
 % Figure 3- Line rake of U velocity in nozzle
 pfig(3) = 0;
+f(3).name = 'Unoz';
 % Figure 4- Boundary layer profile, raw
 pfig(4) = 0;
+f(4).name = 'UBLmean';
 % Figure 5- Boundary layer profile, wall units
-pfig(5) = 1;
+pfig(5) = 0;
+f(5).name = 'UBLlog';
 
 % Load the 2 mesh sizes
 load('../data/2dmv2.mat');
@@ -48,12 +56,24 @@ cnts = linspace(-.2,1.1,16);
 contour(xc/Ht,yc/Ht,uc/Up,cnts,'color','black');
 hold on;
 contour(xm/Ht,-ym/Ht,um/Up,cnts,'color','blue');
-legend('Coarse','Medium')
+h=legend('Coarse','Medium','Location','NorthWest');set(h,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
 xlim([-1 10]);ylim([-1 1]);
 axis equal;
+box on;
+set(gca,'FontSize',FSa);
 
-xlabel('X/H_t');
-ylabel('Y/H_t');
+h=xlabel('$X/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
+h=ylabel('$Y/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
+
+% Plot geometry
+hold on;
+plot(xm(:,1)/Ht,ym(:,1)/Ht,'k--','Linewidth',LW);
+plot(xm(:,end)/Ht,ym(:,end)/Ht,'k--','Linewidth',LW);
+
+if (pdfE)
+fig2pdf([path,f(1).name],1);
+end
 
 end
 
@@ -75,19 +95,26 @@ NN = 50;
 
 figure(2);
 subplot(2,2,i);
-plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',3);
+plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',LW);
 hold on;
-plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',3);
-title(['X= ',num2str(2.5*(i-1)),'H_t'])
-xlabel('U/U_p');
-ylabel('Y/H_t');
+plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',LW);
+h = title(['$X= ',num2str(2.5*(i-1)),'H_t$']); set(h,'Interpreter','latex','FontSize',FSn/2);
+h = xlabel('$U/U_p$');set(h,'Interpreter','latex','FontSize',FSn/2);
+h = ylabel('$Y/H_t$');set(h,'Interpreter','latex','FontSize',FSn/2);
 
 ylim([-3 3]);
 xlim([-.1 .6])
 
 end
 subplot(2,2,1);
-legend('Coarse','Medium')
+h = legend('Coarse','Medium');set(h,'Interpreter','latex','FontSize',FSn/2);
+legend boxoff;
+box on;
+
+if (pdfE)
+fig2pdf([path,f(2).name],2);
+end
+
 end
 
 
@@ -110,19 +137,28 @@ NN = 50;
 
 figure(3);
 subplot(2,2,i);
-plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',3);
+plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',LW);
 hold on;
-plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',3);
-title(['X= ',num2str(-1*i),'H_t'])
-xlabel('U/U_p');
-ylabel('Y/H_t');
+plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',LW);
+h = title(['$X= ',num2str(-1*i),'H_t$']); set(h,'Interpreter','latex','FontSize',FSn/2);
+h = xlabel('$U/U_p$');set(h,'Interpreter','latex','FontSize',FSn/2);
+h = ylabel('$Y/H_t$');set(h,'Interpreter','latex','FontSize',FSn/2);
 
 ylim([-1 1]);
 xlim([-.1 1])
 
 end
 subplot(2,2,1);
-legend('Coarse','Medium')
+h = legend('Coarse','Medium');
+set(h,'Interpreter','latex','FontSize',FSn/2);
+legend boxoff;
+box on;
+
+if (pdfE)
+fig2pdf([path,f(3).name],3);
+end
+
+
 end
 
 
@@ -138,19 +174,26 @@ yy = yc(imC,1:ceil(end/2));
 yy = yy - yy(1);
 uu = uc(imC,1:ceil(end/2));hold all;
 %semilogx( yy / Ht, uu / Up, 'k');
-plot( yy / Ht, uu / Up, 'k','LineWidth',3);
+plot( yy / Ht, uu / Up, 'k','LineWidth',LW);
 
 yy = ym(imM,1:ceil(end/2));
 yy = yy - yy(1);
 uu = um(imM,1:ceil(end/2));
 %semilogx( yy / Ht, uu / Up, 'b');
-plot( yy / Ht, uu / Up, 'b','LineWidth',3);
+plot( yy / Ht, uu / Up, 'b','LineWidth',LW);
 xlim([0 .15])
 
-ylabel('U/U_p');
-xlabel('Y/H_t');
-legend('Coarse','Medium','Location','NorthWest')
+h = ylabel('$U/U_p$'); set(h,'Interpreter','latex','FontSize',FSn);
+h = xlabel('$Y/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
+h = legend('Coarse','Medium','Location','NorthWest');
+set(h,'Interpreter','latex','FontSize',FSn);
 legend boxoff;
+box on;
+
+if (pdfE)
+fig2pdf([path,f(4).name],4);
+end
+
 
 end
 
@@ -173,7 +216,7 @@ tauw = mu_w * dudy
 utau = sqrt( tauw / rho_w );
 del = mu_w / ( rho_w * utau );
 uu = uc(imC,1:ceil(end/2));
-semilogx( yy / del, uu / utau, 'k','LineWidth',3);hold all;
+semilogx( yy / del, uu / utau, 'k','LineWidth',LW);hold all;
 
 yy = ym(imM,1:ceil(end/2));
 yy = yy - yy(1);
@@ -185,7 +228,7 @@ tauw = mu_w * dudy
 utau = sqrt( tauw / rho_w );
 del = mu_w / ( rho_w * utau );
 uu = um(imM,1:ceil(end/2));
-semilogx( yy / del, uu / utau, 'b','LineWidth',3);
+semilogx( yy / del, uu / utau, 'b','LineWidth',LW);
 %xlim([0 30])
 
 x1 = logspace(-.5,1.2,20);
@@ -209,7 +252,9 @@ set(gca,'Position',a);
 
 legend boxoff;
 
-fig2pdf([path,'Ulog'],5);
+if (pdfE)
+fig2pdf([path,f(5).name],5);
+end
 
 end
 
