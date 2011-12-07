@@ -31,18 +31,19 @@ ii=1;
 prob(ii).fname = '../data/shock_history/coarsev2.mat';
 prob(ii).side = top;
 prob(ii).Pcol = 'r';
-prob(ii).range = [1,1500,3100];
+prob(ii).range = [1,1,4445];
 ii=ii+1;
 
 
 prob(ii).fname = '../data/shock_history/mediumv2.mat';
 prob(ii).side = mid;
-prob(ii).Pcol = 'c';
+prob(ii).Pcol = 'b';
 prob(ii).range = [1,500,1500];
+prob(ii).range = [11,2254];
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
-expS(1).Pcol = 'g';
+expS(1).Pcol = 'k--';
 xFs = 200e3;
 
 % PDF x sample space
@@ -102,7 +103,7 @@ end
 
 for i=1:size(expS,2)
 
-    lim = 3000;
+    lim = 20000;
     load(expS(i).fname);
     %Xs = xnorm';
     Xs = xnorm(1:lim)';
@@ -118,9 +119,9 @@ for i=1:size(expS,2)
     hold all
     
     % Compensated spectra
-    %figure(2)
-    %semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
-    %hold all
+    figure(2)
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
+    hold all
     
     % Raw data
     figure(3)
