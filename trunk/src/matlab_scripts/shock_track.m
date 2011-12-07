@@ -11,8 +11,8 @@ clc;
 pref = 7.5e5;
 dt = 5.0e-6;
 
-%res = 'coarse';
-res = 'mediumv2';
+res = 'coarsev2';
+%res = 'mediumv2';
 
 
 switch res
@@ -31,7 +31,7 @@ switch res
         data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
         dir = [data,'LESc_v2/'];
         pa = zeros(512,4);
-        intv = [0,3120];
+        intv = [0,4445];
         %ofile = '../data/shock_history/coarse.mat';
         ofile = '../data/shock_history/coarsev2.mat';
 

@@ -43,6 +43,51 @@ for i=1:5
     plot(tap(i).p(1000:20000))
 end
 
+
+figure(9);
+t1=1;
+tf=20000;
+xp = [0, 1.27, 2.54, 3.81] + 2.42;  % 1st and last probes are placed .5in apart (1.27cm)
+xp = [0, 0.4233, .8467, 1.27] + 2.42;
+
+ps1 = mean(tap(2).p);  % Mean left bound pressure
+ps2 = mean(tap(5).p);  % Mean right bound pressure
+Xs = mean(xp);
+for t=t1:tf
+    pprof = [ tap(2).p(t),tap(3).p(t),tap(4).p(t),tap(5).p(t)];
+    Xs = shock_fit(pprof,xp,ps1,ps2,Xs);
+    %plot( xp, pprof,'k');hold on;
+    %plot( [Xs,Xs], [min(pprof),max(pprof)],'r');
+    %hold off;
+    %pause;
+    
+    cc = t-t1+1;
+    Xexp(cc) = Xs;
+end
+
+% Normalize
+xnorm = (Xexp-mean(Xexp)) / 1.78;  % Subtract out the mean and normalize by the throat height (17.8mm (1.78cm))
+
+% Filter out the point to point jumps
+jump = abs( xnorm(1:end-1) - xnorm(2:end) );
+for i=1:size(xnorm,2)-1
+    
+    jump = abs( xnorm(i) - xnorm(i+1));
+    if ( jump >.75)
+        xnorm(i+1) = xnorm(i);
+    end
+end
+
+dt = 1/srate;
+time = linspace(1,size(xnorm,2),size(xnorm,2)) * dt;
+time = time * 1000; % Convert to milliseconds
+
+plot( xnorm ) 
+
+ofile = '../../shock_history/exp.mat';
+save(ofile,'xnorm','time');
+
+
 figure(2)
 L=10000;
 Fs=srate;

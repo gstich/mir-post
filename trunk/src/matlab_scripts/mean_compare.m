@@ -10,14 +10,14 @@ LW = 2;         % LineWidth
 FSn = 25;       % FontSize labels
 FSa = 18;       % FontSize axis
 
-%pdfE = false;
-pdfE = true;
+pdfE = false;
+%pdfE = true;
 
 %path = '~/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 path = '/Users/bolson/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 
 % Figure 1- 2d Contours of U velocity
-pfig(1) = 1;
+pfig(1) = 0;
 f(1).name = 'Ucontours';
 % Figure 2- Line rake of U velocity in plume
 pfig(2) = 0;
@@ -31,6 +31,13 @@ f(4).name = 'UBLmean';
 % Figure 5- Boundary layer profile, wall units
 pfig(5) = 0;
 f(5).name = 'UBLlog';
+% Figure 6- Artificial terms
+pfig(6) = 0;
+f(6).name = 'artMU';
+% Figure 7- Reversed flow
+pfig(7) = 1;
+f(7).name = 'reversed_flow';
+
 
 % Load the 2 mesh sizes
 load('../data/2dmv2.mat');
@@ -257,5 +264,56 @@ fig2pdf([path,f(5).name],5);
 end
 
 end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Figure 6- 
+if (pfig(6) == 1);
+figure(6);hold all;
+    
+[vm2,xim,yim] = lineout(xm,ym,dataM(:,:,MU),[11.7,11.7],[-1.347,1.347],50);
+[vc2,xic,yic] = lineout(xc,yc,dataC(:,:,MU),[11.7,11.7],[-1.347,1.347],50);
+[vm,xim,yim] = lineout(xm,ym,dataM(:,:,MUb),[11.7,11.7],[-1.347,1.347],50);
+[vc,xic,yic] = lineout(xc,yc,dataC(:,:,MUb),[11.7,11.7],[-1.347,1.347],50);
+%plot(yim/Ht,vm2,'r','Linewidth',LW);hold on;
+plot(-yic/Ht,vc./vc2,'k','Linewidth',LW);
+plot(yim/Ht,vm./vm2,'b','Linewidth',LW);
+
+[vm,xim,yim] = lineout(xm,ym,dataM(:,:,MUa),[11.7,11.7],[-1.347,1.347],50);
+[vc,xic,yic] = lineout(xc,yc,dataC(:,:,MUa),[11.7,11.7],[-1.347,1.347],50);
+plot(-yic/Ht,vc./vc2,'k--','Linewidth',LW/2);
+plot(yim/Ht,vm./vm2,'b--','Linewidth',LW/2);
+
+
+h = legend('$\mu^*_{\eta}$ Mesh A','$\mu^*_{\eta}$ Mesh B');
+set(h,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
+box on;
+
+h = xlabel('$Y/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
+h = ylabel('$\mu*/\mu$'); set(h,'Interpreter','latex','FontSize',FSn);
+
+if (pdfE)
+fig2pdf([path,f(6).name],6);
+end
+
+
+end
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Figure 7- 
+if (pfig(7) == 1);
+figure(7);hold all;
+
+load('../data/reversed/coarsev2.mat');
+plot(time,Rmom,'k');
+
+load('../data/reversed/mediumv2.mat');
+plot(time,Rmom,'b');
+
+end
+
 
 
