@@ -11,7 +11,7 @@ FSn = 25;       % FontSize labels
 FSa = 18;       % FontSize axis
 
 pdfE = false;
-%pdfE = true;
+pdfE = true;
 
 %path = '~/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 path = '/Users/bolson/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
@@ -35,15 +35,20 @@ f(5).name = 'UBLlog';
 pfig(6) = 0;
 f(6).name = 'artMU';
 % Figure 7- Reversed flow
-pfig(7) = 1;
+pfig(7) = 0;
 f(7).name = 'reversed_flow';
+% Figure 8- Reversed flow
+pfig(8) = 1;
+f(8).name = 'pressure';
 
+pfig(:) = 1;
 
 % Load the 2 mesh sizes
 load('../data/2dmv2.mat');
 load('../data/2dcv2.mat');
 Ht = 1.78;
 Up = 32940*1.603;
+Pamb = 1e6;
 
 % Get some variables
 var_map
@@ -307,13 +312,57 @@ end
 if (pfig(7) == 1);
 figure(7);hold all;
 
+rho_in = dataM(10,end/2,RHO);
+u_in = Ht*Ht*dataM(10,end/2,U);
+
 load('../data/reversed/coarsev2.mat');
-plot(time,Rmom,'k');
+plot(time*Up/Ht/1000,Rmom/rho_in/u_in,'k','Linewidth',LW);
 
 load('../data/reversed/mediumv2.mat');
-plot(time,Rmom,'b');
+plot(time*Up/Ht/1000,Rmom/rho_in/u_in,'b','Linewidth',LW);
+
+xlim([0 330])
+h = legend('Mesh A','Mesh B');set(h,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
+box on;
+
+h = xlabel('$t U_p/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
+%h = ylabel('$\int{\rho u \mathrm{dV}} / (\rho_{\mathrm{in}}u_{\mathrm{in}}{H_t}^2L)$');
+h = ylabel('$M_{\mathrm{bubble}}/M_{\mathrm{inlet}}$');
+set(h,'Interpreter','latex','FontSize',FSn);
+
+if (pdfE)
+fig2pdf([path,f(7).name],7);
+end
+
 
 end
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Figure 8- 
+if (pfig(8) == 1);
+figure(8);hold all;
+
+plot(xc(:,end/2)/Ht,dataC(:,end/2,P)/Pamb,'k','Linewidth',LW)
+hold on;
+plot(xm(:,end/2)/Ht,dataM(:,end/2,P)/Pamb,'b','Linewidth',LW)
+
+h = xlabel('$X/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
+h = ylabel('$P/P_{\mathrm{amb}}$');set(h,'Interpreter','latex','FontSize',FSn);
+
+h = legend('Mesh A','Mesh B');
+set(h,'Interpreter','latex','FontSize',FSn);
+legend boxoff;
+box on;
+
+xlim([-1 10])
+ylim([.3 1.2])
+
+if (pdfE)
+fig2pdf([path,f(8).name],8);
+end
+
+
+end
