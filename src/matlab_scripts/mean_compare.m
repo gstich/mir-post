@@ -29,7 +29,7 @@ f(3).name = 'Unoz';
 pfig(4) = 0;
 f(4).name = 'UBLmean';
 % Figure 5- Boundary layer profile, wall units
-pfig(5) = 0;
+pfig(5) = 1;
 f(5).name = 'UBLlog';
 % Figure 6- Artificial terms
 pfig(6) = 0;
@@ -38,10 +38,10 @@ f(6).name = 'artMU';
 pfig(7) = 0;
 f(7).name = 'reversed_flow';
 % Figure 8- Reversed flow
-pfig(8) = 1;
+pfig(8) = 0;
 f(8).name = 'pressure';
 
-pfig(:) = 1;
+%pfig(:) = 1;
 
 % Load the 2 mesh sizes
 load('../data/2dmv2.mat');
@@ -68,7 +68,7 @@ cnts = linspace(-.2,1.1,16);
 contour(xc/Ht,yc/Ht,uc/Up,cnts,'color','black');
 hold on;
 contour(xm/Ht,-ym/Ht,um/Up,cnts,'color','blue');
-h=legend('Coarse','Medium','Location','NorthWest');set(h,'Interpreter','latex','FontSize',FSn);
+h=legend('Mesh A','Mesh B','Location','NorthWest');set(h,'Interpreter','latex','FontSize',FSn);
 legend boxoff;
 xlim([-1 10]);ylim([-1 1]);
 axis equal;
@@ -119,7 +119,7 @@ xlim([-.1 .6])
 
 end
 subplot(2,2,1);
-h = legend('Coarse','Medium');set(h,'Interpreter','latex','FontSize',FSn/2);
+h = legend('Mesh A','Mesh B');set(h,'Interpreter','latex','FontSize',FSn/2);
 legend boxoff;
 box on;
 
@@ -161,7 +161,7 @@ xlim([-.1 1])
 
 end
 subplot(2,2,1);
-h = legend('Coarse','Medium');
+h = legend('Mesh A','Mesh B');
 set(h,'Interpreter','latex','FontSize',FSn/2);
 legend boxoff;
 box on;
@@ -197,7 +197,7 @@ xlim([0 .15])
 
 h = ylabel('$U/U_p$'); set(h,'Interpreter','latex','FontSize',FSn);
 h = xlabel('$Y/H_t$'); set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Coarse','Medium','Location','NorthWest');
+h = legend('Mesh A','Mesh B','Location','NorthWest');
 set(h,'Interpreter','latex','FontSize',FSn);
 legend boxoff;
 box on;
@@ -254,7 +254,7 @@ semilogx(x2,1/k*log(x2)+C,'k--');
 xlim([.5 2000])
 h = ylabel('$U/U_{\tau}$'); set(h,'Interpreter','latex','FontSize',FSn);
 h = xlabel('$Y/\delta_\eta$'); set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Coarse','Medium','Location','NorthWest');
+h = legend('Mesh A','Mesh B','Location','NorthWest');
 set(h,'Interpreter','latex','FontSize',FSn);
 set(gca,'FontSize',FSa);
 % Fix to make sure Latex fits in
