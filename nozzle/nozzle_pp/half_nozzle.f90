@@ -49,8 +49,9 @@ DOUBLE PRECISION , PARAMETER :: core  = 0.9d0               ! Zoom factor of the
 DOUBLE PRECISION , PARAMETER :: core2 = pi/4.0d0            ! Thickness of refined region in the plume in [radians]
 DOUBLE PRECISION , PARAMETER :: core3 = 10.0d0              ! Width of interface from fine to course in grid points
 
-DOUBLE PRECISION , PARAMETER :: loci = dble(nx)*.9d0  ! Location in grid number of stretch-> iso interface
+DOUBLE PRECISION , PARAMETER :: loci = dble(nx)*.9d0        ! Location in grid number of stretch-> iso interface
 DOUBLE PRECISION , PARAMETER :: thick = 32.0d0              ! Thickness of transition region above
+DOUBLE PRECISION , PARAMETER :: theta_shift = pi/24.0D0     ! Thickness of transition region above
 
 !  Quasi-1D initialization 
 INTEGER , PARAMETER          :: np = 200                   ! Number of point in 1-D direction
@@ -79,6 +80,7 @@ CHARACTER * 100 :: BUFFER
   
   IF (init==0) THEN
      CALL bounds()       ! Get the outer boundary points
+     CALL boundsSIDE()
      CALL stretch()      ! Get the mapped grid coordinates
      CALL write_prm()    ! Write the GG input file
      CALL oneD_init()    ! Solve the [M,P,rho,A] = F( x ), quasi-1D flow for given Pressure ratio for use flow initialization
@@ -150,19 +152,6 @@ c4 = -15.0d0*inlet_y/inlet_x**4
 c3 = -10.0d0*inlet_y/inlet_x**3
 c2 = zero
 
-!  Same but match 2nd derivative with nozzle and other 2nd der. is zero
-!c5 = (d2T * inlet_x**2 - 12.0d0*inlet_y )/ (two*inlet_x**5)
-!c4 = (3.0d0*d2T*inlet_x**2-30.0d0*inlet_y)/(two*inlet_x**4)
-!c3 = (3.0d0*d2T*inlet_x**2-20.0d0*inlet_y)/(two*inlet_x**3)
-!c2 =  d2T / two
-
-!  Match 1,2,3 derivatives and relax 2nd der. at other BC
-!c5 = -(d2T * inlet_x**2-four*inlet_y)/inlet_x**5
-!c4 = -(three*d2T*inlet_x**2-10.0d0*inlet_y)/(two*inlet_x**4)
-!c3 = 0.0d0
-!c2 = d2T / two
-
-
 funit=1
 OPEN(UNIT=funit,FILE='seg.dat',STATUS='UNKNOWN')
 WRITE(funit,*) x10,y10,1
@@ -189,6 +178,7 @@ DO i=1,seg2
    WRITE(funit,*) x2(i),y2(i)
 END DO
 
+
 !!!---  Segment #3 ---!!!
 !! Simple Radial-arc of radius -R- and matching derivative and location from cantalever beam
 dydx3 = three/two * (y2f-y20)/(x2f-x20)
@@ -196,8 +186,8 @@ x30 = noz_x + len
 y30 = y2(seg2)
 x3c = -(dydx3**2* R3**2)/sqrt(dydx3**2 *(one + dydx3**2)* R3**2) + x30
 y3c = sqrt(R3**2/(one + dydx3**2)) + y30 
-theta30 = -pi/two + abs(atan(dydx3))
-theta3f = zero
+theta30 = -(pi/two) + abs(atan(dydx3))
+theta3f = zero + theta_shift
   
 DO i=1,seg3
    theta3(i) = (theta3f-theta30)/dble(seg3)*dble(i)+theta30
@@ -208,14 +198,14 @@ END DO
 
 !!!---  Segment #4 ---!!!
 !! Simple verticle Line
-x40 = x3(seg3)
-x4f = x40
+x40 = x3(seg3) 
+x4f = x40 - (R5-y3(seg))*sin(theta_shift)
 y40 = y3(seg3) 
-y4f = R5
+y4f = (R5-y3(seg))*cos(theta_shift) + y3(seg)
 
 DO i=1,seg4
-   x4(i) = x40
-   y4(i) = (R5-y40)/dble(seg4) * dble(i) + y40
+   x4(i) = x40 + (x4f-x40)/dble(seg4)*dble(i)
+   y4(i) = (y4f-y40)/dble(seg4) * dble(i) + y40
    IF (i==seg4) THEN    
       WRITE(funit,*) x4(i),y4(i),1
    ELSE
@@ -227,7 +217,7 @@ END DO
 !! Radial Sweep for back ground outflow
 x5c = x40
 y5c = zero
-theta50 = pi/two 
+theta50 = pi/two + theta_shift
 theta5f = zero
 
 DO i=1,seg5
@@ -316,6 +306,158 @@ END IF
 CLOSE(UNIT=funit)
 
 END SUBROUTINE bounds
+
+
+SUBROUTINE boundsSIDE()
+USE inputs
+IMPLICIT NONE
+DOUBLE PRECISION, DIMENSION(seg1) :: x1,y1
+DOUBLE PRECISION, DIMENSION(seg2) :: x2,y2
+DOUBLE PRECISION, DIMENSION(seg3) :: x3,y3,theta3
+DOUBLE PRECISION, DIMENSION(seg4) :: x4,y4
+DOUBLE PRECISION, DIMENSION(seg5) :: x5,y5,theta5
+DOUBLE PRECISION, DIMENSION(seg6) :: x6,y6
+DOUBLE PRECISION, DIMENSION(seg7) :: x7,y7
+DOUBLE PRECISION, DIMENSION(seg1+seg2+seg3+seg4+seg5+seg6+seg7) :: x,y
+
+INTEGER :: i,funit,count
+DOUBLE PRECISION :: x10,x1f,y10,y1f
+DOUBLE PRECISION :: x20,x2f,y20,y2f
+DOUBLE PRECISION :: x30,x3c,y30,y3c,dydx3,theta30,theta3f
+DOUBLE PRECISION :: x40,x4f,y40,y4f
+DOUBLE PRECISION :: x5c,y5c,theta50,theta5f
+DOUBLE PRECISION :: x60,x6f,y60
+DOUBLE PRECISION :: x70,y70,y7f
+DOUBLE PRECISION :: c5,c4,c3,c2,xrel,d2T
+
+
+!!!!!!!!!!!!!!!!!!!!!!! --- Diagram of the Nozzle segments --- !!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                                                         |--------______              !!
+!!                                                         |               \            !!
+!!                                                 --#4--  |                \  --#5--   !!
+!!                                                         |                 \          !!
+!!-------__  -   --                                        |                  \         !!
+!!         --_                                            -                    \        !!
+!!_______________________________ --#2-- _______________--  --#3--              \       !!
+!!              - _         ______-------                                        \      !!
+!!                 -_  _ ---                                                      |     !!
+!! --#7--            --                                                           |     !!
+!!                                                                                |     !!
+!!________________________________________________________________________________|     !!
+!!                            --#6--                                                    !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!---  Segment #1 ---!!!
+!! 5th-Order Polynomial with 2 dirichleit & 2 nuemann BC and 2 2nd derivatives...
+d2T = three*throat/two*(Aratio-one )/len**2
+x10 = noz_x - inlet_x
+x1f = noz_x
+y10 = noz_y + inlet_y
+y1f = noz_y
+
+!  These coefficients match 1st der. only and set 2nd der to zero at BC
+c5 = - 6.0d0*inlet_y/inlet_x**5
+c4 = -15.0d0*inlet_y/inlet_x**4
+c3 = -10.0d0*inlet_y/inlet_x**3
+c2 = zero
+
+funit=1
+OPEN(UNIT=funit,FILE='seg2.dat',STATUS='UNKNOWN')
+WRITE(funit,*) x10,y10,1
+DO i=1,seg1
+   x1(i) = (x1f-x10)/dble(seg1)*dble(i) + x10
+   xrel = x1(i) - noz_x
+   y1(i) = c5*xrel**5 + c4*xrel**4 + c3*xrel**3 +c2*xrel**2
+   y1(i) = y1(i) + y1f
+   WRITE(funit,*) x1(i),y1(i)
+END DO
+
+
+!!!---  Segment #3 ---!!!
+!! Simple Radial-arc of radius -R- and matching derivative and location from cantalever beam
+dydx3 = 0.0D0
+x30 = noz_x + len
+y30 = y1(seg1)
+x3c = -(dydx3**2* R3**2)/sqrt(dydx3**2 *(one + dydx3**2)* R3**2) + x30
+y3c = sqrt(R3**2/(one + dydx3**2)) + y30 
+theta30 = -(pi/two) + abs(atan(dydx3))
+theta3f = zero 
+  
+DO i=1,seg3
+   theta3(i) = (theta3f-theta30)/dble(seg3)*dble(i)+theta30
+   x3(i) = R3*cos(theta3(i)) + x3c
+   y3(i) = R3*sin(theta3(i)) + y3c
+   WRITE(funit,*) x3(i),y3(i)
+END DO
+
+!!!---  Segment #4 ---!!!
+!! Simple verticle Line
+x40 = x3(seg3) 
+x4f = x40 
+y40 = y3(seg3) 
+y4f = R5
+
+DO i=1,seg4
+   x4(i) = x40 + (x4f-x40)/dble(seg4)*dble(i)
+   y4(i) = (y4f-y40)/dble(seg4) * dble(i) + y40
+   IF (i==seg4) THEN    
+      WRITE(funit,*) x4(i),y4(i),1
+   ELSE
+      WRITE(funit,*) x4(i),y4(i)
+   END IF
+END DO
+
+!!!---  Segment #5 ---!!!
+!! Radial Sweep for back ground outflow
+x5c = x40
+y5c = zero
+theta50 = pi/two 
+theta5f = zero
+
+DO i=1,seg5
+   theta5(i) = (theta5f - theta50)/dble(seg5) * dble(i) + theta50
+   x5(i) = R5*cos(theta5(i)) + x5c
+   y5(i) = R5*sin(theta5(i)) + y5c
+   IF (i==seg5 .and. full .eq. .FALSE.) THEN
+      WRITE(funit,*) x5(i),y5(i),1
+   ELSE
+      WRITE(funit,*) x5(i),y5(i)
+   END IF
+END DO
+
+!!!---  Segment #6 ---!!!
+!! Straight line back to  inlet, only call if half-nozzle
+x60 = x5(seg5)
+x6f = x10
+y60 = zero 
+
+DO i=1,seg6
+   x6(i) = (x6f-x60)/dble(seg6)*dble(i) + x60
+   y6(i) = y60
+      IF (i==seg6) THEN
+         WRITE(funit,*) x6(i),y6(i),1
+      ELSE
+         WRITE(funit,*) x6(i),y6(i)
+      END IF
+END DO
+
+!!!---  Segment #7 ---!!!
+!! Straight line for inlet
+x70 = x6(seg6)
+y70 = zero 
+y7f = y10
+
+DO i=1,seg7-1
+   x7(i) = x70
+   y7(i) = (y7f - y70)/dble(seg7)* dble(i) + y70
+      WRITE(funit,*) x7(i),y7(i)
+END DO
+
+CLOSE(UNIT=funit)
+
+END SUBROUTINE boundsSIDE
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
