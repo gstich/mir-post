@@ -29,8 +29,10 @@ DOUBLE PRECISION , PARAMETER :: gam = 1.4d0                ! Ratio of specific h
 DOUBLE PRECISION , PARAMETER :: len = 117.0d0              ! Length of nozzle (throat to exit)
 DOUBLE PRECISION , PARAMETER :: noz_x = 0.0d0              ! X-location of throat
 DOUBLE PRECISION , PARAMETER :: noz_y = throat/two         ! Y-location of throat
+DOUBLE PRECISION , PARAMETER :: noz_z = 63.5/two         ! Z-location (width/2) symmetry
 DOUBLE PRECISION , PARAMETER :: inlet_x = 50.0d0          ! X-location of inlet (relative-up from noz_x)
 DOUBLE PRECISION , PARAMETER :: inlet_y = 0.0d0           ! Y-location of inlet (relative-left from noz_y)
+DOUBLE PRECISION , PARAMETER :: inlet_z = 0.0d0           ! Z-location of inlet (relative-left from noz_zx)
 
 !  Segment parameters - Outer Boundaries
 LOGICAL                      :: full = .TRUE.              ! Make full nozzle or half
@@ -38,8 +40,9 @@ DOUBLE PRECISION , PARAMETER :: R3 = 0.25d0*noz_y            ! Radius of turn fo
 DOUBLE PRECISION , PARAMETER :: R5=1.5d1*Aratio*two*noz_y  ! Radius of background mesh
 
 !  Grid Parameters
-INTEGER , PARAMETER          :: nx = 768                    ! Number of points in /xi direction
-INTEGER , PARAMETER          :: ny = 256                    ! Number of points in /eta direction
+INTEGER , PARAMETER          :: nx = 256                    ! Number of points in /xi direction
+INTEGER , PARAMETER          :: ny = 64                    ! Number of points in /eta direction
+INTEGER , PARAMETER          :: nz = 64                    ! Number of points in 3rd direction
 DOUBLE PRECISION             :: wall  = 0.08d0              ! Zoom factor at wall in uniform spacing (overwritten by wall_raw)
 DOUBLE PRECISION , PARAMETER :: wall_raw  = 7.0d-3          ! Raw spacing in [mm] .. this value will set wall
 LOGICAL, PARAMETER           :: rwall_on = .TRUE.           ! Use raw to set wall? or not?
@@ -73,6 +76,8 @@ END MODULE
 PROGRAM noz_gridgen
 USE inputs
 CHARACTER * 100 :: BUFFER
+CHARACTER(LEN=90) :: fname
+DOUBLE PRECISION :: Rfrac,Afrac
 
   funit=1
   CALL GETARG(1,BUFFER)
@@ -80,7 +85,14 @@ CHARACTER * 100 :: BUFFER
   
   IF (init==0) THEN
      CALL bounds()       ! Get the outer boundary points
-     CALL boundsSIDE()
+     fname = 'seg2.dat'
+     Rfrac = 1.0D0
+     Afrac = 1.0D0
+     CALL boundsSIDE(Afrac,Rfrac,fname)
+     fname = 'seg3.dat'
+     Rfrac = 15.0D0
+     Afrac = 10.0D0
+     CALL boundsSIDE(Afrac,Rfrac,fname)
      CALL stretch()      ! Get the mapped grid coordinates
      CALL write_prm()    ! Write the GG input file
      CALL oneD_init()    ! Solve the [M,P,rho,A] = F( x ), quasi-1D flow for given Pressure ratio for use flow initialization
@@ -308,9 +320,11 @@ CLOSE(UNIT=funit)
 END SUBROUTINE bounds
 
 
-SUBROUTINE boundsSIDE()
+SUBROUTINE boundsSIDE(Afac,Rfac,fname)
 USE inputs
 IMPLICIT NONE
+DOUBLE PRECISION, INTENT(IN) :: Afac,Rfac
+CHARACTER(LEN=90), INTENT(IN) :: fname
 DOUBLE PRECISION, DIMENSION(seg1) :: x1,y1
 DOUBLE PRECISION, DIMENSION(seg2) :: x2,y2
 DOUBLE PRECISION, DIMENSION(seg3) :: x3,y3,theta3
@@ -328,7 +342,7 @@ DOUBLE PRECISION :: x40,x4f,y40,y4f
 DOUBLE PRECISION :: x5c,y5c,theta50,theta5f
 DOUBLE PRECISION :: x60,x6f,y60
 DOUBLE PRECISION :: x70,y70,y7f
-DOUBLE PRECISION :: c5,c4,c3,c2,xrel,d2T
+DOUBLE PRECISION :: c5,c4,c3,c2,xrel,d2T,RR3
 
 
 !!!!!!!!!!!!!!!!!!!!!!! --- Diagram of the Nozzle segments --- !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -348,46 +362,44 @@ DOUBLE PRECISION :: c5,c4,c3,c2,xrel,d2T
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-!!!---  Segment #1 ---!!!
-!! 5th-Order Polynomial with 2 dirichleit & 2 nuemann BC and 2 2nd derivatives...
-d2T = three*throat/two*(Aratio-one )/len**2
-x10 = noz_x - inlet_x
-x1f = noz_x
-y10 = noz_y + inlet_y
-y1f = noz_y
-
-!  These coefficients match 1st der. only and set 2nd der to zero at BC
-c5 = - 6.0d0*inlet_y/inlet_x**5
-c4 = -15.0d0*inlet_y/inlet_x**4
-c3 = -10.0d0*inlet_y/inlet_x**3
-c2 = zero
+!!!---  Segment #2 ---!!!
+!! 3rd-Order Polynomial with 2 dirichleit & 1 nuemann BC & 1 2nd derivative
+!! This is the solution to the cantalever beam problem
+x20 = noz_x - inlet_x
+x2f = noz_x + len
+y20 = noz_z + inlet_z 
+y2f = noz_z*Afac 
 
 funit=1
-OPEN(UNIT=funit,FILE='seg2.dat',STATUS='UNKNOWN')
-WRITE(funit,*) x10,y10,1
-DO i=1,seg1
-   x1(i) = (x1f-x10)/dble(seg1)*dble(i) + x10
-   xrel = x1(i) - noz_x
-   y1(i) = c5*xrel**5 + c4*xrel**4 + c3*xrel**3 +c2*xrel**2
-   y1(i) = y1(i) + y1f
-   WRITE(funit,*) x1(i),y1(i)
+OPEN(UNIT=funit,FILE=fname,STATUS='UNKNOWN')
+WRITE(funit,*) x20,y20,1
+DO i=1,seg2
+   x2(i) = (x2f-x20)/dble(seg2)*dble(i) + x20
+   y2(i) = (-(x2(i) - x2f)* (x2(i)**2 - three* x20**2 - two* x2(i)* x2f + 6.0d0* x20* x2f - & 
+        & two* x2f**2)* y20 + (x2(i) - x20)**2 *(x2(i) + two* x20 - three* x2f)* y2f)/(two* (x20 - x2f)**3)
+   WRITE(funit,*) x2(i),y2(i)
 END DO
 
 
 !!!---  Segment #3 ---!!!
 !! Simple Radial-arc of radius -R- and matching derivative and location from cantalever beam
-dydx3 = 0.0D0
+RR3 = R3*Rfac
+dydx3 = three/two * (y2f-y20)/(x2f-x20)
 x30 = noz_x + len
-y30 = y1(seg1)
-x3c = -(dydx3**2* R3**2)/sqrt(dydx3**2 *(one + dydx3**2)* R3**2) + x30
-y3c = sqrt(R3**2/(one + dydx3**2)) + y30 
+y30 = y2(seg2)
+IF (dydx3 == 0.0) THEN
+   x3c = x30
+ELSE
+   x3c = -(dydx3**2* RR3**2)/sqrt(dydx3**2 *(one + dydx3**2)* RR3**2) + x30
+END IF
+y3c = sqrt(RR3**2/(one + dydx3**2)) + y30 
 theta30 = -(pi/two) + abs(atan(dydx3))
 theta3f = zero 
   
 DO i=1,seg3
    theta3(i) = (theta3f-theta30)/dble(seg3)*dble(i)+theta30
-   x3(i) = R3*cos(theta3(i)) + x3c
-   y3(i) = R3*sin(theta3(i)) + y3c
+   x3(i) = RR3*cos(theta3(i)) + x3c
+   y3(i) = RR3*sin(theta3(i)) + y3c
    WRITE(funit,*) x3(i),y3(i)
 END DO
 
@@ -419,7 +431,7 @@ DO i=1,seg5
    theta5(i) = (theta5f - theta50)/dble(seg5) * dble(i) + theta50
    x5(i) = R5*cos(theta5(i)) + x5c
    y5(i) = R5*sin(theta5(i)) + y5c
-   IF (i==seg5 .and. full .eq. .FALSE.) THEN
+   IF (i==seg5) THEN
       WRITE(funit,*) x5(i),y5(i),1
    ELSE
       WRITE(funit,*) x5(i),y5(i)
@@ -429,7 +441,7 @@ END DO
 !!!---  Segment #6 ---!!!
 !! Straight line back to  inlet, only call if half-nozzle
 x60 = x5(seg5)
-x6f = x10
+x6f = x20
 y60 = zero 
 
 DO i=1,seg6
@@ -446,7 +458,7 @@ END DO
 !! Straight line for inlet
 x70 = x6(seg6)
 y70 = zero 
-y7f = y10
+y7f = y20
 
 DO i=1,seg7-1
    x7(i) = x70
@@ -576,20 +588,44 @@ END SUBROUTINE stretch
 
 
 SUBROUTINE write_prm()
-
+USE inputs, ONLY: nx,ny,nz
+IMPLICIT NONE
 !  Write the file here... one less thing to cart around
-OPEN(UNIT=1,FILE='noz.prm',STATUS='UNKNOWN')
+OPEN(UNIT=1,FILE='nozXY.prm',STATUS='UNKNOWN')
 WRITE(1,*) 'input seg.dat'
-WRITE(1,*) 'output nozzle.grid'
+WRITE(1,*) 'output nozzleXY.grid'
 WRITE(1,*) 'grid stretch.dat'
 WRITE(1,*) 'nppe 0'
 WRITE(1,*) 'nnnodes 10'
 WRITE(1,*) 'precision 1.0e-11'
-WRITE(1,*) 'newton 1'
+WRITE(1,*) 'newton 0'
 WRITE(1,*) 'rectangle rect.noz'
 WRITE(1,*) 'sigmas sigmas.noz'
 CLOSE(1)
 
+!  Write the file here... one less thing to cart around
+OPEN(UNIT=1,FILE='nozXZ.prm',STATUS='UNKNOWN')
+WRITE(1,*) 'input seg2.dat'
+WRITE(1,*) 'output nozzleXZ.grid'
+WRITE(1,*) 'nx ',nx
+WRITE(1,*) 'ny ',nz
+WRITE(1,*) 'nppe 0'
+WRITE(1,*) 'nnnodes 10'
+WRITE(1,*) 'precision 1.0e-11'
+WRITE(1,*) 'newton 1'
+CLOSE(1)
+
+!  Write the file here... one less thing to cart around
+OPEN(UNIT=1,FILE='nozXZ2.prm',STATUS='UNKNOWN')
+WRITE(1,*) 'input seg3.dat'
+WRITE(1,*) 'output nozzleXZ2.grid'
+WRITE(1,*) 'nx ',nx
+WRITE(1,*) 'ny ',nz
+WRITE(1,*) 'nppe 0'
+WRITE(1,*) 'nnnodes 10'
+WRITE(1,*) 'precision 1.0e-11'
+WRITE(1,*) 'newton 1'
+CLOSE(1)
 END SUBROUTINE write_prm
 
 
