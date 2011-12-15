@@ -27,6 +27,7 @@ DOUBLE PRECISION , PARAMETER :: Aratio = 1.6               ! Area-ratio of the n
 DOUBLE PRECISION , PARAMETER :: NPR = 1.70d0                ! Nozzle Pressure Ratio (P_res/P_a) [1.2,1.8]
 DOUBLE PRECISION , PARAMETER :: gam = 1.4d0                ! Ratio of specific heats
 DOUBLE PRECISION , PARAMETER :: len = 117.0d0              ! Length of nozzle (throat to exit)
+DOUBLE PRECISION , PARAMETER :: slen = len*1.04d0          ! Length of nozzle (throat to side wall exit)
 DOUBLE PRECISION , PARAMETER :: noz_x = 0.0d0              ! X-location of throat
 DOUBLE PRECISION , PARAMETER :: noz_y = throat/two         ! Y-location of throat
 DOUBLE PRECISION , PARAMETER :: noz_z = 63.5/two         ! Z-location (width/2) symmetry
@@ -77,7 +78,6 @@ PROGRAM noz_gridgen
 USE inputs
 CHARACTER * 100 :: BUFFER
 CHARACTER(LEN=90) :: fname
-DOUBLE PRECISION :: Rfrac,Afrac
 
   funit=1
   CALL GETARG(1,BUFFER)
@@ -88,12 +88,13 @@ DOUBLE PRECISION :: Rfrac,Afrac
      fname = 'seg2.dat'
      Rfrac = 1.0D0
      Afrac = 1.0D0
-     CALL boundsSIDE(Afrac,Rfrac,fname)
+     CALL boundsSIDE(.TRUE.,fname)
      fname = 'seg3.dat'
      Rfrac = 15.0D0
      Afrac = 10.0D0
-     CALL boundsSIDE(Afrac,Rfrac,fname)
+     CALL boundsSIDE(.FALSE.,fname)
      CALL stretch()      ! Get the mapped grid coordinates
+     CALL stretch2()      ! Get the mapped grid coordinates
      CALL write_prm()    ! Write the GG input file
      CALL oneD_init()    ! Solve the [M,P,rho,A] = F( x ), quasi-1D flow for given Pressure ratio for use flow initialization
      PRINT*,'Done with grid setup files...'
@@ -320,11 +321,11 @@ CLOSE(UNIT=funit)
 END SUBROUTINE bounds
 
 
-SUBROUTINE boundsSIDE(Afac,Rfac,fname)
+SUBROUTINE boundsSIDE(corner,fname)
 USE inputs
 IMPLICIT NONE
-DOUBLE PRECISION, INTENT(IN) :: Afac,Rfac
 CHARACTER(LEN=90), INTENT(IN) :: fname
+LOGICAL, INTENT(IN) :: corner
 DOUBLE PRECISION, DIMENSION(seg1) :: x1,y1
 DOUBLE PRECISION, DIMENSION(seg2) :: x2,y2
 DOUBLE PRECISION, DIMENSION(seg3) :: x3,y3,theta3
@@ -366,9 +367,10 @@ DOUBLE PRECISION :: c5,c4,c3,c2,xrel,d2T,RR3
 !! 3rd-Order Polynomial with 2 dirichleit & 1 nuemann BC & 1 2nd derivative
 !! This is the solution to the cantalever beam problem
 x20 = noz_x - inlet_x
-x2f = noz_x + len
-y20 = noz_z + inlet_z 
-y2f = noz_z*Afac 
+x2f = noz_x + slen
+y20 = noz_z 
+y2f = noz_z
+IF(.NOT. corner) y2f = R5
 
 funit=1
 OPEN(UNIT=funit,FILE=fname,STATUS='UNKNOWN')
@@ -381,11 +383,12 @@ DO i=1,seg2
 END DO
 
 
+IF(corner) THEN
 !!!---  Segment #3 ---!!!
 !! Simple Radial-arc of radius -R- and matching derivative and location from cantalever beam
-RR3 = R3*Rfac
+RR3 = R3
 dydx3 = three/two * (y2f-y20)/(x2f-x20)
-x30 = noz_x + len
+x30 = noz_x + slen
 y30 = y2(seg2)
 IF (dydx3 == 0.0) THEN
    x3c = x30
@@ -403,6 +406,8 @@ DO i=1,seg3
    WRITE(funit,*) x3(i),y3(i)
 END DO
 
+
+
 !!!---  Segment #4 ---!!!
 !! Simple verticle Line
 x40 = x3(seg3) 
@@ -419,6 +424,12 @@ DO i=1,seg4
       WRITE(funit,*) x4(i),y4(i)
    END IF
 END DO
+
+ELSE
+   WRITE(funit,*) x2f,y2f,1
+   x40 = x2f
+END IF
+
 
 !!!---  Segment #5 ---!!!
 !! Radial Sweep for back ground outflow
@@ -587,6 +598,106 @@ CLOSE(funit)
 END SUBROUTINE stretch
 
 
+SUBROUTINE stretch2()
+USE inputs
+IMPLICIT NONE
+DOUBLE PRECISION, DIMENSION (nx,ny) :: xb,yb
+DOUBLE PRECISION, DIMENSION (ny-1) :: dyV,dyV2
+DOUBLE PRECISION :: dyU,dymin,dymax,dymax2,ytmp
+DOUBLE PRECISION :: C1,C3,L0,nn,jj,sig
+DOUBLE PRECISION :: C1p,C3p,ybc,ybw,aa,bb, sech,widef
+DOUBLE PRECISION :: blend,wide,shift,dy,sumy,sum1,sum2,wide2,dwide,ds_dw,eps
+INTEGER :: i,j,funit
+
+IF(rwall_on) THEN
+   wall = wall_raw / ( throat / dble(ny) ) 
+END IF
+
+
+L0 = one    ! Make mesh on the unit square
+
+!! Newton Rhapson Parameters
+dwide = 1.0d-4
+eps = 1.0d-12
+
+! BL stretch...y = tanh(f(j))
+sumy = one
+aa = dble(2*nz+1)/two
+bb = dble(2*nz) - aa
+dymin = wall*L0/dble(ny-1)*two 
+wide = ny
+DO WHILE ( abs(sumy) > eps)
+   wide2 = wide + dwide
+   sum1 = wide - (sech(bb/wide))**2 / (dymin*tanh(bb/wide))
+   sum2 = wide2 - (sech(bb/wide2))**2 / (dymin*tanh(bb/wide2))
+   ds_dw = (sum2-sum1)/dwide   
+   wide = wide - sum1/ds_dw
+   sumy = sum1
+END DO
+widef = wide
+
+
+! Exit Plume...focus grid at the core
+dymin = core*L0/dble(2*nz-1)
+dymax = 2.0*L0/dble(2*nz-1)
+wide = core3/2.0d0
+shift =  dble(nz/2) - (core2/pi)*dble(2*nz-1)/core/4.0d0
+
+sumy = one
+DO WHILE ( abs(sumy) > eps)
+   dymax2 = dymax + dwide
+   CALL sumDY(wide, dymax,dymin,2*nz,dyV2,sum1,shift)
+   CALL sumDY(wide,dymax2,dymin,2*nz,dyV2,sum2,shift)
+   sum1 = sum1 - L0 + eps
+   sum2 = sum2 - L0 + eps
+   ds_dw = (sum2-sum1)/dwide
+   dymax = dymax - sum1/ds_dw     
+   sumy = sum1
+END DO
+CALL sumDY(wide,dymax,dymin,2*nz,dyV2,sumy,shift)
+
+
+OPEN(UNIT=funit,FILE='stretch2.dat',STATUS='UNKNOWN')
+ybw = zero
+ybc = zero
+yb(:,1) = zero
+DO j=1,nz
+   DO i=1,nx
+      blend = tanh( (dble(i)-loci)/thick)
+      blend = half * (blend + one)
+      ! Uniform in X
+      xb(i,j) = dble(i-1)*L0/dble(nx-1)
+      !  Hyperbolic-Tangent
+      if (j>1) then
+         !ybw = ytmp + dyV(j-1)
+         ybw =  (one+ tanh( (dble(j)-aa)/widef) / abs(tanh(bb/widef)) ) / two
+         ybc = ytmp + dyV2(j-1)
+      else
+         ybw = zero
+         ybc = zero
+      end if
+      yb(i,j) = ybw *(one-blend) + blend*ybc 
+
+   END DO
+   ytmp = ybc
+END DO
+
+yb = 2.0D0*yb
+
+DO j=1,nz
+   DO i=1,nx
+      yb(i,j) = yb(i,j)/yb(i,nz)
+      WRITE(funit,*) xb(i,j), 1.0D0 - yb(i,j) 
+   END DO
+END DO
+xb(:,1) = xb(:,2)
+
+CLOSE(funit)
+
+END SUBROUTINE stretch2
+
+
+
 SUBROUTINE write_prm()
 USE inputs, ONLY: nx,ny,nz
 IMPLICIT NONE
@@ -607,12 +718,13 @@ CLOSE(1)
 OPEN(UNIT=1,FILE='nozXZ.prm',STATUS='UNKNOWN')
 WRITE(1,*) 'input seg2.dat'
 WRITE(1,*) 'output nozzleXZ.grid'
-WRITE(1,*) 'nx ',nx
-WRITE(1,*) 'ny ',nz
+WRITE(1,*) 'grid stretch2.dat'
 WRITE(1,*) 'nppe 0'
 WRITE(1,*) 'nnnodes 10'
 WRITE(1,*) 'precision 1.0e-11'
-WRITE(1,*) 'newton 1'
+WRITE(1,*) 'newton 0'
+WRITE(1,*) 'rectangle rect2.noz'
+WRITE(1,*) 'sigmas sigmas2.noz'
 CLOSE(1)
 
 !  Write the file here... one less thing to cart around
@@ -624,7 +736,9 @@ WRITE(1,*) 'ny ',nz
 WRITE(1,*) 'nppe 0'
 WRITE(1,*) 'nnnodes 10'
 WRITE(1,*) 'precision 1.0e-11'
-WRITE(1,*) 'newton 1'
+WRITE(1,*) 'newton 0'
+WRITE(1,*) 'rectangle rect3.noz'
+WRITE(1,*) 'sigmas sigmas3.noz'
 CLOSE(1)
 END SUBROUTINE write_prm
 
