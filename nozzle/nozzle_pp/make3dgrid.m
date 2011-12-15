@@ -65,22 +65,56 @@ X = zeros(nx,ny,nz);
 Y = zeros(nx,ny,nz);
 Z = zeros(nx,ny,nz);
 
-yL = gXYy(1,end) * 1.8;
+yL = gXYy(1,end) * 4.8;
 yH = gXYy(end,end);
 
+%Nb = 500;
+%yblnd = linspace(0,yH,Nb);
+%for i=1:Nb
+%    if (yblnd(i) <= yL)
+%        blend(i,1) = 0;
+%    else
+%        % Try linear first
+%        
+%       d = yblnd(i)-yL;
+%        L = yH-yL;
+%        A = 1/L^2;
+%        blend(i,1) = d/L;     % Linear
+%        blend(i,1) = A*d^2;   % Parabolic
+%    end
+%end
+
+%Nfil = 10;
+%for i=1:Nfil
+%   blend = gfilter(blend);
+%end
+figure(12);hold all;
 xline = gXZx(:,1); % Make xline dependent on y-location
 for i=1:nx
     for j=1:ny
         
         yht = abs(gXYy(i,j));
-        if (yht<=yL)
-            xline = gXZx(:,1); % Make xline dependent on y-location
-        else
+        %if (yht<=yL)
+        %    xline = gXZx(:,1); % Make xline dependent on y-location
+        %else
             % Try linear first
             d = yht-yL;
             L = yH-yL;
-            xline = gXZx(:,1)*(1-d/L) + gXZ2x(:,1)*d/L;
-        end
+            A = 1/L^2;
+            L1 = .707*yH-yL;
+            mid = .707*yH-L1/2;
+            %blend = d/L;   % Linear
+            %blend = A*d^2; % Parabolic
+            blend = .5*(1+tanh((yht-mid)/(L1/4)));
+            xline = gXZx(:,1)*(1-blend) + gXZ2x(:,1)*blend;
+        %end
+        
+        %if(i>nx-5)
+        %figure(12);
+        %plot(yht,blend,'bo');
+        %end
+        % Make very smooth transition (tanh)
+        %smth = .5*(1+tanh((yht-yL)/yL*(1/5)));
         
         [a,b] = min(abs(gXYx(i,j) - xline));
         if (b==1)
@@ -119,6 +153,7 @@ for i=1:nx
     end
 end
       
+%pause;
 
 gXZNx = gXZ2x*0;
 gXZNz = gXZ2x*0;
@@ -195,15 +230,17 @@ for k=1:nz
     end
 end
 
-dlmwrite('visit.tec','VARIABLES="X","Y","Z","Pressure" ZONE I=','delimiter','')
-dlmwrite('visit.tec',size(X,1),'delimiter','','-append')
-dlmwrite('visit.tec',',J=','delimiter','','-append')
-dlmwrite('visit.tec',size(X,2),'delimiter','','-append')
-dlmwrite('visit.tec',',K=','delimiter','','-append')
-dlmwrite('visit.tec',size(X,3),'delimiter','','-append')
-dlmwrite('visit.tec',',F=POINT','delimiter','','-append')
+vizname = 'visit2.tec';
 
-dlmwrite('visit.tec',tmp,'delimiter',' ','-append');
+dlmwrite(vizname,'VARIABLES="X","Y","Z","Pressure" ZONE I=','delimiter','')
+dlmwrite(vizname,size(X,1),'delimiter','','-append')
+dlmwrite(vizname,',J=','delimiter','','-append')
+dlmwrite(vizname,size(X,2),'delimiter','','-append')
+dlmwrite(vizname,',K=','delimiter','','-append')
+dlmwrite(vizname,size(X,3),'delimiter','','-append')
+dlmwrite(vizname,',F=POINT','delimiter','','-append')
+
+dlmwrite(vizname,tmp,'delimiter',' ','-append');
 
 end
 
