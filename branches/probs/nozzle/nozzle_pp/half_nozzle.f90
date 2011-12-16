@@ -53,7 +53,8 @@ DOUBLE PRECISION , PARAMETER :: core  = 0.9d0               ! Zoom factor of the
 DOUBLE PRECISION , PARAMETER :: core2 = pi/4.0d0            ! Thickness of refined region in the plume in [radians]
 DOUBLE PRECISION , PARAMETER :: core3 = 10.0d0              ! Width of interface from fine to course in grid points
 
-DOUBLE PRECISION , PARAMETER :: loci = dble(nx)*.9d0        ! Location in grid number of stretch-> iso interface
+DOUBLE PRECISION , PARAMETER :: loci = dble(nx)*.93d0        ! Location in grid number of stretch-> iso interface
+DOUBLE PRECISION , PARAMETER :: lociz = dble(nx)*.9d0        ! Location in grid number of stretch-> iso interface
 DOUBLE PRECISION , PARAMETER :: thick = 32.0d0              ! Thickness of transition region above
 DOUBLE PRECISION , PARAMETER :: theta_shift = pi/24.0D0     ! Thickness of transition region above
 
@@ -99,7 +100,8 @@ CHARACTER(LEN=90) :: fname
      CALL oneD_init()    ! Solve the [M,P,rho,A] = F( x ), quasi-1D flow for given Pressure ratio for use flow initialization
      PRINT*,'Done with grid setup files...'
   ELSE
-     CALL init_field()
+     CALL build_mesh()
+     !CALL init_field()
   END IF
 
 END PROGRAM noz_gridgen
@@ -624,7 +626,7 @@ eps = 1.0d-12
 sumy = one
 aa = dble(2*nz+1)/two
 bb = dble(2*nz) - aa
-dymin = wall*L0/dble(ny-1)*two 
+dymin = wall*L0/dble(ny-1)*two / 2.0D0
 wide = ny
 DO WHILE ( abs(sumy) > eps)
    wide2 = wide + dwide
@@ -663,7 +665,7 @@ ybc = zero
 yb(:,1) = zero
 DO j=1,nz
    DO i=1,nx
-      blend = tanh( (dble(i)-loci)/thick)
+      blend = tanh( (dble(i)-lociz)/thick)
       blend = half * (blend + one)
       ! Uniform in X
       xb(i,j) = dble(i-1)*L0/dble(nx-1)
@@ -686,7 +688,7 @@ yb = 2.0D0*yb
 
 DO j=1,nz
    DO i=1,nx
-      yb(i,j) = yb(i,j)/yb(i,nz)
+      !yb(i,j) = yb(i,j)/yb(i,nz)
       WRITE(funit,*) xb(i,j), 1.0D0 - yb(i,j) 
    END DO
 END DO
@@ -1040,3 +1042,239 @@ FUNCTION sech(x)
 DOUBLE PRECISION :: x,sech
 sech = 1.0d0 / cosh(x)
 END FUNCTION 
+
+
+
+
+SUBROUTINE build_mesh
+  USE inputs
+  IMPLICIT NONE
+  
+  DOUBLE PRECISION, DIMENSION(nx,ny) :: gXYx,gXYy
+  DOUBLE PRECISION, DIMENSION(nx,nz) :: gXZx,gXZz
+  DOUBLE PRECISION, DIMENSION(nx,nz) :: gXZ2x,gXZ2z
+  DOUBLE PRECISION, DIMENSION(nx,nz) :: gXZNx,gXZNz
+
+  DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: Xc,Yc,Zc
+
+  DOUBLE PRECISION, DIMENSION(nx,ny,2) :: xmap
+  DOUBLE PRECISION, DIMENSION(nx) :: xline
+  DOUBLE PRECISION, DIMENSION(3) :: xrange
+  DOUBLE PRECISION, DIMENSION(3) :: Dvec
+  DOUBLE PRECISION :: blendY,Finterp
+  DOUBLE PRECISION :: yL,yH,yht,blend,cc,xoff,zoff
+  DOUBLE PRECISION :: vm,v0,vp,xmoff,xxoff,xpoff,zmoff,zzoff,zpoff
+  INTEGER :: re_unit,i,j,k,xx,xm,xp
+  INTEGER, DIMENSION(1) :: b
+  CHARACTER(LEN=30) :: outfile
+  INTEGER :: itype
+
+
+  outfile = 'visit3.tec'
+  itype = 2   ! 0-nearest, 1-linear, 2-cubic
+  ! Get the meshes
+  
+  ! Mesh 1- XY mesh
+  re_unit = 19
+  OPEN(UNIT=re_unit,FILE='nozzleXY.grid',STATUS='OLD')
+  DO j=1,ny
+     DO i=1,nx
+        READ(re_unit,*) gXYx(i,j),gXYy(i,j)
+     END DO
+  END DO
+  CLOSE(re_unit)
+
+
+  ! Mesh 2- XZ bottom mesh
+  re_unit = 19
+  OPEN(UNIT=re_unit,FILE='nozzleXZ.grid',STATUS='OLD')
+  DO k=nz,1,-1  ! Note read in reverse to keep origin at k=1
+     DO i=1,nx
+        READ(re_unit,*) gXZx(i,k),gXZz(i,k)
+     END DO
+  END DO
+  CLOSE(re_unit)
+
+
+  ! Mesh 2- XZ bottom mesh
+  re_unit = 19
+  OPEN(UNIT=re_unit,FILE='nozzleXZ2.grid',STATUS='OLD')
+  DO k=1,nz
+     DO i=1,nx
+        READ(re_unit,*) gXZ2x(i,k),gXZ2z(i,k)
+     END DO
+  END DO
+  CLOSE(re_unit)
+
+  yL = gXYy(1,ny) * 4.8d0
+  yH = gXYy(nx,ny)
+  xline = gXZx(:,1)
+  
+  DO i=1,nx
+     DO j=1,ny
+        
+        yht = ABS( gXYy(i,j) )
+        blend = blendY(yht,yL,yH)
+        xline = gXZx(:,1) * (one-blend) + gXZ2x(:,1)*blend
+
+        b = MINLOC( ABS(gXYx(i,j)-xline) )
+
+        IF (b(1)==1) THEN
+           b(1) = 2
+        ELSEIF (b(1) == nx) THEN
+           b(1) = nx-1
+        END IF
+        vm = ( gXYx(i,j)-xline(b(1)-1) )
+        v0 = ( gXYx(i,j)-xline(b(1)  ) )
+        vp = ( gXYx(i,j)-xline(b(1)+1) )
+
+        Dvec = (/ DBLE(b(1)-1),DBLE(b(1)),DBLE(b(1)+1)/)
+        cc = Finterp( (/vm,v0,vp/), Dvec , 0.0D0 , itype);
+
+        xmap(i,j,1) = cc
+        xmap(i,j,2) = b(1)
+        
+     END DO
+  END DO
+     
+  gXZNx = zero
+  gXZNz = zero
+  ALLOCATE(Xc(nx,ny,nz))
+  ALLOCATE(Yc(nx,ny,nz))
+  ALLOCATE(Zc(nx,ny,nz))
+
+  DO i=1,nx
+     DO j=1,ny
+        DO k=1,nz
+
+           cc = xmap(i,j,1)
+           xx = INT(xmap(i,j,2))
+           xm = xx - 1
+           xp = xx + 1
+           
+           yht = abs(gXYy(i,j))
+           blend = blendY(yht,yL,yH);
+           
+           xrange = (/xm,xx,xp/)
+           gXZNx(xrange,k) = gXZx(xrange,k)*(one-blend) + gXZ2x(xrange,k)*blend
+           gXZNz(xrange,k) = gXZz(xrange,k)*(one-blend) + gXZ2z(xrange,k)*blend    
+           
+           xmoff = gXZNx(xm,k) - gXZNx(xm,1)
+           zmoff = gXZNz(xm,k) - gXZNz(xm,1)
+           
+           xxoff = gXZNx(xx,k) - gXZNx(xx,1)
+           zzoff = gXZNz(xx,k) - gXZNz(xx,1)
+           
+           xpoff = gXZNx(xp,k) - gXZNx(xp,1)
+           zpoff = gXZNz(xp,k) - gXZNz(xp,1)
+           
+           Dvec = DBLE(xrange)
+           xoff = Finterp( Dvec,(/xmoff,xxoff,xpoff/),cc,itype)
+           zoff = Finterp( Dvec,(/zmoff,zzoff,zpoff/),cc,itype)
+        
+           Xc(i,j,k) = gXYx(i,j) + xoff
+           Zc(i,j,k) = zoff
+           Yc(i,j,k) = gXYy(i,j)
+        END DO
+     END DO
+  END DO
+
+
+  OPEN(re_unit,file=outfile,status='unknown')
+  WRITE (re_unit,*) ' VARIABLES = "X", "Y", "Z" '
+  WRITE(re_unit,*) "ZONE I=", nx, ", J=", ny,", K=", nz, ", F=POINT"
+  DO k=1,nz
+    DO  J=1,ny
+      DO  I=1, nx
+        WRITE (re_unit,*) Xc(i,j,k), Yc(i,j,k), Zc(i,j,k)
+      END DO
+    END DO
+ END DO
+ CLOSE(re_unit)
+
+
+ DEALLOCATE(Xc,Yc,Zc)
+
+
+
+END SUBROUTINE
+
+
+
+FUNCTION blendY(y,y1,y2)
+  IMPLICIT NONE
+  DOUBLE PRECISION :: blendY
+  DOUBLE PRECISION :: y,y1,y2
+  
+  DOUBLE PRECISION :: d,L,A,L1,mid
+
+  d = y-y1
+  L = y2-y1
+  A = 1.0D0 / L**2
+  L1 = .707*y2-y1
+  mid = .707*y2-L1/2.0D0
+  
+  !IF (y <= y1) THEN
+  !   blend = 0.0D0
+  !ELSE
+  !   blend = d/L
+  !   blend = A*d**2
+  !END IF
+
+  blendY = 0.5D0 * ( 1.0D0 + TANH( (y-mid)/(L1/4.0D0) ) )
+
+
+END FUNCTION blendY
+
+
+
+FUNCTION Finterp(xx,yy,xi,itype)
+  IMPLICIT NONE
+  DOUBLE PRECISION, DIMENSION(3) :: xx,yy
+  DOUBLE PRECISION :: xi,yi,Finterp
+  INTEGER :: itype
+  INTEGER, DIMENSION(1) :: bb
+  DOUBLE PRECISION :: a,b,c
+
+  
+  SELECT CASE(itype)
+     
+
+  CASE(0)
+     bb = MINLOC( ABS(xx-xi) )
+     yi = yy(bb(1))
+     
+  CASE(1)
+     
+     IF ( xi < xx(2) ) THEN
+        yi = yy(2) + ( yy(3)-yy(2) )/( xx(3)-xx(2) )*(xi-xx(2))
+     ELSE
+        yi = yy(1) + ( yy(2)-yy(1) )/( xx(2)-xx(1) )*(xi-xx(1))
+     END IF
+     
+  CASE(2)
+     
+     a = (xx(1)*(yy(3)-yy(2))-xx(2)*yy(3)+xx(3)*yy(2)+(xx(2)-xx(3)) &
+          *yy(1))/(xx(1)*(xx(3)**2-xx(2)**2)-xx(2)*xx(3) &
+          **2+xx(2)**2*xx(3)+xx(1)**2*(xx(2)-xx(3)))
+     b = -(xx(1)**2*(yy(3)-yy(2))-xx(2)**2*yy(3)+xx(3)**2*yy(2) &
+          +(xx(2)**2-xx(3)**2)*yy(1))/(xx(1)*(xx(3)**2-xx(2)**2)-xx(2) &
+          *xx(3)**2+xx(2)**2*xx(3)+xx(1)**2*(xx(2)-xx(3)))
+     c = (xx(1)*(xx(3)**2*yy(2)-xx(2)**2*yy(3))+xx(1)**2*(xx(2)*yy(3)- &
+          xx(3)*yy(2))+(xx(2)**2*xx(3)-xx(2)*xx(3)**2)*yy(1))/(xx(1)* &
+          (xx(3)**2-xx(2)**2)-xx(2)*xx(3)**2+xx(2)**2*xx(3)+ & 
+          xx(1)**2*(xx(2)-xx(3)))
+     
+     yi = a*xi**2 + b*xi + c
+     
+  CASE DEFAULT
+     
+     PRINT*,'WARNING, NO INTERP METHOD SPECIFIED'
+     CALL EXIT()
+        
+  END SELECT
+     
+  Finterp = yi
+     
+
+END FUNCTION Finterp
