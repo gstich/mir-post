@@ -215,9 +215,9 @@ END DO
 !!!---  Segment #4 ---!!!
 !! Simple verticle Line
 x40 = x3(seg3) 
-x4f = x40 - (R5-y3(seg))*sin(theta_shift)
+x4f = x40 - (R5-y3(seg3))*sin(theta_shift)
 y40 = y3(seg3) 
-y4f = (R5-y3(seg))*cos(theta_shift) + y3(seg)
+y4f = (R5-y3(seg3))*cos(theta_shift) + y3(seg3)
 
 DO i=1,seg4
    x4(i) = x40 + (x4f-x40)/dble(seg4)*dble(i)
@@ -240,7 +240,7 @@ DO i=1,seg5
    theta5(i) = (theta5f - theta50)/dble(seg5) * dble(i) + theta50
    x5(i) = R5*cos(theta5(i)) + x5c
    y5(i) = R5*sin(theta5(i)) + y5c
-   IF (i==seg5 .and. full .eq. .FALSE.) THEN
+   IF (i==seg5 .and. .NOT. full ) THEN
       WRITE(funit,*) x5(i),y5(i),1
    ELSE
       WRITE(funit,*) x5(i),y5(i)
@@ -942,7 +942,8 @@ v = zero
 M = zero
 DO i=1,nx
    DO j=1,ny
-      plume(i,j) = (one+tanh( (x_c(i,j)-1.d0*Xend)/(noz_y/10.d0)  ))/two - (one-(one+tanh( (abs(y_c(i,j))-Aratio*noz_y)/(noz_y/5.d0)  )  )/two)
+      plume(i,j) = (one+tanh( (x_c(i,j)-1.d0*Xend)/(noz_y/10.0d0)  ))/two - & 
+           (one-(one+tanh( (abs(y_c(i,j))-Aratio*noz_y)/(noz_y/5.0d0)  )  )/two)
       plume(i,j) = plume(i,j) + (one+tanh((x_c(i,j)-Xend*1.3d0)/noz_y))/two
    END DO
 END DO
@@ -1060,7 +1061,7 @@ SUBROUTINE build_mesh
 
   DOUBLE PRECISION, DIMENSION(nx,ny,2) :: xmap
   DOUBLE PRECISION, DIMENSION(nx) :: xline
-  DOUBLE PRECISION, DIMENSION(3) :: xrange
+  INTEGER, DIMENSION(3) :: xrange
   DOUBLE PRECISION, DIMENSION(3) :: Dvec
   DOUBLE PRECISION :: blendY,Finterp
   DOUBLE PRECISION :: yL,yH,yht,blend,cc,xoff,zoff
