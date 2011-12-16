@@ -42,8 +42,9 @@ DOUBLE PRECISION , PARAMETER :: R5=1.5d1*Aratio*two*noz_y  ! Radius of backgroun
 
 !  Grid Parameters
 INTEGER , PARAMETER          :: nx = 256                    ! Number of points in /xi direction
-INTEGER , PARAMETER          :: ny = 64                    ! Number of points in /eta direction
-INTEGER , PARAMETER          :: nz = 64                    ! Number of points in 3rd direction
+INTEGER , PARAMETER          :: ny = 64                     ! Number of points in /eta direction
+INTEGER , PARAMETER          :: nz = 60                     ! Number of points in 3rd direction
+INTEGER , PARAMETER          :: SYMnz = 4                   ! Number of points in 3rd direction symmetry overlap
 DOUBLE PRECISION             :: wall  = 0.08d0              ! Zoom factor at wall in uniform spacing (overwritten by wall_raw)
 DOUBLE PRECISION , PARAMETER :: wall_raw  = 7.0d-3          ! Raw spacing in [mm] .. this value will set wall
 LOGICAL, PARAMETER           :: rwall_on = .TRUE.           ! Use raw to set wall? or not?
@@ -626,7 +627,7 @@ eps = 1.0d-12
 sumy = one
 aa = dble(2*nz+1)/two
 bb = dble(2*nz) - aa
-dymin = wall*L0/dble(ny-1)*two / 2.0D0
+dymin = wall*L0/dble(ny-1)*two / 4.0D0   ! Divide by a factor of 4... only one wall and one side
 wide = ny
 DO WHILE ( abs(sumy) > eps)
    wide2 = wide + dwide
@@ -1066,7 +1067,7 @@ SUBROUTINE build_mesh
   DOUBLE PRECISION :: vm,v0,vp,xmoff,xxoff,xpoff,zmoff,zzoff,zpoff
   INTEGER :: re_unit,i,j,k,xx,xm,xp
   INTEGER, DIMENSION(1) :: b
-  CHARACTER(LEN=30) :: outfile
+  CHARACTER(LEN=30) :: outfile,comments
   INTEGER :: itype
 
 
@@ -1099,6 +1100,7 @@ SUBROUTINE build_mesh
   ! Mesh 2- XZ bottom mesh
   re_unit = 19
   OPEN(UNIT=re_unit,FILE='nozzleXZ2.grid',STATUS='OLD')
+  READ(re_unit,*) comments
   DO k=1,nz
      DO i=1,nx
         READ(re_unit,*) gXZ2x(i,k),gXZ2z(i,k)
@@ -1139,9 +1141,9 @@ SUBROUTINE build_mesh
      
   gXZNx = zero
   gXZNz = zero
-  ALLOCATE(Xc(nx,ny,nz))
-  ALLOCATE(Yc(nx,ny,nz))
-  ALLOCATE(Zc(nx,ny,nz))
+  ALLOCATE(Xc(nx,ny,nz+SYMnz))
+  ALLOCATE(Yc(nx,ny,nz+SYMnz))
+  ALLOCATE(Zc(nx,ny,nz+SYMnz))
 
   DO i=1,nx
      DO j=1,ny
@@ -1172,25 +1174,45 @@ SUBROUTINE build_mesh
            xoff = Finterp( Dvec,(/xmoff,xxoff,xpoff/),cc,itype)
            zoff = Finterp( Dvec,(/zmoff,zzoff,zpoff/),cc,itype)
         
-           Xc(i,j,k) = gXYx(i,j) + xoff
-           Zc(i,j,k) = zoff
-           Yc(i,j,k) = gXYy(i,j)
+           Xc(i,j,k+SYMnz) = gXYx(i,j) + xoff
+           Zc(i,j,k+SYMnz) = zoff
+           Yc(i,j,k+SYMnz) = gXYy(i,j)
         END DO
      END DO
   END DO
 
+  
+  ! Symmetry points
+  Xc(:,:,1:SYMnz) = Xc(:,:,2*SYMnz:SYMnz+1:-1)
+  Yc(:,:,1:SYMnz) = Yc(:,:,2*SYMnz:SYMnz+1:-1)
+  Zc(:,:,1:SYMnz) = -Zc(:,:,2*SYMnz:SYMnz+1:-1)
 
-  OPEN(re_unit,file=outfile,status='unknown')
-  WRITE (re_unit,*) ' VARIABLES = "X", "Y", "Z" '
-  WRITE(re_unit,*) "ZONE I=", nx, ", J=", ny,", K=", nz, ", F=POINT"
-  DO k=1,nz
-    DO  J=1,ny
-      DO  I=1, nx
-        WRITE (re_unit,*) Xc(i,j,k), Yc(i,j,k), Zc(i,j,k)
-      END DO
-    END DO
- END DO
- CLOSE(re_unit)
+
+  ! Visit/Tecplot write out
+  !OPEN(re_unit,file=outfile,status='unknown')
+  !WRITE (re_unit,*) ' VARIABLES = "X", "Y", "Z" '
+  !WRITE(re_unit,*) "ZONE I=", nx, ", J=", ny,", K=", nz+SYMnz, ", F=POINT"
+  !DO k=1,nz+SYMnz
+  !   DO  J=1,ny
+  !      DO  I=1, nx
+  !         WRITE (re_unit,*) Xc(i,j,k), Yc(i,j,k), Zc(i,j,k)
+  !      END DO
+  !   END DO
+  !END DO
+  !CLOSE(re_unit)
+  
+  ! Write out for Miranda input
+  OPEN(UNIT=re_unit,FILE='X.grd',FORM='UNFORMATTED',STATUS='REPLACE')
+  WRITE(re_unit) Xc
+  CLOSE(re_unit)
+
+  OPEN(UNIT=re_unit,FILE='Y.grd',FORM='UNFORMATTED',STATUS='REPLACE')
+  WRITE(re_unit) Yc
+  CLOSE(re_unit)
+
+  OPEN(UNIT=re_unit,FILE='Z.grd',FORM='UNFORMATTED',STATUS='REPLACE')
+  WRITE(re_unit) Zc
+  CLOSE(re_unit)
 
 
  DEALLOCATE(Xc,Yc,Zc)
