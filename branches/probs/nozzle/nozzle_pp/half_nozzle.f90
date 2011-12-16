@@ -97,6 +97,7 @@ CHARACTER(LEN=90) :: fname
      CALL boundsSIDE(.FALSE.,fname)
      CALL stretch()      ! Get the mapped grid coordinates
      CALL stretch2()      ! Get the mapped grid coordinates
+     CALL stretch3()      ! Get the mapped grid coordinates
      CALL write_prm()    ! Write the GG input file
      CALL oneD_init()    ! Solve the [M,P,rho,A] = F( x ), quasi-1D flow for given Pressure ratio for use flow initialization
      PRINT*,'Done with grid setup files...'
@@ -604,7 +605,7 @@ END SUBROUTINE stretch
 SUBROUTINE stretch2()
 USE inputs
 IMPLICIT NONE
-DOUBLE PRECISION, DIMENSION (nx,ny) :: xb,yb
+DOUBLE PRECISION, DIMENSION (nx,2*nz) :: xb,yb
 DOUBLE PRECISION, DIMENSION (ny-1) :: dyV,dyV2
 DOUBLE PRECISION :: dyU,dymin,dymax,dymax2,ytmp
 DOUBLE PRECISION :: C1,C3,L0,nn,jj,sig
@@ -613,7 +614,7 @@ DOUBLE PRECISION :: blend,wide,shift,dy,sumy,sum1,sum2,wide2,dwide,ds_dw,eps
 INTEGER :: i,j,funit
 
 IF(rwall_on) THEN
-   wall = wall_raw / ( throat / dble(ny) ) 
+   wall = wall_raw / ( throat / dble(2*nz) ) 
 END IF
 
 
@@ -627,7 +628,7 @@ eps = 1.0d-12
 sumy = one
 aa = dble(2*nz+1)/two
 bb = dble(2*nz) - aa
-dymin = wall*L0/dble(ny-1)*two / 4.0D0   ! Divide by a factor of 4... only one wall and one side
+dymin = wall*L0/dble(2*nz-1)*two / 2.0D0   ! Divide by a factor of 4... only one wall and one side
 wide = ny
 DO WHILE ( abs(sumy) > eps)
    wide2 = wide + dwide
@@ -664,7 +665,7 @@ OPEN(UNIT=funit,FILE='stretch2.dat',STATUS='UNKNOWN')
 ybw = zero
 ybc = zero
 yb(:,1) = zero
-DO j=1,nz
+DO j=1,2*nz
    DO i=1,nx
       blend = tanh( (dble(i)-lociz)/thick)
       blend = half * (blend + one)
@@ -698,6 +699,45 @@ xb(:,1) = xb(:,2)
 CLOSE(funit)
 
 END SUBROUTINE stretch2
+
+
+SUBROUTINE stretch3()
+USE inputs
+IMPLICIT NONE
+DOUBLE PRECISION, DIMENSION (nx,2*nz) :: xb,yb
+DOUBLE PRECISION, DIMENSION (ny-1) :: dyV,dyV2
+DOUBLE PRECISION :: dyU,dymin,dymax,dymax2,ytmp
+DOUBLE PRECISION :: C1,C3,L0,nn,jj,sig
+DOUBLE PRECISION :: C1p,C3p,ybc,ybw,aa,bb, sech,widef
+DOUBLE PRECISION :: blend,wide,shift,dy,sumy,sum1,sum2,wide2,dwide,ds_dw,eps
+INTEGER :: i,j,funit
+
+
+
+L0 = one    ! Make mesh on the unit square
+
+
+OPEN(UNIT=funit,FILE='stretch3.dat',STATUS='UNKNOWN')
+
+DO j=1,2*nz
+   DO i=1,nx
+      ! Uniform in X and Y
+      xb(i,j) = dble(i-1)*L0/dble(nx-1)
+      yb(i,j) = dble(j-1)*L0/dble(2*nz-1)
+   END DO
+END DO
+
+yb = 2.0D0*yb
+
+DO j=1,nz
+   DO i=1,nx
+      WRITE(funit,*) xb(i,j), 1.0D0 - yb(i,j) 
+   END DO
+END DO
+CLOSE(funit)
+
+
+END SUBROUTINE stretch3
 
 
 
@@ -734,8 +774,7 @@ CLOSE(1)
 OPEN(UNIT=1,FILE='nozXZ2.prm',STATUS='UNKNOWN')
 WRITE(1,*) 'input seg3.dat'
 WRITE(1,*) 'output nozzleXZ2.grid'
-WRITE(1,*) 'nx ',nx
-WRITE(1,*) 'ny ',nz
+WRITE(1,*) 'grid stretch3.dat'
 WRITE(1,*) 'nppe 0'
 WRITE(1,*) 'nnnodes 10'
 WRITE(1,*) 'precision 1.0e-11'
@@ -1101,8 +1140,8 @@ SUBROUTINE build_mesh
   ! Mesh 2- XZ bottom mesh
   re_unit = 19
   OPEN(UNIT=re_unit,FILE='nozzleXZ2.grid',STATUS='OLD')
-  READ(re_unit,*) comments
-  DO k=1,nz
+  !READ(re_unit,*) comments
+  DO k=nz,1,-1
      DO i=1,nx
         READ(re_unit,*) gXZ2x(i,k),gXZ2z(i,k)
      END DO
@@ -1163,13 +1202,13 @@ SUBROUTINE build_mesh
            gXZNz(xrange,k) = gXZz(xrange,k)*(one-blend) + gXZ2z(xrange,k)*blend    
            
            xmoff = gXZNx(xm,k) - gXZNx(xm,1)
-           zmoff = gXZNz(xm,k) - gXZNz(xm,1)
+           zmoff = gXZNz(xm,k) !- gXZNz(xm,1)
            
            xxoff = gXZNx(xx,k) - gXZNx(xx,1)
-           zzoff = gXZNz(xx,k) - gXZNz(xx,1)
+           zzoff = gXZNz(xx,k) !- gXZNz(xx,1)
            
            xpoff = gXZNx(xp,k) - gXZNx(xp,1)
-           zpoff = gXZNz(xp,k) - gXZNz(xp,1)
+           zpoff = gXZNz(xp,k) !- gXZNz(xp,1)
            
            Dvec = DBLE(xrange)
            xoff = Finterp( Dvec,(/xmoff,xxoff,xpoff/),cc,itype)
