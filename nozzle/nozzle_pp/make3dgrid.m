@@ -6,6 +6,10 @@ nx = 256;
 ny = 64;
 nz = 64;
 
+%itype = 'nearest';
+itype = 'spline';
+%itype = 'linear';
+
 gXY = load('nozzleXY.grid');
 
 cc = 1;
@@ -27,7 +31,7 @@ axis equal
 gXZ = load('nozzleXZ.grid');
 
 cc = 1;
-for j=1:nz
+for j=nz:-1:1
     for i=1:nx
         gXZx(i,j) = gXZ(cc,1);
         gXZz(i,j) = gXZ(cc,2);
@@ -68,53 +72,15 @@ Z = zeros(nx,ny,nz);
 yL = gXYy(1,end) * 4.8;
 yH = gXYy(end,end);
 
-%Nb = 500;
-%yblnd = linspace(0,yH,Nb);
-%for i=1:Nb
-%    if (yblnd(i) <= yL)
-%        blend(i,1) = 0;
-%    else
-%        % Try linear first
-%        
-%       d = yblnd(i)-yL;
-%        L = yH-yL;
-%        A = 1/L^2;
-%        blend(i,1) = d/L;     % Linear
-%        blend(i,1) = A*d^2;   % Parabolic
-%    end
-%end
 
-%Nfil = 10;
-%for i=1:Nfil
-%   blend = gfilter(blend);
-%end
 figure(12);hold all;
 xline = gXZx(:,1); % Make xline dependent on y-location
 for i=1:nx
     for j=1:ny
         
         yht = abs(gXYy(i,j));
-        %if (yht<=yL)
-        %    xline = gXZx(:,1); % Make xline dependent on y-location
-        %else
-            % Try linear first
-            d = yht-yL;
-            L = yH-yL;
-            A = 1/L^2;
-            L1 = .707*yH-yL;
-            mid = .707*yH-L1/2;
-            %blend = d/L;   % Linear
-            %blend = A*d^2; % Parabolic
-            blend = .5*(1+tanh((yht-mid)/(L1/4)));
-            xline = gXZx(:,1)*(1-blend) + gXZ2x(:,1)*blend;
-        %end
-        
-        %if(i>nx-5)
-        %figure(12);
-        %plot(yht,blend,'bo');
-        %end
-        % Make very smooth transition (tanh)
-        %smth = .5*(1+tanh((yht-yL)/yL*(1/5)));
+        blend = blendY(yht,yL,yH);
+        xline = gXZx(:,1)*(1-blend) + gXZ2x(:,1)*blend;
         
         [a,b] = min(abs(gXYx(i,j) - xline));
         if (b==1)
@@ -124,36 +90,16 @@ for i=1:nx
         end
         vm = ( gXYx(i,j)-xline(b-1) );
         v0 = ( gXYx(i,j)-xline(b) );
-        vp = ( gXYx(i,j)-xline(b+1) );
+        vp = ( gXYx(i,j)-xline(b+1) ); 
         
-        if ( sign(vm) == -sign(v0))
-            l1=abs(vm);
-            l2=abs(v0);
-            L = l1+l2;
-            pt1=b-1;
-            pt2=b;
-            xit = (l2*pt1+l1*pt2)/L;
-        elseif( sign(v0) == -sign(vp) )
-            l1=abs(v0);
-            l2=abs(vp);
-            L = l1+l2;
-            pt1=b;
-            pt2=b+1;
-            xit = (l2*pt1+l1*pt2)/L;
-        elseif (sign(vm)==0)
-            xit = b-1;
-        elseif (sign(v0)==0)
-            xit = b;
-        elseif (sign(v0)==0)
-            xit = b+1;
-        end
-   
-        xmap(i,j) = xit;
+        cc = Finterp([vm,v0,vp],[b-1,b,b+1],0.0,itype);
+
+        xmap(i,j).cc = cc;
+        xmap(i,j).b = b;
         
     end
 end
       
-%pause;
 
 gXZNx = gXZ2x*0;
 gXZNz = gXZ2x*0;
@@ -163,39 +109,32 @@ for i=1:nx
     for j=1:ny
     for k=1:nz
         
-        % Project in -y direction and see what mapped x-point where at
-        xx = xmap(i,j);
-        x1 = floor(xx);
-        x2 = ceil(xx);
-        w2 = rem(xx,x1);
+        xx = xmap(i,j).b;
+        cc = xmap(i,j).cc;
+        xm = xx - 1;
+        xp = xx + 1;
+        
         
         yht = abs(gXYy(i,j));
-        if (yht<=yL)
-            gXZNx = gXZx; 
-            gXZNz = gXZz; 
-        else
-            % Try linear first
-            d = yht-yL;
-            L = yH-yL;
-            gXZNx = gXZx*(1-d/L) + gXZ2x*d/L;
-            gXZNz = gXZz*(1-d/L) + gXZ2z*d/L;
-        end
+        blend = blendY(yht,yL,yH);
+
         
+        xrange = [xm,xx,xp];
+        gXZNx(xrange,k) = gXZx(xrange,k)*(1-blend) + gXZ2x(xrange,k)*blend;
+        gXZNz(xrange,k) = gXZz(xrange,k)*(1-blend) + gXZ2z(xrange,k)*blend;    
         
-        if (x1==x2)
-            xoff = gXZNx(x1,k) - gXZx(x1,1);
-            zoff = gXZNz(x1,k) - gXZz(x1,1);
-        else
-            x1off = gXZNx(x1,k) - gXZNx(x1,1);
-            z1off = gXZNz(x1,k) - gXZNz(x1,1);
+        xmoff = gXZNx(xm,k) - gXZNx(xm,1);
+        zmoff = gXZNz(xm,k) - gXZNz(xm,1);
         
-            x2off = gXZNx(x2,k) - gXZNx(x2,1);
-            z2off = gXZNz(x2,k) - gXZNz(x2,1);
-            
-            xoff = (1-w2)*x1off + w2*x2off;
-            zoff = (1-w2)*z1off + w2*z2off;
-        end
+        xxoff = gXZNx(xx,k) - gXZNx(xx,1);
+        zzoff = gXZNz(xx,k) - gXZNz(xx,1);
         
+        xpoff = gXZNx(xp,k) - gXZNx(xp,1);
+        zpoff = gXZNz(xp,k) - gXZNz(xp,1);
+        
+        xoff = Finterp( [xm,xx,xp],[xmoff,xxoff,xpoff],cc,itype);
+        zoff = Finterp( [xm,xx,xp],[zmoff,zzoff,zpoff],cc,itype);
+
         
         X(i,j,k) = gXYx(i,j) + xoff;
         Z(i,j,k) = zoff;
@@ -205,15 +144,6 @@ for i=1:nx
     end
 end
   
-
-figure(4 );
-for kk=1:1
-mesh(X(:,:,nz+1-kk),Y(:,:,nz+1-kk),Z(:,:,nz+1-kk),'edgecolor','black');hold on;
-end
-
-view(2)
-axis equal
-
 
 if (1==1)
         
