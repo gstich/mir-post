@@ -30,10 +30,11 @@ MODULE nozfull_data
   DOUBLE PRECISION      :: NPR   = 1.5d0
   DOUBLE PRECISION      :: rho_amb   = 1.0D0
   DOUBLE PRECISION      :: e_amb = 1.0d0
-  DOUBLE PRECISION      :: Rgas = Runiv
+  DOUBLE PRECISION      :: Rgas = 1.0D0
   REAL,ALLOCATABLE, DIMENSION(:,:)  :: randBS
   !! For the Recycling rescaling routines
   DOUBLE PRECISION 	:: del_BL       = 1.0d-1 
+  DOUBLE PRECISION 	:: del_star     = 1.0d-2 
   DOUBLE PRECISION 	:: Re_BL        = 1.0d4
   DOUBLE PRECISION 	:: BLalpha      = 1.5D0      
   DOUBLE PRECISION 	:: mu_0         = 1.0D0      
@@ -42,22 +43,34 @@ MODULE nozfull_data
   DOUBLE PRECISION 	:: Len_BL       = 4.0d0  !! Only used to get BL_alpha based on Urban and Knight... better to set explicitly
   INTEGER               :: nvar         = 4
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: Qave
-  DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: yp_r,yp_i,yp_o
-  DOUBLE PRECISION :: simtime_old
+  DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: y_r,y_G
+  DOUBLE PRECISION :: simtime_old,tauX
   INTEGER :: res_dump
   INTEGER :: rand_seed = 12
   LOGICAL :: init_stats = .FALSE.     ! Initialize the temporal averages? Will do this if simtime < dt (at startup)
   LOGICAL :: BL_flag = .TRUE.              ! A flag to call routine once in BC
+
+  !! Digital Filter routines
+  DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: A11,A22,A33,A12,Umean,Tmean,RHO_u,RHO_v,RHO_w
+  DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: buI,bvI,bwI,buO,bvO,bwO
+  INTEGER :: UIx,UIz,VIx,VIz,WIx,WIz
+  INTEGER, DIMENSION(2) :: UIy,VIy,WIy    
+  INTEGER :: Nbuff
 
   !! Stuff to save for RR communication
   INTEGER, DIMENSION(:,:,:,:,:), ALLOCATABLE :: MAP
   INTEGER, DIMENSION(:), ALLOCATABLE :: pmapID
   INTEGER :: rstat(MPI_STATUS_SIZE)
 
+
   LOGICAL :: pdonor,precv
   INTEGER :: idonor,irecv
   INTEGER :: yproc
   LOGICAL :: flippy
+
+
+
+
   DOUBLE PRECISION :: tflip,tflow,tiid
   INTEGER :: step_old
 
@@ -157,6 +170,10 @@ END SUBROUTINE prob_inputs
   !IF (xyzcom_id == master) print*,'test'
   check = 0
 
+
+  CALL setup_DFinflow()
+
+
   !! Get Boundary Layer length from lower right hand corner
   !delX = 0.0D0
   !IF(ix(1)==1 .AND. iy(1)==1 .AND. iz(1)==1) delX = ABS( x_c(2,1,1)-x_c(1,1,1) )
@@ -205,6 +222,16 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
       w = zero
       Y = one
       
+
+
+      !DO i=1,ax
+      !   IF (ix(i) < 350) THEN
+      !      u(i,:,:) = Umean
+      !   END IF
+      !END DO
+
+      CALL DFinflow(rho,u,v,w,e)
+
       
 
 END SUBROUTINE prob_init
@@ -382,16 +409,19 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
       !v = zero
       !w = zero
 
+      ! Digital Filtering inflow BC
+      CALL DFinflow(rho,u,v,w,e)
+
    
       !!!  INFLOW  !!!
-      IF (x1proc) THEN
+      !IF (x1proc) THEN
          !  Set the Inflow BC to be constant
-         u(1,:,:)    = U_in
-         v(1,:,:)    = zero
-         w(1,:,:)    = zero
-         rho(1,:,:)  = rho_in
-         e(1,:,:)    = e_in
-      END IF
+         !u(1,:,:)    = U_in
+         !v(1,:,:)    = zero
+         !w(1,:,:)    = zero
+         !rho(1,:,:)  = rho_in
+         !e(1,:,:)    = e_in
+      !END IF
       
       IF (xnproc) THEN
          !  Set the Inflow BC to be constant
@@ -423,30 +453,30 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
       !!!   BOTTOM WALL   !!!
       IF (y1proc) THEN
 
-         dxdA = ( -dBdz(:,1,:)*dCdy(:,1,:) + dBdy(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
-         dydA = (  dBdz(:,1,:)*dCdx(:,1,:) - dBdx(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
+         !dxdA = ( -dBdz(:,1,:)*dCdy(:,1,:) + dBdy(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
+         !dydA = (  dBdz(:,1,:)*dCdx(:,1,:) - dBdx(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
 
-         mag = sqrt( dxdA**2 + dydA**2 )
-         dxdA = dxdA/mag
-         dydA = dydA/mag
+         !mag = sqrt( dxdA**2 + dydA**2 )
+         !dxdA = dxdA/mag
+         !dydA = dydA/mag
 
-         u1 = u(:,2,:)
-         u2 = u(:,2,:)
-         mag = sqrt( u1**2 + u2**2 )
-         u1 = u1/mag
-         u2 = u2/mag
+         !u1 = u(:,2,:)
+         !u2 = u(:,2,:)
+         !mag = sqrt( u1**2 + u2**2 )
+         !u1 = u1/mag
+         !u2 = u2/mag
          
-         WHERE ( (u1*dxdA + u2*dydA) > 0 )
-            v1 = mag*dxdA
-            v2 = mag*dydA
-         ELSEWHERE
-            v1 = -mag*dxdA
-            v2 = -mag*dydA
-         END WHERE
+         !WHERE ( (u1*dxdA + u2*dydA) > 0 )
+         !   v1 = mag*dxdA
+         !   v2 = mag*dydA
+         !ELSEWHERE
+         !   v1 = -mag*dxdA
+         !   v2 = -mag*dydA
+         !END WHERE
 
-         u(:,1,:) = v1
-         v(:,1,:) = v2
-         w(:,1,:) = w(:,2,:)
+         u(:,1,:) = zero !v1
+         v(:,1,:) = zero !v2
+         w(:,1,:) = zero !w(:,2,:)
          
          ! Adiabatic Wall 
          !rho(:,1,:) = (54.0d0*rho(:,2,:)-27.0d0*rho(:,3,:)+6.0d0*rho(:,4,:) )/33.0d0
@@ -733,7 +763,6 @@ SUBROUTINE prob_geom_2d()
   
   !  Put file read routine here 
   re_unit = 35
-  PRINT*,gridfile
   OPEN(UNIT=re_unit,FILE=TRIM(gridfile),STATUS='OLD')
   DO J=1,ny
       DO I = 1,nx
@@ -894,7 +923,7 @@ SUBROUTINE random_BL(u,v,w)
       !! BJO -- Make the j index dependent on the BL height
       !!  also make BL length only up to the nozzle or ....
       !! Perturb the present flow... dont filter the flow... this smoothes things and will slow transition.
-      !! 
+      !
       DO i=1,ax
          DO j=1,ay
             DO k=1,az
@@ -1001,21 +1030,43 @@ END SUBROUTINE
 
 !! Routines for turbulent inflow via digital filtering technique.
 SUBROUTINE setup_DFinflow
+  USE mpi, ONLY: xyzcom_id,master
   USE inputs, ONLY: ny
-  USE globals, ONLY: ay,ix,iy,iz
-  USE interface, ONLY: SUBSUM3XZ
+  USE globals, ONLY: ay,az,ix,iy,iz,simtime
+  USE constants, ONLY: zero,one,two
+  USE interfaces, ONLY: SUBSUM3XZ
   USE metrics, ONLY: y_c
-  USE nozfull_data, ONLY: Tin,Pin,rhoin,Uin,Mach,A11,A22,A33,A12,Umean,Tmean
-  USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
-  USE nozfull_data, ONLY: Nbuff,del_star,delBL,y_r,y_G
+  USE nozfull_data !, ONLY: T_in,P_in,rho_in,U_in,Mach,A11,A22,A33,A12,Umean,Tmean
+  !USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
+  !USE nozfull_data, ONLY: Nbuff,del_star,del_BL,y_r,y_G,buI,bvI,bwI,buO,bvO,bwO
+  !USE nozfull_data, ONLY: simtime_old,tauX
 
   IMPLICIT NONE
   DOUBLE PRECISION :: line,in_plane
   DOUBLE PRECISION, DIMENSION(ay,az) :: UUmean,VVmean,WWmean,UVmean
   DOUBLE PRECISION, DIMENSION(1,ay,1) :: tmp
-  DOUBLE PRECISION, DIMENSION(ny) :: y_G 
+  DOUBLE PRECISION, DIMENSION(ny) :: Uprof
+  DOUBLE PRECISION, DIMENSION(ny/2) :: Utmp
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: yData,vData     
   INTEGER :: runit=43
-  INTEGER :: ndata
+  INTEGER :: ndata,i
+
+      ! Allocate the mean profiles
+      ALLOCATE(Umean(ay,az))
+      ALLOCATE(Tmean(ay,az))
+      ALLOCATE(A11(ay,az))
+      ALLOCATE(A22(ay,az))
+      ALLOCATE(A33(ay,az))
+      ALLOCATE(A12(ay,az))
+
+      ALLOCATE(RHO_u(ay,az))
+      ALLOCATE(RHO_v(ay,az))
+      ALLOCATE(RHO_w(ay,az))
+      
+      ALLOCATE(y_G(ny))
+      ALLOCATE(y_r(ay))
+
+
 
       in_plane = zero
       line = zero
@@ -1032,99 +1083,102 @@ SUBROUTINE setup_DFinflow
       END IF
 
       y_G = y_G - y_G(1)  ! 1-ny ascending.  Do one side then mirror mean
-      y_G = y_G / delBL   ! Non-dimensionalize by BL thickness... for interp only
+      y_G = y_G / del_BL   ! Non-dimensionalize by BL thickness... for interp only
       ndata = 384/2       ! Length of the profile data array to read in
+      ALLOCATE(yData(ndata))
+      ALLOCATE(vData(ndata))
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/Uprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
+
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         Umean(:,k) = Uin * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         Umean(:,i) = U_in * Uprof(iy)
       END DO
 
       ! Calculate the Displacement thickness
       del_star = zero
       DO i=1,ny/2
-         del_star = del_star + (one - Uprof(i)/Uin)* (y_G(i+1)-y_G(i-1))
+         del_star = del_star + (one - Uprof(i))* (y_G(i+1)-y_G(i))
       END DO
-      del_star = del_star * delBL
+      del_star = del_star * del_BL  ! The U prof was non-dim by del_BL
 
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/Tprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         Tmean(:,k) = Tin * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         Tmean(:,i) = T_in * Uprof(iy)
       END DO
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/UUprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         UUmean(:,k) = Uinflow**two * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         UUmean(:,i) = U_in**two * Uprof(iy)
       END DO
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/VVprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         VVmean(:,k) = Uinflow**two * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         VVmean(:,i) = U_in**two * Uprof(iy)
       END DO
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/WWprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         WWmean(:,k) = Uinflow**two * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         WWmean(:,i) = U_in**two * Uprof(iy)
       END DO
 
       ! Set up some profiles here
       OPEN(UNIT=runit,FILE='FINE/UVprof.dat',STATUS='OLD', & 
       & FORM='FORMATTED')
       DO i=1,ndata
-         READ(runit,*) yData(i),vData(i)
+         READ(runit,*) vData(i),yData(i)
       END DO
       CLOSE(runit)
       CALL interp1D(yData,y_G(1:ny/2),vData,Utmp,ndata,ny/2)
       Uprof(1:ny/2) = Utmp
-      Uprof(ny:ny/2+1,-1) = Utmp
-      DO k=1,az
-         UVmean(:,k) = Uinflow**two * Uprof(iy)
+      Uprof(ny:ny/2+1:-1) = Utmp
+      DO i=1,az
+         UVmean(:,i) = U_in**two * Uprof(iy)
       END DO
 
       ! Get the Reynolds Stress tensor
@@ -1150,6 +1204,21 @@ SUBROUTINE setup_DFinflow
       WIy = (/ 15, 20 /)
       WIz = 30
 
+      Nbuff = 45 * 2
+
+      simtime_old = simtime
+      tauX = DBLE(UIx)*del_star / U_in
+
+      ! Allocate the filter coefficients
+      ALLOCATE(buI(2*UIy(1)+1,2*UIz+1))
+      ALLOCATE(bvI(2*VIy(1)+1,2*VIz+1))
+      ALLOCATE(bwI(2*WIy(1)+1,2*WIz+1))
+
+      ALLOCATE(buO(2*UIy(2)+1,2*UIz+1))
+      ALLOCATE(bvO(2*VIy(2)+1,2*VIz+1))
+      ALLOCATE(bwO(2*WIy(2)+1,2*WIz+1))
+
+
       ! Inner Filters
       CALL setFiltCoeffs(UIy(1),UIz,buI)
       CALL setFiltCoeffs(VIy(1),VIz,bvI)
@@ -1160,16 +1229,16 @@ SUBROUTINE setup_DFinflow
       CALL setFiltCoeffs(VIy(2),VIz,bvO)
       CALL setFiltCoeffs(WIy(2),WIz,bwO)
 
-
+      
 END SUBROUTINE setup_DFinflow
       
-SUBROUTINE get_rands(ny,nz,rands)
+SUBROUTINE get_rands(ny,nz,Nbuff,rands)
   USE mpi, ONLY: xyzcom_id,master
-  USE nozfull_data, ONLY: randSeed  
   USE interfaces, ONLY: SUMproc,ran1
+  USE ran_state
   IMPLICIT NONE
-  DOUBLE PRECISION, DIMENSION(4,ny+Nbuff,nz+Nbuff),INTENT(OUT) :: rands
   INTEGER, INTENT(IN) :: ny,nz,Nbuff
+  DOUBLE PRECISION, DIMENSION(4,ny+Nbuff,nz+Nbuff),INTENT(OUT) :: rands
 
   INTEGER :: time_seed 
   INTEGER, DIMENSION(8) :: dtval
@@ -1187,7 +1256,7 @@ SUBROUTINE get_rands(ny,nz,rands)
   dubSeed = SUMproc(dubSeed)
   time_seed = INT(dubSeed)
 
-  ! Get the RNs
+  ! Get the RNs... same for all procs
   CALL ran_seed(sequence=time_seed)  
   CALL ran1(rands)
 
@@ -1195,12 +1264,13 @@ END SUBROUTINE get_rands
 
 
 SUBROUTINE DFinflow(rho,u,v,w,e)
-  USE globals, ONLY: x1proc
-  USE inputs, ONLY: gamma
-  USE constants, ONLY: zero,one,two
-  USE nozfull_data, ONLY: Tin,Pin,rhoin,Uin,Mach,A11,A22,A33,A12,Umean,Tmean
-  USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
-  USE nozfull_data, ONLY: Nbuff
+  USE mpi
+  USE globals, ONLY: x1proc,simtime,ax,ay,az
+  USE inputs, ONLY: gamma,nx,ny,nz
+  USE constants, ONLY: zero,one,two,pi
+  USE nozfull_data !, ONLY: Tin,Pin,rhoin,Uin,Mach,A11,A22,A33,A12,Umean,Tmean
+  !USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
+  !USE nozfull_data, ONLY: buI,bvI,bwI,buO,bvO,bwO,Nbuff,simtime_old,tauX,Rgas
   
 
   IMPLICIT NONE
@@ -1208,8 +1278,9 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: T,P
   DOUBLE PRECISION, DIMENSION(ay,az) :: uinlet,vinlet,winlet,rhoprime,Tprime,MaSq
+  DOUBLE PRECISION, DIMENSION(ay,az) :: vU,vV,vW
   DOUBLE PRECISION, DIMENSION(4,ny+Nbuff,nz+Nbuff) :: rands,rtmp
-  DOUBLE PRECISION :: gm1
+  DOUBLE PRECISION :: gm1,EXPt,t_nm1,t_n,dt_n
 
   ! Thermo variables
   gm1 = gamma - one
@@ -1217,13 +1288,15 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   P = rho*Rgas*T
 
 
+
   ! Get random numbers, need 2 sets, of size (ny+buff,nz+buff)... buff is for the filter width
   CALL get_rands(ny,nz,Nbuff,rands)
 
   ! Make them have normal distribution (Box-Mueller theorem)
-  rtmp(1:2,:,:) = sqrt( -two*LOG(rands(/1,3/,:,:))) * cos(two*pi*rands(/2,4/,:,:))
-  rtmp(3:4,:,:) = sqrt( -two*LOG(rands(/1,3/,:,:))) * sin(two*pi*rands(/2,4/,:,:))
+  rtmp(1:2,:,:) = sqrt( -two*LOG(rands((/1,3/),:,:))) * cos(two*pi*rands((/2,4/),:,:))
+  rtmp(3:4,:,:) = sqrt( -two*LOG(rands((/1,3/),:,:))) * sin(two*pi*rands((/2,4/),:,:))
   rands = rtmp
+
 
   ! Filter them here
   CALL filtRands(UIz,UIy(1),UIy(2),Nbuff,buI,buO,rands(1,:,:),vU)
@@ -1231,35 +1304,42 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   CALL filtRands(WIz,WIy(1),WIy(2),Nbuff,bwI,bwO,rands(3,:,:),vW)
 
   ! Get the updated rho_k
-  EXPt = exp( -pi*dt/tau )
+  ! Time avergaging coefficients and quantities/fluctuations
+  ! Need to write a restart file with averages stored
+  t_nm1 = simtime_old 
+  t_n = simtime
+  simtime_old = simtime
+  dt_n = t_n - t_nm1
+  EXPt = exp( -pi*dt_n/tauX )
+  !IF (xyzcom_id==0) PRINT*,EXPt,del_star
   RHO_u = RHO_u * sqrt( EXPt ) + vU * sqrt( one - EXPt )
   RHO_v = RHO_v * sqrt( EXPt ) + vV * sqrt( one - EXPt )
   RHO_w = RHO_w * sqrt( EXPt ) + vW * sqrt( one - EXPt )
 
   ! Add perturbations to mean with given 2 point correlations
-  uinlet = Umean + A11 * RHO_u
-  vinlet =         A12 * RHO_u + A22 * RHO_v
-  winlet =       + A33 * RHO_w
+  uinlet = Umean +  A11 * RHO_u
+  vinlet =          A12 * RHO_u + A22 * RHO_v   ! Causing Nans in 3d.. but not 2d
+  winlet =     zero !     A33 * RHO_w
 
   ! Get the temperature perturbation using strong Reynolds Analogy (SRA)
   MaSq = Mach**two !* Umean**two / Tmean
-  Tprime = Tmean*( -gm1*MaSq * uinlet / Uin )
+  Tprime = Tmean*( -gm1*MaSq * uinlet / U_in )
 
   ! Get the perturbed rho
-  rhoprime = -Tprime/Tin * rhoin
+  rhoprime = -Tprime/T_in * rho_in
 
   ! Pressure is constant
   IF (x1proc) THEN
       u(1,:,:) = uinlet
       v(1,:,:) = vinlet
       w(1,:,:) = winlet
-      T(1,:,:) = Tin + Tprime
-      rho(1,:,:) = rhoin + rhoprime
-      P(1,:,:) = Pin
+      T(1,:,:) = T_in + Tprime
+      rho(1,:,:) = rho_in + rhoprime
+      P(1,:,:) = P_in
       e = (p/(gamma-one))/rho
   END IF
 
-      
+
 
 END SUBROUTINE DFinflow
       
@@ -1269,11 +1349,12 @@ END SUBROUTINE DFinflow
 SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
   USE inputs, ONLY: nx,ny,nz
   USE globals, ONLY: iy,iz,ay,az
+  USE nozfull_data, ONLY: y_r
 
   INTEGER, INTENT(IN) :: Nspan,Ni,No,Nbuff
   DOUBLE PRECISION, INTENT(IN) ::  rands(2*ny+Nbuff,2*nz+Nbuff)
-  DOUBLE PRECISION, INTENT(IN) ::  yBL(ny/2)  ! Use this to select the BL side
-  DOUBLE PRECISION, INTETN(IN) ::  bmnI(2*Ni+1,2*Nspan+1), bmnO(2*No+1,2*Nspan+1)
+  DOUBLE PRECISION, INTENT(IN) ::  bmnI(2*Ni+1,2*Nspan+1), bmnO(2*No+1,2*Nspan+1)
+  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: filt
   DOUBLE PRECISION :: vfilt(ay,az)
   INTEGER :: N1,N2
   INTEGER :: j,k,m,n,mm,nn
@@ -1282,12 +1363,14 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
   DO j=1,ay
 
       ! Inner Layer
-      IF( yBL(iy(j)) < 1.0D0 ) THEN
+      IF( y_r(j) < 1.0D0 ) THEN
          N1 = Ni
+         IF(.NOT. ALLOCATED(filt)) ALLOCATE(filt(SIZE(bmnI,1),SIZE(bmnI,2) )  )
          filt = bmnI
       ! Outer Layer
       ELSE
          N1 = No
+         IF(.NOT. ALLOCATED(filt)) ALLOCATE(filt(SIZE(bmnO,1),SIZE(bmnO,2) ) )
          filt = bmnO
       END IF
 
@@ -1307,6 +1390,8 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
          END DO
       END DO
   END DO
+
+  DEALLOCATE(filt)
 
 
 END SUBROUTINE filtRands
@@ -1330,13 +1415,13 @@ END SUBROUTINE calcDen
 
 
 SUBROUTINE setFiltCoeffs(N1,N2,bij)
-  USE contants, ONLY: pi,two
+  USE constants, ONLY: pi,two
   IMPLICIT NONE
   INTEGER, INTENT(IN) :: N1, N2
   DOUBLE PRECISION, DIMENSION(2*N1+1,2*N2+1), INTENT(OUT) :: bij
 
   INTEGER :: i,j,k1,k2
-  DOUBLE PRECISION :: den1,den2,pi,N1d2,N2d2
+  DOUBLE PRECISION :: den1,den2,N1d2,N2d2
   
   CALL calcDen(N1,den1)
   CALL calcDen(N2,den2)
