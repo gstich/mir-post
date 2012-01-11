@@ -49,6 +49,7 @@ MODULE nozfull_data
   INTEGER :: rand_seed = 12
   LOGICAL :: init_stats = .FALSE.     ! Initialize the temporal averages? Will do this if simtime < dt (at startup)
   LOGICAL :: BL_flag = .TRUE.              ! A flag to call routine once in BC
+  CHARACTER(len=80) :: uaveDir
 
   !! Digital Filter routines
   DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: A11,A22,A33,A12,Umean,Tmean,RHO_u,RHO_v,RHO_w
@@ -236,10 +237,11 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
 
       CALL filter(gfilter,u,u)
 
+      ! This inits these variables.  Setup will try to read in RHOs from restart dir
       RHO_u = zero
       RHO_v = zero
       RHO_w = zero
-      CALL DFinflow(rho,u,v,w,e)
+      CALL DFinflow(rho,u,v,w,e) 
 
       
 
@@ -1001,9 +1003,9 @@ END SUBROUTINE
 SUBROUTINE setup_DFinflow
   USE mpi, ONLY: xyzcom_id,master
   USE inputs, ONLY: ny
-  USE globals, ONLY: ay,az,ix,iy,iz,simtime
+  USE globals, ONLY: ay,az,ix,iy,iz,simtime,x1proc,jobdir,dt
   USE constants, ONLY: zero,one,two
-  USE interfaces, ONLY: SUBSUM3XZ
+  USE interfaces, ONLY: SUBSUM3XZ,newdir
   USE metrics, ONLY: y_c
   USE nozfull_data !, ONLY: T_in,P_in,rho_in,U_in,Mach,A11,A22,A33,A12,Umean,Tmean
   !USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
@@ -1018,7 +1020,8 @@ SUBROUTINE setup_DFinflow
   DOUBLE PRECISION, DIMENSION(ny/2) :: Utmp
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: yData,vData     
   INTEGER :: runit=43
-  INTEGER :: ndata,i
+  INTEGER :: ndata,i,isync
+  CHARACTER(len=80) :: uaveFile
 
       ! Allocate the mean profiles
       ALLOCATE(Umean(ay,az))
@@ -1199,6 +1202,27 @@ SUBROUTINE setup_DFinflow
       CALL setFiltCoeffs(VIy(2),VIz,bvO)
       CALL setFiltCoeffs(WIy(2),WIz,bwO)
 
+      ! Set up directory 
+      WRITE (uaveDir,'(2A)') TRIM(jobdir),'/Dfil'
+      CALL newdir(LEN_TRIM(uaveDir),TRIM(uaveDir),isync)
+         
+      ! Read File for time averages when NOT at t0=0
+      IF (simtime .GT. dt .and. init_stats .eq. .FALSE.) THEN
+         IF(xyzcom_id == master) PRINT*,'Reading old DF Files'
+            
+         ! READ FILE only if on inlet BC
+         IF (x1proc) THEN
+            WRITE (uaveFile,'(2A,I6.6)') TRIM(uaveDir),'/p',xyzcom_id
+            runit = 37
+            OPEN(UNIT=runit,FILE=TRIM(uaveFile),FORM='UNFORMATTED', &
+            & STATUS='UNKNOWN')
+            READ(runit) RHO_u
+            READ(runit) RHO_v
+            READ(runit) RHO_w
+            CLOSE(runit)
+         END IF
+      END IF
+
       
 END SUBROUTINE setup_DFinflow
       
@@ -1235,7 +1259,7 @@ END SUBROUTINE get_rands
 
 SUBROUTINE DFinflow(rho,u,v,w,e)
   USE mpi
-  USE globals, ONLY: x1proc,simtime,ax,ay,az
+  USE globals, ONLY: x1proc,simtime,ax,ay,az,dump
   USE inputs, ONLY: gamma,nx,ny,nz,gfilter
   USE constants, ONLY: zero,one,two,pi
   USE nozfull_data 
@@ -1251,7 +1275,8 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   DOUBLE PRECISION, DIMENSION(1,ay,az) :: filtmp,fildum
   DOUBLE PRECISION, DIMENSION(4,ny+Nbuff,nz+Nbuff) :: rands,rtmp
   DOUBLE PRECISION :: gm1,EXPt,t_nm1,t_n,dt_n
-  INTEGER :: nx_tmp
+  INTEGER :: nx_tmp,runit
+  CHARACTER(len=80) :: uaveFile
 
   ! Thermo variables
   gm1 = gamma - one
@@ -1270,6 +1295,25 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   CALL filtRands(UIz,UIy(1),UIy(2),Nbuff,buI,buO,rands(1,:,:),vU)
   CALL filtRands(VIz,VIy(1),VIy(2),Nbuff,bvI,bvO,rands(2,:,:),vV)
   CALL filtRands(WIz,WIy(1),WIy(2),Nbuff,bwI,bwO,rands(3,:,:),vW)
+
+  
+  ! Check to see if dump has incremented
+  ! If it has, write new Uave file before they change for this next time step
+  IF (res_dump .NE. dump) THEN
+      ! WRITE FILE
+      IF (x1proc) THEN
+         WRITE (uaveFile,'(2A,I6.6)') TRIM(uaveDir),'/p',xyzcom_id
+         runit = 17
+         OPEN(UNIT=runit,FILE=TRIM(uaveFile),FORM='UNFORMATTED', &
+         & STATUS='REPLACE')
+         WRITE(runit) RHO_u
+         WRITE(runit) RHO_v
+         WRITE(runit) RHO_w
+         CLOSE(runit)
+      END IF
+  END IF
+  res_dump = dump
+
 
 
   ! Get the updated rho_k
@@ -1315,6 +1359,7 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
   USE inputs, ONLY: nx,ny,nz
   USE globals, ONLY: iy,iz,ay,az
   USE nozfull_data, ONLY: y_r
+  IMPLICIT NONE
 
   INTEGER, INTENT(IN) :: Nspan,Ni,No,Nbuff
   DOUBLE PRECISION, INTENT(IN) ::  rands(ny+Nbuff,nz+Nbuff)
@@ -1323,6 +1368,7 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
   DOUBLE PRECISION :: vfilt(ay,az)
   INTEGER :: N1,N2
   INTEGER :: j,k,m,n,mm,nn
+  INTEGER :: mF,mG,nF,nG
 
   N2 = Nspan
   DO j=1,ay
@@ -1354,9 +1400,11 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
             END DO
          END DO
       END DO
+
+  DEALLOCATE(filt)  ! Every new y, compute a new filter
   END DO
 
-  DEALLOCATE(filt)
+
 
 
 END SUBROUTINE filtRands
