@@ -214,7 +214,7 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
 
       p = Pinitial
       T = Tinitial
-      rho = P / (T*Runiv/molwts(1))
+      rho = P / (T*Rgas)
 
       e = (p/(gamma-one))/rho
       u = zero
@@ -224,12 +224,21 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
       
 
 
-      !DO i=1,ax
-      !   IF (ix(i) < 350) THEN
-      !      u(i,:,:) = Umean
-      !   END IF
-      !END DO
+      DO i=1,ax
+         IF (ix(i) < 350) THEN
+            u(i,:,:) = Umean
+            T(i,:,:) = Tmean
+            P(i,:,:) = P_in
+            rho(i,:,:) = P_in / (Tmean*Rgas) 
+            e(i,:,:) = (P_in/(gamma-one))/rho(i,:,:)
+         END IF
+      END DO
 
+      CALL filter(gfilter,u,u)
+
+      RHO_u = zero
+      RHO_v = zero
+      RHO_w = zero
       CALL DFinflow(rho,u,v,w,e)
 
       
@@ -401,30 +410,13 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
   DOUBLE PRECISION :: filpt,thick
   INTEGER :: i,k
 
-   
-
-      !Rgas = Runiv/molwts(1)    ! Specific Gas constant
-
-      !u = zero
-      !v = zero
-      !w = zero
 
       ! Digital Filtering inflow BC
       CALL DFinflow(rho,u,v,w,e)
 
-   
-      !!!  INFLOW  !!!
-      !IF (x1proc) THEN
-         !  Set the Inflow BC to be constant
-         !u(1,:,:)    = U_in
-         !v(1,:,:)    = zero
-         !w(1,:,:)    = zero
-         !rho(1,:,:)  = rho_in
-         !e(1,:,:)    = e_in
-      !END IF
       
       IF (xnproc) THEN
-         !  Set the Inflow BC to be constant
+         !  Set the outflow BC to be constant
          u(ax,:,:)    = zero
          v(ax,:,:)    = zero
          w(ax,:,:)    = zero
@@ -437,7 +429,6 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
       !!!  TOP WALL  !!!
       IF (ynproc) THEN
 
-         
          u(:,ay,:) = zero
          v(:,ay,:) = zero
          w(:,ay,:) = zero
@@ -445,45 +436,23 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
          ! Adiabatic Wall
          !rho(:,ay,:) = (54.0d0*rho(:,ay-1,:)-27.0d0*rho(:,ay-2,:)+6.0d0*rho(:,ay-3,:) )/33.0d0
          !e(:,ay,:) = (54.0d0*e(:,ay-1,:)-27.0d0*e(:,ay-2,:)+6.0d0*e(:,ay-3,:) )/33.0d0 
-         rho(:,ay,:) = rho_in !rho(:,ay-1,:) 
-         e(:,ay,:)   = e_in !e(:,ay-1,:) 
+         rho(:,ay,:) = rho(:,ay-1,:) 
+         e(:,ay,:)   = e(:,ay-1,:) 
 
       END IF
 
       !!!   BOTTOM WALL   !!!
       IF (y1proc) THEN
 
-         !dxdA = ( -dBdz(:,1,:)*dCdy(:,1,:) + dBdy(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
-         !dydA = (  dBdz(:,1,:)*dCdx(:,1,:) - dBdx(:,1,:)*dCdz(:,1,:) ) * detxyz(:,1,:)
-
-         !mag = sqrt( dxdA**2 + dydA**2 )
-         !dxdA = dxdA/mag
-         !dydA = dydA/mag
-
-         !u1 = u(:,2,:)
-         !u2 = u(:,2,:)
-         !mag = sqrt( u1**2 + u2**2 )
-         !u1 = u1/mag
-         !u2 = u2/mag
-         
-         !WHERE ( (u1*dxdA + u2*dydA) > 0 )
-         !   v1 = mag*dxdA
-         !   v2 = mag*dydA
-         !ELSEWHERE
-         !   v1 = -mag*dxdA
-         !   v2 = -mag*dydA
-         !END WHERE
-
-         u(:,1,:) = zero !v1
-         v(:,1,:) = zero !v2
-         w(:,1,:) = zero !w(:,2,:)
+         u(:,1,:) = zero
+         v(:,1,:) = zero
+         w(:,1,:) = zero
          
          ! Adiabatic Wall 
          !rho(:,1,:) = (54.0d0*rho(:,2,:)-27.0d0*rho(:,3,:)+6.0d0*rho(:,4,:) )/33.0d0
          !e(:,1,:) = (54.0d0*e(:,2,:)-27.0d0*e(:,3,:)+6.0d0*e(:,4,:) )/33.0d0 
-         rho(:,1,:) = rho_in !rho(:,2,:) 
-         e(:,1,:)   = e_in !e(:,2,:) 
-         
+         rho(:,1,:) = rho(:,2,:) 
+         e(:,1,:)   = e(:,2,:) 
 
       END IF
 
@@ -512,7 +481,7 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
 !      END IF
 
       ! Gradually apply the exit boundary conditions  
-      filpt = dble(nx-3)
+      filpt = dble(nx-2)
       thick = 3.0d0
       DO i=1,ax
          dumT(i,:,:)=(one+tanh((dble(ix(i))-filpt)/thick))/two
@@ -1184,6 +1153,7 @@ SUBROUTINE setup_DFinflow
       ! Get the Reynolds Stress tensor
       A11 = sqrt(UUmean)
       A12 = UVmean / A11
+      WHERE (A11 == zero) A12 = zero  ! Treat zero 
       A22 = sqrt( VVmean - A12**two )
       A33 = sqrt(WWmean)
 
@@ -1266,11 +1236,10 @@ END SUBROUTINE get_rands
 SUBROUTINE DFinflow(rho,u,v,w,e)
   USE mpi
   USE globals, ONLY: x1proc,simtime,ax,ay,az
-  USE inputs, ONLY: gamma,nx,ny,nz
+  USE inputs, ONLY: gamma,nx,ny,nz,gfilter
   USE constants, ONLY: zero,one,two,pi
-  USE nozfull_data !, ONLY: Tin,Pin,rhoin,Uin,Mach,A11,A22,A33,A12,Umean,Tmean
-  !USE nozfull_data, ONLY: RHO_u,RHO_v,RHO_w,UIx,UIy,UIz,VIx,VIy,VIz,WIx,WIy,WIz
-  !USE nozfull_data, ONLY: buI,bvI,bwI,buO,bvO,bwO,Nbuff,simtime_old,tauX,Rgas
+  USE nozfull_data 
+  USE interfaces, ONLY: filter,gaufily,gaufilz
   
 
   IMPLICIT NONE
@@ -1279,29 +1248,29 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: T,P
   DOUBLE PRECISION, DIMENSION(ay,az) :: uinlet,vinlet,winlet,rhoprime,Tprime,MaSq
   DOUBLE PRECISION, DIMENSION(ay,az) :: vU,vV,vW
+  DOUBLE PRECISION, DIMENSION(1,ay,az) :: filtmp,fildum
   DOUBLE PRECISION, DIMENSION(4,ny+Nbuff,nz+Nbuff) :: rands,rtmp
   DOUBLE PRECISION :: gm1,EXPt,t_nm1,t_n,dt_n
+  INTEGER :: nx_tmp
 
   ! Thermo variables
   gm1 = gamma - one
-  T = e*gm1/Rgas
-  P = rho*Rgas*T
-
 
 
   ! Get random numbers, need 2 sets, of size (ny+buff,nz+buff)... buff is for the filter width
   CALL get_rands(ny,nz,Nbuff,rands)
+
 
   ! Make them have normal distribution (Box-Mueller theorem)
   rtmp(1:2,:,:) = sqrt( -two*LOG(rands((/1,3/),:,:))) * cos(two*pi*rands((/2,4/),:,:))
   rtmp(3:4,:,:) = sqrt( -two*LOG(rands((/1,3/),:,:))) * sin(two*pi*rands((/2,4/),:,:))
   rands = rtmp
 
-
   ! Filter them here
   CALL filtRands(UIz,UIy(1),UIy(2),Nbuff,buI,buO,rands(1,:,:),vU)
   CALL filtRands(VIz,VIy(1),VIy(2),Nbuff,bvI,bvO,rands(2,:,:),vV)
   CALL filtRands(WIz,WIy(1),WIy(2),Nbuff,bwI,bwO,rands(3,:,:),vW)
+
 
   ! Get the updated rho_k
   ! Time avergaging coefficients and quantities/fluctuations
@@ -1319,27 +1288,23 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   ! Add perturbations to mean with given 2 point correlations
   uinlet = Umean +  A11 * RHO_u
   vinlet =          A12 * RHO_u + A22 * RHO_v   ! Causing Nans in 3d.. but not 2d
-  winlet =     zero !     A33 * RHO_w
+  winlet =          A33 * RHO_w
+
 
   ! Get the temperature perturbation using strong Reynolds Analogy (SRA)
   MaSq = Mach**two !* Umean**two / Tmean
-  Tprime = Tmean*( -gm1*MaSq * uinlet / U_in )
-
-  ! Get the perturbed rho
-  rhoprime = -Tprime/T_in * rho_in
+  Tprime = Tmean*( -gm1*MaSq * (uinlet-Umean) / U_in )
 
   ! Pressure is constant
   IF (x1proc) THEN
       u(1,:,:) = uinlet
       v(1,:,:) = vinlet
       w(1,:,:) = winlet
-      T(1,:,:) = T_in + Tprime
-      rho(1,:,:) = rho_in + rhoprime
+      T(1,:,:) = Tmean + Tprime
       P(1,:,:) = P_in
-      e = (p/(gamma-one))/rho
+      rho(1,:,:) = P_in/(Rgas*T(1,:,:))
+      e(1,:,:) = (P_in/(gamma-one))/rho(1,:,:)
   END IF
-
-
 
 END SUBROUTINE DFinflow
       
@@ -1352,7 +1317,7 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
   USE nozfull_data, ONLY: y_r
 
   INTEGER, INTENT(IN) :: Nspan,Ni,No,Nbuff
-  DOUBLE PRECISION, INTENT(IN) ::  rands(2*ny+Nbuff,2*nz+Nbuff)
+  DOUBLE PRECISION, INTENT(IN) ::  rands(ny+Nbuff,nz+Nbuff)
   DOUBLE PRECISION, INTENT(IN) ::  bmnI(2*Ni+1,2*Nspan+1), bmnO(2*No+1,2*Nspan+1)
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: filt
   DOUBLE PRECISION :: vfilt(ay,az)
@@ -1375,7 +1340,7 @@ SUBROUTINE filtRands(Nspan,Ni,No,Nbuff,bmnI,bmnO,rands,vfilt)
       END IF
 
       DO k=1,az
-         vfilt(j,k) = 0
+         vfilt(j,k) = 0.0D0
 
          DO m=-N1,N1,1
             mG = (iy(1)-1) + j + (m + N1)
