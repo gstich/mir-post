@@ -169,7 +169,7 @@ Source("utils.py")
 
 # Launch/request the procs
 e = Engine()
-e.open(nprocs=200,part="pbatch",bank="views",rtime="480:00")
+e.open(nprocs=100,part="pbatch",bank="views",rtime="480:00")
 #e.open(nprocs=128,part="pdebug",rtime="30:00")
 
 
@@ -349,9 +349,9 @@ SetAnnotationAttributes(annot)
 
 # Set the File Output type
 win = SaveWindowAttributes();
-win.width = 1920;        ## High-Def
-win.height = 1080;       ## High-Def
-win.fileName = "Q_" + resolution;
+win.width = 1920*5;        ## High-Def
+win.height = 1080*5;       ## High-Def
+win.fileName = "HIGH_" + resolution;
 win.outputToCurrentDirectory = 0;
 win.outputDirectory = "/p/lscratchd/olson45/NOZ_VIZ/"
 win.format = win.TIFF;

@@ -39,7 +39,13 @@ prob(ii).fname = '../data/shock_history/mediumv2.mat';
 prob(ii).side = mid;
 prob(ii).Pcol = 'b';
 prob(ii).range = [1,500,1500];
-prob(ii).range = [11,2254];
+prob(ii).range = [1,11,2254];
+ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
+prob(ii).side = mid;
+prob(ii).Pcol = 'g';
+prob(ii).range = [1,1,561];
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
