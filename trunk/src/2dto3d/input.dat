@@ -1,0 +1,15 @@
+&INPUT 
+nx = 512
+ny = 128
+nz = 1
+nx3 = 1
+ny3 = 1
+nz3 = 128
+jobdir2d = '/p/lscratchd/olson45/nozzle/nozzlecoarse2d'
+resnum(1) = 67
+resnum(2) = 68
+jobdir3d = '/p/lscratchd/olson45/nozzle/nozzlecoarse3d'
+px_3d = 16
+py_3d = 4
+pz_3d = 4
+/
