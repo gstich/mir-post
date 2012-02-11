@@ -194,7 +194,7 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
   USE mpi
   USE constants
   USE globals, ONLY: simtime,molwts,ax,ay,az,ix,iy,iz,xloc,yloc,zloc,x1proc,xnproc,y1proc
-  USE globals, ONLY: iodata,nres,iodir
+  USE globals, ONLY: iodata,nres,iodir,jobdir
   USE interfaces, ONLY: restart,filter,boundary
   USE inputs
   USE prob_interface, ONLY : jobname
@@ -237,12 +237,28 @@ SUBROUTINE prob_init(rho,u,v,w,e,Y,p,T)
 
       CALL filter(gfilter,u,u)
 
+    SELECT CASE(init_type)
+         CASE('3D')
+         !  Another option here to read in a restart file as the initialization of the flow field.
+         !  The global variable 'iodata' is a pointer to the global flow field variables.  We only need
+         !  to set iodata for a full initialization.  A new restart file will be written with the identical 
+         !  data.
+         WRITE(iodir,'(2A)') TRIM(jobdir) , '/res_init'
+         CALL restart('r',TRIM(iodir),iodata(:,:,:,1:nres))
+
+         DO i=1,nres
+            CALL filter(gfilter,iodata(:,:,:,i),iodata(:,:,:,i))
+         END DO
+
+     END SELECT
+
+
+
       ! This inits these variables.  Setup will try to read in RHOs from restart dir
       RHO_u = zero
       RHO_v = zero
       RHO_w = zero
       CALL DFinflow(rho,u,v,w,e) 
-
       
 
 END SUBROUTINE prob_init
@@ -315,6 +331,11 @@ SUBROUTINE prob_stats(simtime,rho,u,v,w,e,Y,p,T,c)
   
 END SUBROUTINE prob_stats
 
+SUBROUTINE prob_source(RHS,simtimeL)
+  IMPLICIT NONE
+  DOUBLE PRECISION, DIMENSION(:,:,:,:), INTENT(INOUT) :: RHS
+  DOUBLE PRECISION, INTENT(IN) :: simtimeL
+END SUBROUTINE prob_source
 
 ! -----------------------------------------------------------------------------------
 ! prob_plots
@@ -510,6 +531,34 @@ SUBROUTINE prob_bc(rho,u,v,w,e,Y)
       rho = rho + dumT*(dumF-rho)
       
       IF(nz==1) w = zero
+
+      ! Filter the inflow to smooth stuff out
+      !filpt = dble(5)
+      !thick = 3.0d0
+      !DO i=1,ax
+      !   dumT(i,:,:)=(one+tanh((dble(ix(i))-filpt)/thick))/two
+      !END DO
+
+      !dumT = 1.D0
+      !u = zero
+      !v = zero
+      !w = zero
+      !e = e_amb
+      !rho = rho_amb
+      ! Gussian Filter for last N points in x-direction (A)
+      !CALL filter(gfilter,u,dumF)
+      !u = u + dumT*(dumF-u) 
+      !CALL filter(gfilter,v,dumF)
+      !v = v + dumT*(dumF-v)
+      !CALL filter(gfilter,w,dumF)
+      !w = w + dumT*(dumF-w)
+      !CALL filter(gfilter,e,dumF)
+      !e = e + dumT*(dumF-e)
+      !CALL filter(gfilter,rho,dumF)
+      !rho = rho + dumT*(dumF-rho)
+
+
+
   
 END SUBROUTINE prob_bc
 
@@ -1206,6 +1255,13 @@ SUBROUTINE setup_DFinflow
       WRITE (uaveDir,'(2A)') TRIM(jobdir),'/Dfil'
       CALL newdir(LEN_TRIM(uaveDir),TRIM(uaveDir),isync)
          
+
+      ! Initialize the temporal averages here.  They will be 
+      ! over written on restart read.
+      RHO_u = zero
+      RHO_v = zero
+      RHO_w = zero
+
       ! Read File for time averages when NOT at t0=0
       IF (simtime .GT. dt .and. init_stats .eq. .FALSE.) THEN
          IF(xyzcom_id == master) PRINT*,'Reading old DF Files'
@@ -1261,9 +1317,9 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   USE mpi
   USE globals, ONLY: x1proc,simtime,ax,ay,az,dump
   USE inputs, ONLY: gamma,nx,ny,nz,gfilter
-  USE constants, ONLY: zero,one,two,pi
+  USE constants, ONLY: zero,one,two,pi,half
   USE nozfull_data 
-  USE interfaces, ONLY: filter,gaufily,gaufilz
+  USE interfaces, ONLY: filter,gaufily,gaufilz,MAXVAL2D
   
 
   IMPLICIT NONE
@@ -1324,17 +1380,15 @@ SUBROUTINE DFinflow(rho,u,v,w,e)
   simtime_old = simtime
   dt_n = t_n - t_nm1
   EXPt = exp( -pi*dt_n/tauX )
-  !IF (xyzcom_id==0) PRINT*,EXPt,del_star
-  RHO_u = RHO_u * sqrt( EXPt ) + vU * sqrt( one - EXPt )
-  RHO_v = RHO_v * sqrt( EXPt ) + vV * sqrt( one - EXPt )
-  RHO_w = RHO_w * sqrt( EXPt ) + vW * sqrt( one - EXPt )
+  RHO_u = RHO_u * sqrt( EXPt ) + vU * sqrt( one - EXPt ) 
+  RHO_v = RHO_v * sqrt( EXPt ) + vV * sqrt( one - EXPt ) 
+  RHO_w = RHO_w * sqrt( EXPt ) + vW * sqrt( one - EXPt ) 
 
   ! Add perturbations to mean with given 2 point correlations
   uinlet = Umean +  A11 * RHO_u
-  vinlet =          A12 * RHO_u + A22 * RHO_v   ! Causing Nans in 3d.. but not 2d
+  vinlet =          A12 * RHO_u + A22 * RHO_v  
   winlet =          A33 * RHO_w
-
-
+ 
   ! Get the temperature perturbation using strong Reynolds Analogy (SRA)
   MaSq = Mach**two !* Umean**two / Tmean
   Tprime = Tmean*( -gm1*MaSq * (uinlet-Umean) / U_in )
