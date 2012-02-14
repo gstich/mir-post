@@ -19,6 +19,7 @@ MODULE interp3d_data
 
   INTEGER               :: varDIM = 8                  ! Variable dimension of the incoming data array (12 is for compressible, single fluid)
   CHARACTER(LEN=3)      :: ftype = 'res'                ! Select file type: 'res'-restart, 'vis'-viz file
+  INTEGER               :: buff = 4                ! Number of points on the [F] grid to buffer for local interp
 
   CHARACTER(LEN=90) 	:: MIRname = 'post'
   CHARACTER(LEN=90) 	:: Gname = 'grid'
@@ -130,10 +131,10 @@ SUBROUTINE prob_inputs(fileName)
   Fpz = Fnz / Faz 
 
 
-  ! Set the local nx,ny,nz to the [T]o size 
-  nx = Tnx
-  ny = Tny
-  nz = Tnz
+  ! Set the local nx,ny,nz to the [F]rom size  (used for ghosting and such
+  nx = Fnx
+  ny = Fny
+  nz = Fnz
 
 
 
@@ -172,38 +173,6 @@ END SUBROUTINE prob_inputs
   CALL setup_dataread()  
 
   
-  !!!!!!!!! Read in the [T]o data  !!!!!!!!!!!
-  nx = Tax*Tpx
-  ny = Tay*Tpy
-  nz = Taz*Tpz
-  ax = nx/px
-  ay = ny/py
-  az = nz/pz
-  ALLOCATE(Txc(ax,ay,az))
-  ALLOCATE(Tyc(ax,ay,az))
-  ALLOCATE(Tzc(ax,ay,az))
-  ALLOCATE(Tiodata(ax,ay,az,varDIM))
-  WRITE(vizdir,'(3A,I4.4)') TRIM(TO_dir),'/',TRIM(ftype),TO_num 
-  WRITE(grdir,'(2A)') TRIM(TO_dir),'/grid' 
-
-  !! Read the Viz data on Tdata
-  ALLOCATE(TMPiodata(ax,ay,az,varDIM))
-  !!! CALL prob_grid(Txc,Tyc,Tzc,nx,ny,nz,ax,ay,az,TO_DZ,TO_grid)
-  CALL read_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,ftype)
-  Tiodata = TMPiodata
-  DEALLOCATE(TMPiodata)
-
-  !! Read the grid data on Tdata
-  ALLOCATE(GRDdata(ax,ay,az,3))
-  !!! CALL prob_grid(Txc,Tyc,Tzc,nx,ny,nz,ax,ay,az,TO_DZ,TO_grid)
-  CALL read_data(grdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,'grd')
-  Txc = GRDdata(:,:,:,1)
-  Tyc = GRDdata(:,:,:,2)
-  Tzc = GRDdata(:,:,:,3)
-  DEALLOCATE(GRDdata)
-  
-
-
 
   !!!!!!!!!! Read in the [F]rom data   !!!!!!!!!!!!
   nx = Fax*Fpx
@@ -221,59 +190,74 @@ END SUBROUTINE prob_inputs
   WRITE(grdir,'(2A)') TRIM(FROM_dir),'/grid'
   ALLOCATE(TMPiodata(ax,ay,az,varDIM))
   ALLOCATE(GRDdata(ax,ay,az,3))
-  !!! !CALL read_data(vizdir,Fax,Fay,Faz,Fpx,Fpy,Fpz,invprocmapF,ftype)
-  
-  ! Transfer the solution and grid
-  Fiodata = Tiodata
-  Fxc = Txc
-  Fyc = Tyc
-  Fzc = Tzc  
-  
-  TMPiodata = Fiodata  
-  GRDdata(:,:,:,1) = Fxc
-  GRDdata(:,:,:,2) = Fyc
-  GRDdata(:,:,:,3) = Fzc
-
-  CALL write_data(vizdir,Fax,Fay,Faz,Fpx,Fpy,Fpz,invprocmapF,ftype)
-  CALL write_data(grdir,Fax,Fay,Faz,Fpx,Fpy,Fpz,invprocmapF,'grd')
-  
+  CALL read_data(vizdir,Fax,Fay,Faz,Fpx,Fpy,Fpz,invprocmapF,ftype)
+  CALL read_data(grdir,Fax,Fay,Faz,Fpx,Fpy,Fpz,invprocmapF,'grd')
+  Fiodata = TMPiodata
+  Fxc = GRDdata(:,:,:,1)
+  Fyc = GRDdata(:,:,:,2)
+  Fzc = GRDdata(:,:,:,3)
   DEALLOCATE(TMPiodata,GRDdata)
 
 
 
 
-  ! Test writing data file here.
-  !ALLOCATE(TMPiodata(Tax*Tpx/px,Tay*Tpy/py,Taz*Tpz/pz,varDIM))
-  !TMPiodata = Fiodata
-  !WRITE(vizdir,'(3A,I4.4)') TRIM(TO_dir),'/',TRIM(ftype),TO_NUM
-  !CALL write_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT)
+  !!!!!!!!! Read in the [T]o data  !!!!!!!!!!!
+  nx = Tax*Tpx
+  ny = Tay*Tpy
+  nz = Taz*Tpz
+  ax = nx/px
+  ay = ny/py
+  az = nz/pz
+  ALLOCATE(Txc(ax,ay,az))
+  ALLOCATE(Tyc(ax,ay,az))
+  ALLOCATE(Tzc(ax,ay,az))
+  ALLOCATE(Tiodata(ax,ay,az,varDIM))
+  WRITE(vizdir,'(3A,I4.4)') TRIM(TO_dir),'/',TRIM(ftype),TO_num 
+  WRITE(grdir,'(2A)') TRIM(TO_dir),'/grid' 
+
+  !! Read the Viz data on Tdata
+  ALLOCATE(TMPiodata(ax,ay,az,varDIM))
+  !CALL read_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,ftype)
+  !Tiodata = TMPiodata
+  DEALLOCATE(TMPiodata)
+
+  !! Read the grid data on Tdata
+  CALL prob_grid(Txc,Tyc,Tzc,nx,ny,nz,ax,ay,az,TO_DZ,TO_grid)
+  ALLOCATE(GRDdata(ax,ay,az,3))  
+  CALL read_data(grdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,'grd')
+  Txc = GRDdata(:,:,:,1)
+  Tyc = GRDdata(:,:,:,2)
+  Tzc = GRDdata(:,:,:,3)
+  DEALLOCATE(GRDdata)
   
 
 
 
-
-
-  ! Dump restart data here...
-  !WRITE(iodir,'(2A,I4.4)') TRIM(jobdir),'/res',0
-  !IF (world_id==master) WRITE(6,'(2A)') ' Writing data to ',TRIM(iodir)
-  !CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
-  !CALL restart('w',TRIM(iodir),iodata(:,:,:,1:nres))
-
-
-  ! Dump the viz, to test
-  !WRITE(iodir,'(2A)') TRIM(jobdir),'/grid'
-  !CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
+  ! Transfer the solution and grid
+  !Fiodata = Tiodata
+  !Fxc = Txc
+  !Fyc = Tyc
+  !Fzc = Tzc  
   
-  !CALL grid()
+  CALL trilinear(Tiodata,Txc,Tyc,Tzc,ax,ay,az,Fiodata,Fxc,Fyc,Fzc,Fax*Fpx/px,Fay*Fpy/py,Faz*Fpz/pz)
 
 
-  !CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
-  !CALL MPI_BARRIER(MPI_COMM_WORLD,mpierr)
+  ! Write data to [T]o dir
+  ALLOCATE(GRDdata(ax,ay,az,3))  
+  ALLOCATE(TMPiodata(ax,ay,az,varDIM))
 
-  !CALL viz(TRIM(vizdir),TMPiodata)
-  !IF (xyzcom_id == 0) THEN
-  !    PRINT*, MINVAL( TMPiodata(:,:,:,8) )
-  !END IF
+  TMPiodata = Tiodata  
+  GRDdata(:,:,:,1) = Txc
+  GRDdata(:,:,:,2) = Tyc
+  GRDdata(:,:,:,3) = Tzc
+
+  IF (xyzcom_id == 0) PRINT*,'Here'
+  CALL write_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,ftype)
+  CALL write_data(grdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmapT,'grd')
+  
+  DEALLOCATE(TMPiodata,GRDdata)
+
+
 
 
   ! Make the program stop here.
@@ -566,7 +550,6 @@ END SUBROUTINE
 SUBROUTINE prob_grid(XL,YL,ZL,Tnx,Tny,Tnz,Lax,Lay,Laz,LDZ,gridfile)
  USE constants
  USE metrics, ONLY: x_c,y_c,z_c
- USE interp3d_data, ONLY: TO_dz, FROM_dz
  USE mpi
  USE constants
  USE interfaces, ONLY : filter
@@ -609,8 +592,8 @@ SUBROUTINE prob_grid(XL,YL,ZL,Tnx,Tny,Tnz,Lax,Lay,Laz,LDZ,gridfile)
   !  Z-direction extrusion
   DO k=1,Laz
       ZL(:,:,k) = zcom_id*Laz*Ldz + Ldz*dble(k-1)
-      XL(:,:,k) = x_c(:,:,1)
-      YL(:,:,k) = y_c(:,:,1)
+      XL(:,:,k) = XL(:,:,1)
+      YL(:,:,k) = YL(:,:,1)
   END DO
 
   !  For Nozzle-grid convert mm -> cm
@@ -750,13 +733,13 @@ SUBROUTINE read_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmap,ftype)
   z1off =  k1g - (k1p*Taz + 1) + 1
   znoff =  z1off + Laz -1  ! -(kfp*Taz + 1) + kfg + 1
 
-  IF (xyzcom_id == 0) PRINT*, Tax, Tay, Taz
-              PRINT*, i1g,i1p,ifp
-              PRINT*, j1g,j1p,jfp
-              PRINT*, k1g,k1p,kfp
-              PRINT*,'X-(',x1off,' ',xnoff,')  '
-              PRINT*,'Y-(',Y1off,' ',Ynoff,')  '
-              PRINT*,'Z-(',z1off,' ',znoff,')  '
+  !IF (xyzcom_id == 0) PRINT*, Tax, Tay, Taz
+  !            PRINT*, i1g,i1p,ifp
+  !            PRINT*, j1g,j1p,jfp
+  !            PRINT*, k1g,k1p,kfp
+  !            PRINT*,'X-(',x1off,' ',xnoff,')  '
+  !            PRINT*,'Y-(',Y1off,' ',Ynoff,')  '
+  !            PRINT*,'Z-(',z1off,' ',znoff,')  '
   !END IF
   
 
@@ -920,11 +903,11 @@ SUBROUTINE write_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmap,ftype)
 
   ! Get the offsets for this block of data
   x1off =  i1g - (i1p*Tax + 1) + 1
-  xnoff = x1off + Lax - 1 !-(ifp*Tax + 1) + ifg + 1
+  xnoff = x1off + Lax - 1 
   y1off =  j1g - (j1p*Tay + 1) + 1
-  ynoff = y1off + Lay - 1 !-(jfp*Tay + 1) + jfg + 1
+  ynoff = y1off + Lay - 1 
   z1off =  k1g - (k1p*Taz + 1) + 1
-  znoff = z1off + Laz - 1 !-(kfp*Taz + 1) + kfg + 1
+  znoff = z1off + Laz - 1 
 
   SELECT CASE(ftype)
       CASE('res')
@@ -998,7 +981,7 @@ SUBROUTINE write_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmap,ftype)
                  CALL MPI_BARRIER(xyzcom,mpierr)
                  CALL MPI_REDUCE(VISdata,Rdata,Ndata,MPI_REAL4,MPI_SUM,0,xyzcom,mpierr)
                  CALL MPI_BARRIER(xyzcom,mpierr)
-
+                 
                  IF (xyzcom_id == 0) THEN
                     ! WRITE visualization data
                     !PRINT*, MAXVAL( Gdata(:,:,:,8) )
@@ -1055,12 +1038,403 @@ SUBROUTINE write_data(vizdir,Tax,Tay,Taz,Tpx,Tpy,Tpz,invprocmap,ftype)
   ! Free the memory
   SELECT CASE(ftype)
       CASE('res')
-         DEALLOCATE(Gdata,RESdata)
+         DEALLOCATE(Gdata,RESdata,Ddata)
       CASE('vis')
-         DEALLOCATE(Gdata,VISdata)
+         DEALLOCATE(Gdata,VISdata,Rdata)
   END SELECT
 
   IF (xyzcom_id == 0) PRINT*, 'Done writing to ',TRIM(vizdir)
 
 END SUBROUTINE write_data
 
+
+SUBROUTINE trilinear(Tvar,Txc,Tyc,Tzc,Tax,Tay,Taz,Fvar,Fxc,Fyc,Fzc,Fax,Fay,Faz)
+USE globals, ONLY: x1proc,xnproc,y1proc,ynproc,z1proc,znproc
+USE interfaces, ONLY: ghost
+USE interp3d_data, ONLY: varDIM,buff
+USE mpi, ONLY: xyzcom_id,xyzcom,mpierr
+IMPLICIT NONE
+INTEGER, INTENT(IN) :: Tax,Tay,Taz,Fax,Fay,Faz
+DOUBLE PRECISION, DIMENSION(Tax,Tay,Taz), INTENT(IN) :: Txc,Tyc,Tzc
+DOUBLE PRECISION, DIMENSION(Tax,Tay,Taz,varDIM), INTENT(OUT) :: Tvar   ! This is the only output
+DOUBLE PRECISION, DIMENSION(Fax,Fay,Faz), INTENT(IN) :: Fxc,Fyc,Fzc
+DOUBLE PRECISION, DIMENSION(Fax,Fay,Faz,varDIM), INTENT(IN) :: Fvar
+
+INTEGER :: i,j,k,ii,jj,kk,cmax,count,errorFlag,pmax,pount
+INTEGER :: IBEGIN,IEND,ISTEP,JBEGIN,JEND,JSTEP
+DOUBLE PRECISION :: anew,bnew,gnew
+DOUBLE PRECISION :: x,y,z,da,db,dg
+DOUBLE PRECISION :: aax,bbx,ccx,ffx
+DOUBLE PRECISION :: aay,bby,ccy,ffy
+DOUBLE PRECISION :: aaz,bbz,ccz,ffz
+DOUBLE PRECISION, DIMENSION (3,3) :: AAA,iAAA
+DOUBLE PRECISION, DIMENSION (3) :: BBB,XXX
+DOUBLE PRECISION, DIMENSION (varDIM) :: VARS
+DOUBLE PRECISION, DIMENSION (2,2,2,varDIM) :: fVARS
+DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: pFxc,pFyc,pFzc,GsTmp
+DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: pFvar
+INTEGER :: x1buff,xnbuff,y1buff,ynbuff,z1buff,znbuff
+
+! Do some padding incase patch exceeds bounds
+x1buff = buff; xnbuff = buff; y1buff = buff; ynbuff = buff; z1buff = buff; znbuff = buff;
+
+IF(x1proc) x1buff = 0
+IF(xnproc) xnbuff = 0
+IF(y1proc) y1buff = 0
+IF(ynproc) ynbuff = 0
+IF(z1proc) z1buff = 0
+IF(znproc) znbuff = 0
+
+ALLOCATE( pFxc(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff))
+ALLOCATE( pFyc(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff))
+ALLOCATE( pFzc(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff))
+ALLOCATE( pFvar(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff,varDIM))
+
+ALLOCATE( GsTmp(1-buff:Fax+buff,1-buff:Fay+buff,1-buff:Faz+buff))
+
+GsTmp(1:Fax,1:Fay,1:Faz) = Fxc
+CALL ghost(GsTmp)
+pFxc = GsTmp(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff)
+
+GsTmp(1:Fax,1:Fay,1:Faz) = Fyc
+CALL ghost(GsTmp)
+pFyc = GsTmp(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff)
+
+GsTmp(1:Fax,1:Fay,1:Faz) = Fzc
+CALL ghost(GsTmp)
+pFzc = GsTmp(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff)
+
+DO i=1,varDIM
+      GsTmp(1:Fax,1:Fay,1:Faz) = Fvar(:,:,:,i)
+      CALL ghost(GsTmp)
+      pFvar(:,:,:,i) = GsTmp(1-x1buff:Fax+xnbuff,1-y1buff:Fay+ynbuff,1-z1buff:Faz+znbuff)
+END DO
+
+
+ii=1;jj=1;kk=1;
+
+anew = 0; bnew = 0; gnew = 0;
+
+cmax = 20;
+pmax = 20;
+
+IBEGIN = Tax;
+IEND   = 1;
+ISTEP  = -1;
+JBEGIN = Tay;
+JEND   = 1;
+JSTEP  = -1;
+
+DO k=1,Taz
+    IF (xyzcom_id == 0) PRINT*,'Interp is ',100.*REAL(k)/REAL(Taz),'% done'
+    JBEGIN = Tay + 1 - JBEGIN;
+    JEND   = Tay + 1 - JEND;
+    JSTEP  = -JSTEP;
+    DO j = JBEGIN, JEND, JSTEP
+        IBEGIN = Tax + 1 - IBEGIN;
+        IEND   = Tax + 1 - IEND;
+        ISTEP  = -ISTEP;
+        DO i = IBEGIN, IEND, ISTEP
+
+            x = Txc(i,j,k);
+            y = Tyc(i,j,k);
+            z = Tzc(i,j,k);
+            
+            DO count=1,cmax
+            
+                da=1;db=1;dg=1;
+                anew = 0; bnew = 0; gnew = 0;
+                pount = 0
+                DO WHILE ( ABS(da + db + dg) > .0001 .AND. pount < pmax)
+                    pount = pount + 1
+                    CALL get_Istep(aax,bbx,ccx,ffx,pFxc(ii:ii+1,jj:jj+1,kk:kk+1),x,anew,bnew,gnew)
+                    CALL get_Istep(aay,bby,ccy,ffy,pFyc(ii:ii+1,jj:jj+1,kk:kk+1),y,anew,bnew,gnew)
+                    CALL get_Istep(aaz,bbz,ccz,ffz,pFzc(ii:ii+1,jj:jj+1,kk:kk+1),z,anew,bnew,gnew)
+
+                    AAA(1,:) = (/ AAx, BBx, CCx /)
+                    AAA(2,:) = (/ AAy, BBy, CCy /)
+                    AAA(3,:) = (/ AAz, BBz, CCz /)
+
+
+                    if (xyzcom_id == 0) then
+                    end if
+
+                    !CALL FINDInv(AAA, iAAA, 3, errorflag)
+                    CALL getinv(AAA, iAAA, errorflag)
+                    IF (xyzcom_id == 0) THEN
+                    IF (errorflag == -1) print*,'Singular'
+                    END IF
+                    IF (errorflag == -1) EXIT
+
+                    BBB = -(/ FFx, FFy, FFz /)
+                    !XXX =  MATMUL(AAA,BBB)
+
+                    !da = XXX(1);
+                    !db = XXX(2);
+                    !dg = XXX(3);
+                    
+                    da = -(iAAA(1,1)*FFx + iAAA(1,2)*FFy + iAAA(1,3)*FFz) 
+                    db = -(iAAA(2,1)*FFx + iAAA(2,2)*FFy + iAAA(2,3)*FFz) 
+                    dg = -(iAAA(3,1)*FFx + iAAA(3,2)*FFy + iAAA(3,3)*FFz) 
+
+                    !if (xyzcom_id == 0) then
+                       !print*,'============== pcount ( ',pount,' ) ===================='
+                       !print*,'===== A ====='
+                       !print*,real(AAA(1,:))
+                       !print*,real(AAA(2,:))
+                       !print*,real(AAA(3,:))
+                       !print*,'===== inv(A) ====='
+                       !print*,real(iAAA(1,:))
+                       !print*,real(iAAA(2,:))
+                       !print*,real(iAAA(3,:))
+                       !print*,'===== B ====='
+                       !print*,real(BBB)
+                       !print*,'===== X ====='
+                       !print*,real(da),real(db),real(dg)
+                    !end if
+
+                    anew = anew + da;
+                    bnew = bnew + db;
+                    gnew = gnew + dg;
+                
+                END DO
+                
+                !if (xyzcom_id == 0) then
+                 !  print*,'=========== Counter ( ',count,' ) ========='
+                 !  print*,anew,bnew,gnew
+                 !  print*,ii,jj,kk
+                 !  print*,real(x),real(y),real(z)
+                 !  print*,real(pFxc(ii,jj,kk)),real(pFyc(ii,jj,kk)),real(pFzc(ii,jj,kk))
+                !end if
+
+                !! Decide what direction to move
+                IF (anew < -1.0)  ii = max( 1-x1buff, ii-1);
+                IF (anew >  1.0)  ii = min(Fax-1+xnbuff, ii+1);
+                IF (bnew < -1.0)  jj = max( 1-y1buff, jj-1);
+                IF (bnew >  1.0)  jj = min(Fay-1+ynbuff, jj+1);
+                IF (gnew < -1.0)  kk = max( 1-z1buff, kk-1);
+                IF (gnew >  1.0)  kk = min(Faz-1+znbuff, kk+1);
+                
+                IF ( (abs(anew) <= 1 .AND. abs(bnew) <= 1 .AND. abs(gnew) <= 1) ) THEN
+                    ! Get the interpolanted value.
+                    !fVARS =  pFvar(ii:ii+1,jj:jj+1,kk:kk+1,:)
+                    !CALL get_Ival( VARS , fVARS , anew , bnew , gnew )
+                    Tvar(i,j,k,:) = VARS
+                    EXIT
+                END IF
+                
+                IF (count >= cmax) THEN
+                    !fVARS =  pFvar(ii:ii+1,jj:jj+1,kk:kk+1,:)
+                    !CALL get_Ival( VARS , fVARS , anew , bnew , gnew )
+                    Tvar(i,j,k,:) = VARS
+                    EXIT
+                END IF                    
+                
+            END DO
+        END DO
+    END DO
+END DO
+
+
+CALL MPI_BARRIER(xyzcom,mpierr)
+if (xyzcom_id == 0) print*,'Done with interpolation routine'
+
+END SUBROUTINE
+
+
+SUBROUTINE get_Istep(aa,bb,cc,ff,Xg,xp,a,b,g)
+USE constants, ONLY: eight
+IMPLICIT NONE
+DOUBLE PRECISION, INTENT(OUT) :: aa,bb,cc,ff
+DOUBLE PRECISION, INTENT(IN) :: xp,a,b,g
+DOUBLE PRECISION, DIMENSION(2,2,2), INTENT(IN) :: Xg
+INTEGER :: i,j,k
+DOUBLE PRECISION :: x1,x2,x3,x4,x5,x6,x7,x8
+DOUBLE PRECISION :: f0,f1,f2,f3,f4,f5,f6,f7
+
+
+i=1;j=1;k=1;
+
+x1 = Xg(i  ,j  ,k  );
+x2 = Xg(i+1,j  ,k  );
+x3 = Xg(i  ,j+1,k  );
+x4 = Xg(i+1,j+1,k  );
+x5 = Xg(i  ,j  ,k+1);
+x6 = Xg(i+1,j  ,k+1);
+x7 = Xg(i  ,j+1,k+1);
+x8 = Xg(i+1,j+1,k+1);
+
+
+f0 = (x8 + x7 + x6 + x5 + x4 + x3 + x2 + x1) / eight - xp;
+f1 = (x8 - x7 + x6 - x5 + x4 - x3 + x2 - x1) / eight;
+f2 = (x8 + x7 - x6 - x5 + x4 + x3 - x2 - x1) / eight;
+f3 = (x8 + x7 + x6 + x5 - x4 - x3 - x2 - x1) / eight;
+f4 = (x8 - x7 - x6 + x5 + x4 - x3 - x2 + x1) / eight;
+f5 = (x8 - x7 + x6 - x5 - x4 + x3 - x2 + x1) / eight;
+f6 = (x8 + x7 - x6 - x5 - x4 - x3 + x2 + x1) / eight;
+f7 = (x8 - x7 - x6 + x5 - x4 + x3 + x2 - x1) / eight;
+
+ff = f0     + f1*a   + f2*b   + f3*g + &
+       f4*a*b + f5*a*g + f6*b*g + f7*a*b*g;
+
+
+aa = f1 + f4*b + f5*g + f7*b*g;
+bb = f2 + f4*a + f6*g + f7*a*g;
+cc = f3 + f5*a + f6*b + f7*a*b;
+
+END SUBROUTINE
+
+SUBROUTINE get_Ival(val,Vg,a,b,g)
+USE constants, ONLY: eight
+USE interp3d_data, ONLY: varDIM
+IMPLICIT NONE
+DOUBLE PRECISION, DIMENSION(varDIM), INTENT(OUT) :: val
+DOUBLE PRECISION, DIMENSION(2,2,2,varDIM), INTENT(IN) :: Vg
+DOUBLE PRECISION, INTENT(IN) :: a,b,g
+DOUBLE PRECISION, DIMENSION(varDIM) :: v1,v2,v3,v4,v5,v6,v7,v8
+INTEGER :: i,j,k
+
+i=1;j=1;k=1;
+
+v1 = Vg(i  ,j  ,k  ,:)
+v2 = Vg(i+1,j  ,k  ,:)
+v3 = Vg(i  ,j+1,k  ,:)
+v4 = Vg(i+1,j+1,k  ,:)
+v5 = Vg(i  ,j  ,k+1,:)
+v6 = Vg(i+1,j  ,k+1,:)
+v7 = Vg(i  ,j+1,k+1,:)
+v8 = Vg(i+1,j+1,k+1,:)
+
+
+val  =( (1-g)*(1-b)*(1-a)*v1 + (1-g)*(1-b)*(1+a)*v2 + &
+      (1-g)*(1+b)*(1-a)*v3 + (1-g)*(1+b)*(1+a)*v4 + &
+      (1+g)*(1-b)*(1-a)*v5 + (1+g)*(1-b)*(1+a)*v6 + &
+      (1+g)*(1+b)*(1-a)*v7 + (1+g)*(1+b)*(1+a)*v8) / eight;
+
+END SUBROUTINE 
+
+
+!Subroutine to find the inverse of a square matrix
+SUBROUTINE FINDInv(matrix, inverse, n, errorflag)
+	IMPLICIT NONE
+	!Declarations
+	INTEGER, INTENT(IN) :: n
+	INTEGER, INTENT(OUT) :: errorflag  !Return error status. -1 for error, 0 for normal
+	REAL*8, INTENT(IN), DIMENSION(n,n) :: matrix  !Input matrix
+	REAL*8, INTENT(OUT), DIMENSION(n,n) :: inverse !Inverted matrix
+	
+	LOGICAL :: FLAG = .TRUE.
+	INTEGER :: i, j, k, l
+	REAL :: m
+	REAL, DIMENSION(n,2*n) :: augmatrix !augmented matrix
+	
+	!Augment input matrix with an identity matrix
+	DO i = 1, n
+		DO j = 1, 2*n
+			IF (j <= n ) THEN
+				augmatrix(i,j) = matrix(i,j)
+			ELSE IF ((i+n) == j) THEN
+				augmatrix(i,j) = 1
+			Else
+				augmatrix(i,j) = 0
+			ENDIF
+		END DO
+	END DO
+	
+	!Reduce augmented matrix to upper traingular form
+	DO k =1, n-1
+		IF (augmatrix(k,k) == 0) THEN
+			FLAG = .FALSE.
+			DO i = k+1, n
+				IF (augmatrix(i,k) /= 0) THEN
+					DO j = 1,2*n
+						augmatrix(k,j) = augmatrix(k,j)+augmatrix(i,j)
+					END DO
+					FLAG = .TRUE.
+					EXIT
+				ENDIF
+				IF (FLAG .EQV. .FALSE.) THEN
+					!PRINT*, "Matrix is non - invertible"
+					inverse = 0
+					errorflag = -1
+					return
+				ENDIF
+			END DO
+		ENDIF
+		DO j = k+1, n			
+			m = augmatrix(j,k)/augmatrix(k,k)
+			DO i = k, 2*n
+				augmatrix(j,i) = augmatrix(j,i) - m*augmatrix(k,i)
+			END DO
+		END DO
+	END DO
+	
+	!Test for invertibility
+	DO i = 1, n
+		IF (augmatrix(i,i) == 0) THEN
+			!PRINT*, "Matrix is non - invertible"
+			inverse = 0
+			errorflag = -1
+			return
+		ENDIF
+	END DO
+	
+	!Make diagonal elements as 1
+	DO i = 1 , n
+		m = augmatrix(i,i)
+		DO j = i , (2 * n)				
+			   augmatrix(i,j) = (augmatrix(i,j) / m)
+		END DO
+	END DO
+	
+	!Reduced right side half of augmented matrix to identity matrix
+	DO k = n-1, 1, -1
+		DO i =1, k
+		m = augmatrix(i,k+1)
+			DO j = k, (2*n)
+				augmatrix(i,j) = augmatrix(i,j) -augmatrix(k+1,j) * m
+			END DO
+		END DO
+	END DO				
+	
+	!store answer
+	DO i =1, n
+		DO j = 1, n
+			inverse(i,j) = augmatrix(i,j+n)
+		END DO
+	END DO
+	errorflag = 0
+END SUBROUTINE FINDinv
+
+
+subroutine getinv(M,M1,err)
+implicit none
+double precision, dimension(3,3), intent(in) :: M
+double precision, dimension(3,3), intent(out) :: M1
+double precision, dimension(3,3) :: MTEMP
+integer, intent(out) :: err
+double precision :: det
+
+err = 0
+det = M(1,1)*( M(2,2)*M(3,3)-M(2,3)*M(3,2) ) - M(1,2)*( M(2,1)*M(3,3) - M(3,1)*M(2,3) ) & 
+     + M(1,3)*( M(2,1)*M(3,2) - M(3,1)*M(2,2) )
+
+if ( DABS(det) < 1.0D-16 ) then
+   M1 = 0.0D0
+   err = -1
+   return
+end if
+
+MTEMP(1,1) =  (M(2,2)*M(3,3) - M(3,2)*M(2,3))
+MTEMP(1,2) = -(M(1,2)*M(3,3) - M(3,2)*M(1,3))
+MTEMP(1,3) =  (M(1,2)*M(2,3) - M(2,2)*M(1,3))
+MTEMP(2,1) = -(M(2,1)*M(3,3) - M(3,1)*M(2,3))
+MTEMP(2,2) =  (M(1,1)*M(3,3) - M(3,1)*M(1,3))
+MTEMP(2,3) = -(M(1,1)*M(2,3) - M(2,1)*M(1,3))
+MTEMP(3,1) =  (M(2,1)*M(3,2) - M(3,1)*M(2,2))
+MTEMP(3,2) = -(M(1,1)*M(3,2) - M(3,1)*M(1,2))
+MTEMP(3,3) =  (M(1,1)*M(2,2) - M(2,1)*M(1,2))
+
+M1 = MTEMP/det
+
+end subroutine getinv
