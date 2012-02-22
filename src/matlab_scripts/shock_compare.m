@@ -59,10 +59,20 @@ prob(ii).Pcol = 'b';
 prob(ii).range = [1,11,2254];
 ii=ii+1;
 
-prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
-prob(ii).side = mid;
-prob(ii).Pcol = 'g';
-prob(ii).range = [1,1,561];
+%prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
+%prob(ii).side = mid;
+%prob(ii).Pcol = 'c';
+%prob(ii).range = [1,1,1123];
+%ii = ii + 1;
+ 
+%prob(ii).fname = '../data/shock_history/fullwide.mat';
+%prob(ii).side = mid;
+%prob(ii).Pcol = 'g';
+%prob(ii).range = [1,200-150,1151-150];
+%ii = ii + 1;
+
+
+
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
@@ -166,51 +176,4 @@ end
 
 
 figure(3);
-
-
-
-
-figure(1);
-xlim([10^-3 1])
-h = xlabel('$fH_t/U_p$');set(h,'Interpreter','latex','FontSize',FSn);
-h = ylabel('cm/Hz');set(h,'Interpreter','latex','FontSize',FSn);
-%h = legend('Mesh A','Mesh B','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Mesh A','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-legend boxoff;
-box on;
-
-figure(2);
-xlim([10^-3 1]);ylim([0 180]);
-h = xlabel('$fH_t/U_p$');set(h,'Interpreter','latex','FontSize',FSn);
-h = ylabel('cm/Hz$f$');set(h,'Interpreter','latex','FontSize',FSn);
-%h = legend('Mesh A','Mesh B','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Mesh A','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-legend boxoff;
-box on;
-
-figure(3);
-xlim([0 600]);ylim([-1.25 1.25]);
-h = xlabel('$t U_p/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
-h = ylabel('${X_s}^\prime/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
-%h = legend('Mesh A','Mesh B','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Mesh A','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-legend boxoff;
-box on;
-
-figure(4);
-xlim([-2 2]);ylim([0 1]);
-h = xlabel('$X/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
-h = ylabel('PDF');set(h,'Interpreter','latex','FontSize',FSn);
-%h = legend('Mesh A','Mesh B','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-h = legend('Mesh A','Exp');set(h,'Interpreter','latex','FontSize',FSn);
-legend boxoff;
-box on;
-
-
-
-% Render the PDFs
-if (pdfE)
-for i=1:size(f,2)
-fig2pdf([path,f(i).name],i);
-end
-end
+xlim([0 20])
