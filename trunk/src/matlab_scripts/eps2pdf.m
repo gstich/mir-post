@@ -62,7 +62,7 @@ global epsFileContent
 if ispc
     DEF_GS_PATH = 'gswin32c.exe';
 else
-    DEF_GS_PATH = '/usr/local/bin/gs';
+    DEF_GS_PATH = '/usr/bin/gs';
 end
 GS_PARAMETERS = '-q -dNOPAUSE -dBATCH -dDOINTERPOLATE -dUseFlateCompression=true -sDEVICE=pdfwrite -r1200';
 

@@ -13,7 +13,8 @@ dt = 5.0e-6;
 
 res = 'coarseR';
 %res = 'mediumv2';
-res = 'mediumNarrow';
+%res = 'mediumNarrow';
+res = 'fullwide';
 
 switch res
     case('coarse')
@@ -70,9 +71,18 @@ switch res
         %data = '/Volumes/Macintosh HD 2/bolson/nozzle_data/';
         dir = [data,'nozzlemedium3dnarrow/'];
         pa = zeros(768,4);
-        intv = [0,728];
+        intv = [0,1123];
         %ofile = '../data/shock_history/coarse.mat';
         ofile = '../data/shock_history/mediumNarrow.mat';
+
+    case('fullwide')
+
+        data = '/p/lscratchrza/olson45/nozzle/';
+        dir = [data,'nozfull_cor3d/'];
+        pa = zeros(512,4);
+        intv = [150,1151];
+        ofile = '../data/shock_history/fullwide.mat';
+
         
 end
         
