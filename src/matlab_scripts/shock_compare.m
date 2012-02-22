@@ -15,22 +15,6 @@ top = 1;
 mid = 2;
 bot = 3;
 
-% Figure option
-LW = 1;         % LineWidth
-FSn = 25;       % FontSize labels
-FSa = 18;       % FontSize axis
-
-pdfE = false;
-pdfE = true;
-
-f(1).name = 'XSspectraT';
-f(2).name = 'XScompT';
-f(3).name = 'XSrawT';
-f(4).name = 'XSvarT';
-
-%path = '~/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
-path = '/Users/bolson/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
-
 
 ii=1;
 % prob(ii).fname = '../data/shock_history/coarse.mat';
@@ -44,18 +28,17 @@ ii=1;
 % ii=ii+1;
 
 
-prob(ii).fname = '../data/shock_history/coarse.mat';
+prob(ii).fname = '../data/shock_history/coarsev2.mat';
 prob(ii).side = top;
-prob(ii).Pcol = 'k';
-%prob(ii).range = [1,1,4445];
-prob(ii).range = [1,800,2946];
+prob(ii).Pcol = 'r';
+prob(ii).range = [1,1,4445];
 ii=ii+1;
 
 
 prob(ii).fname = '../data/shock_history/mediumv2.mat';
 prob(ii).side = mid;
 prob(ii).Pcol = 'b';
-%prob(ii).range = [1,500,1500];
+prob(ii).range = [1,500,1500];
 prob(ii).range = [1,11,2254];
 ii=ii+1;
 
@@ -76,14 +59,14 @@ ii=ii+1;
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
-expS(1).Pcol = 'r--';
+expS(1).Pcol = 'k--';
 xFs = 200e3;
 
 % PDF x sample space
 xx = linspace(-2,2,400);
 ssig = .1^2;
 
-for i=1: 1 %size(prob,2)
+for i=1:size(prob,2)
 
     load(prob(i).fname);
     Xs = XSS(:,prob(i).side);
@@ -104,17 +87,17 @@ for i=1: 1 %size(prob,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),prob(i).Pcol,'Linewidth',LW);
+    loglog(FXs(1,:),FXs(2,:),prob(i).Pcol);
     hold all
     
     % Compensated spectra
     figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:)*Up/Ht,prob(i).Pcol,'Linewidth',LW);
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),prob(i).Pcol);
     hold all
     
     % Raw data
     figure(3)
-    plot(time*Up/Ht/1000,Xs,prob(i).Pcol,'Linewidth',LW);
+    plot(time,Xs,prob(i).Pcol);
     hold all
     
     
@@ -126,7 +109,7 @@ for i=1: 1 %size(prob,2)
     w = w/size(Xs,1);
     
     figure(4);
-    plot(xx,w,prob(i).Pcol,'Linewidth',LW*2);
+    plot(xx,w,prob(i).Pcol);
     hold all;
     
 end
@@ -148,17 +131,17 @@ for i=1:size(expS,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol,'Linewidth',LW);
+    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol);
     hold all
     
     % Compensated spectra
     figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:)*Up/Ht,expS(i).Pcol,'Linewidth',LW);
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
     hold all
     
     % Raw data
     figure(3)
-    plot(timeT*Up/Ht/1000,Xs,expS(i).Pcol,'Linewidth',LW);
+    plot(timeT,Xs,expS(i).Pcol);
     hold all
     
     % PDF (rms f(x))
@@ -169,7 +152,7 @@ for i=1:size(expS,2)
     w = w/size(Xs,1);
     
     figure(4);
-    plot(xx,w,expS(i).Pcol,'Linewidth',LW*2);
+    plot(xx,w,expS(i).Pcol);
     hold all;
     
 end
