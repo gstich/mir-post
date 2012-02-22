@@ -11,7 +11,7 @@ FSn = 25;       % FontSize labels
 FSa = 18;       % FontSize axis
 
 pdfE = false;
-pdfE = true;
+%pdfE = true;
 
 %path = '~/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
 path = '/Users/bolson/Dropbox/Britton/THESIS/Figures/nozzle/convergence/';
@@ -21,15 +21,15 @@ pfig(1) = 0;
 f(1).name = 'Ucontours';
 % Figure 2- Line rake of U velocity in plume
 pfig(2) = 0;
-f(2).name = 'Uplume';
+f(2).name = 'WWplume';
 % Figure 3- Line rake of U velocity in nozzle
 pfig(3) = 0;
-f(3).name = 'Unoz';
+f(3).name = 'WWnoz';
 % Figure 4- Boundary layer profile, raw
 pfig(4) = 0;
 f(4).name = 'UBLmean';
 % Figure 5- Boundary layer profile, wall units
-pfig(5) = 1;
+pfig(5) = 0;
 f(5).name = 'UBLlog';
 % Figure 6- Artificial terms
 pfig(6) = 0;
@@ -38,7 +38,7 @@ f(6).name = 'artMU';
 pfig(7) = 0;
 f(7).name = 'reversed_flow';
 % Figure 8- Reversed flow
-pfig(8) = 0;
+pfig(8) = 1;
 f(8).name = 'pressure';
 
 %pfig(:) = 1;
@@ -52,8 +52,8 @@ Pamb = 1e6;
 
 % Get some variables
 var_map
-uc = dataC(:,:,U);
-um = dataM(:,:,U);
+uc = sqrt( dataC(:,:,U).^2 + dataC(:,:,U).^2) ;
+um = sqrt( dataM(:,:,U).^2 + dataM(:,:,U).^2 );
 xc = dataC(:,:,X);yc = dataC(:,:,Y);
 xm = dataM(:,:,X);ym = dataM(:,:,Y);
 
@@ -63,8 +63,10 @@ xm = dataM(:,:,X);ym = dataM(:,:,Y);
 if (pfig(1) == 1);
 % Contour plot
 figure(1);  
-cnts = linspace(-1e4,6e4,16);
+cnts = linspace(5e5,5e7,16);
 cnts = linspace(-.2,1.1,16);
+cnts = linspace(0,0.1,20);
+%Up=1;
 contour(xc/Ht,yc/Ht,uc/Up,cnts,'color','black');
 hold on;
 contour(xm/Ht,-ym/Ht,um/Up,cnts,'color','blue');
@@ -83,6 +85,45 @@ hold on;
 plot(xm(:,1)/Ht,ym(:,1)/Ht,'k--','Linewidth',LW);
 plot(xm(:,end)/Ht,ym(:,end)/Ht,'k--','Linewidth',LW);
 
+
+%corner pts
+cpts1 = [6.5356,.79471;
+        6.6132, .81168;
+        6.6569, .82266;
+        6.6885, .87709;
+        6.6875, .98059];
+cpts2 = [6.5496,.60948;
+        6.6373, .69778;
+        6.6997, .74755;
+        6.7966, .85447;
+        6.9299, .99889];
+    
+figure(11);hold all;
+for i=1:size(cpts1,1)
+    [val,xx,yy] = lineout(xc/Ht,yc/Ht,uc,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
+    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
+    
+    figure(11);subplot(3,2,i);hold on;
+    plot(dist,val/Up,'k');
+    
+    figure(1);hold on;
+    plot(xx,yy,'r')
+end
+
+for i=1:size(cpts1,1)
+    [val,xx,yy] = lineout(xm/Ht,-ym/Ht,um,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
+    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
+    
+    figure(11);subplot(3,2,i);hold on;
+    plot(dist,val/Up,'b');
+    
+end
+
+figure(1);
+xlim([6 7.5])
+ylim([.2 1.2])
+
+
 if (pdfE)
 fig2pdf([path,f(1).name],1);
 end
@@ -94,9 +135,9 @@ end
 if (pfig(2) == 1);
 % Line out of data in exit plume x = [0,2.5,5,7.5] Ht
 Xexit = 11.7;
-varC = uc; %dataC(:,:,T);
-varM = um; %dataM(:,:,T);
-varDIM = Up;
+varC = dataC(:,:,WW);
+varM = dataM(:,:,WW);
+varDIM = Up*Up;
 for i=1:4
     
 xLO = Xexit + (i-1)*2.5*Ht;
@@ -111,11 +152,11 @@ plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',LW);
 hold on;
 plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',LW);
 h = title(['$X= ',num2str(2.5*(i-1)),'H_t$']); set(h,'Interpreter','latex','FontSize',FSn/2);
-h = xlabel('$U/U_p$');set(h,'Interpreter','latex','FontSize',FSn/2);
+h = xlabel('$U/U_p^2$');set(h,'Interpreter','latex','FontSize',FSn/2);
 h = ylabel('$Y/H_t$');set(h,'Interpreter','latex','FontSize',FSn/2);
 
 ylim([-3 3]);
-xlim([-.1 .6])
+%xlim([-.1 .6])
 
 end
 subplot(2,2,1);
@@ -136,9 +177,9 @@ end
 if (pfig(3) == 1);
 % Line out of data in exit plume x = -[.5,1.0,1.5,2.0] Ht
 Xexit = 11.7;
-varC = uc; %dataC(:,:,T);
-varM = um; %dataM(:,:,T);
-varDIM = Up;
+varC = dataC(:,:,WW);
+varM = dataM(:,:,WW);
+varDIM = Up*Up;
 for i=1:4
     
 xLO = Xexit - i*1*Ht;
@@ -153,11 +194,11 @@ plot(ZIc/varDIM,YIc/Ht,'k-','LineWidth',LW);
 hold on;
 plot(ZIm/varDIM,-YIm/Ht,'b-','LineWidth',LW);
 h = title(['$X= ',num2str(-1*i),'H_t$']); set(h,'Interpreter','latex','FontSize',FSn/2);
-h = xlabel('$U/U_p$');set(h,'Interpreter','latex','FontSize',FSn/2);
+h = xlabel('$U/U_p^2$');set(h,'Interpreter','latex','FontSize',FSn/2);
 h = ylabel('$Y/H_t$');set(h,'Interpreter','latex','FontSize',FSn/2);
 
 ylim([-1 1]);
-xlim([-.1 1])
+%xlim([-.1 1])
 
 end
 subplot(2,2,1);
@@ -349,10 +390,15 @@ plot(xc(:,end/2)/Ht,dataC(:,end/2,P)/Pamb,'k','Linewidth',LW)
 hold on;
 plot(xm(:,end/2)/Ht,dataM(:,end/2,P)/Pamb,'b','Linewidth',LW)
 
+%% Load the experimental mean
+efile = '../data/experiment/NOZZLE_DATA/MEAN/CENTERLINE/MeanCentPress.txt'
+Pexp = load(efile);
+plot(Pexp(:,1)+.2,Pexp(:,2),'r')
+
 h = xlabel('$X/H_t$');set(h,'Interpreter','latex','FontSize',FSn);
 h = ylabel('$P/P_{\mathrm{amb}}$');set(h,'Interpreter','latex','FontSize',FSn);
 
-h = legend('Mesh A','Mesh B');
+h = legend('Mesh A','Mesh B','Exp');
 set(h,'Interpreter','latex','FontSize',FSn);
 legend boxoff;
 box on;
