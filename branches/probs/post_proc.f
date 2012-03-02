@@ -6,9 +6,11 @@ MODULE post_proc_data
   ! Place Problem dependent state data here, similar to inputs.f and globals.f
   ! ---------------------------------------------------------------------------  
   DOUBLE PRECISION      :: Tinitial = 300.0D0
+  DOUBLE PRECISION      :: Tout = 500.0D0    ! This is the correction factor for the outflow
   DOUBLE PRECISION      :: Pinitial = 1.0D6
   CHARACTER(LEN=90) 	:: restart_dir  = '/path/to/directory'
   CHARACTER(LEN=90) 	:: gridfile    = 'nozzle.grid'
+  CHARACTER(LEN=90) 	:: dump_file  = '/path/to/directory'
   INTEGER               :: Tcount = 1                   ! Start index for this loop <= Tstart
   INTEGER               :: Tstart = 1                   ! Start index for database
   INTEGER               :: Tend = 10                    ! End index for file loop
@@ -47,6 +49,7 @@ MODULE post_proc_data
   INTEGER, DIMENSION(:), ALLOCATABLE :: corrX,corrY
   CHARACTER(LEN=90) 	:: corrV = 'u'
   CHARACTER(LEN=90) 	:: cortag = 'spec-u-'
+  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: corr_data
 
 
   !! Flags
@@ -79,7 +82,8 @@ SUBROUTINE prob_inputs(fileName)
 
   ! Uncomment to define a namelist
   NAMELIST /post_proc_vars/ restart_dir,gridfile,flowfile,Tcount,Tstart,Tend,varDIM,Re_BL,del_BL, & 
-      ftype,Tinitial,Pinitial,corrfile,corr_flag,cortag,corrV,plane_flag,mir_flag,post_type,ixwI,ixwF
+      ftype,Tinitial,Pinitial,corrfile,corr_flag,cortag,corrV,plane_flag,mir_flag,post_type,ixwI,ixwF,Tout, &
+      dump_file
 
   ! Uncomment to open and read a namelist file
   OPEN(UNIT=inputUnit,FILE=TRIM(fileName),FORM='FORMATTED',STATUS='OLD')
@@ -147,7 +151,7 @@ END SUBROUTINE prob_inputs
   USE extend
   USE post_proc_data
   USE metrics, ONLY: x_c
-  USE interfaces, ONLY: newdir
+  USE interfaces, ONLY: newdir, restart, viz
   IMPLICIT NONE
   INTEGER :: i,j,funit,isync
   CHARACTER(LEN=90) :: flipfile,fform,plotdir
@@ -158,6 +162,7 @@ END SUBROUTINE prob_inputs
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: Gauss
   DOUBLE PRECISION, DIMENSION(:,:,:,:), ALLOCATABLE :: fil_data
   DOUBLE PRECISION, DIMENSION(ax,ay,az) :: dum,dudy
+  DOUBLE PRECISION :: Tin
 
   ! Some prob constants which are input dependent
   Rgas = Runiv/molwts(1)                        ! Specific Gas constant
@@ -181,6 +186,42 @@ END SUBROUTINE prob_inputs
 
   SELECT CASE(post_type)
       
+      !! Modify the data for this viz-file and then dump a restart file.
+      CASE('moddata')
+
+         CALL read_data(Tcount)
+
+         !! Fix the temperature so the outflow is always 300K
+         dum = T
+         T = ( dum - T_in ) * ( one / (Tout-T_in) )
+         dum = T
+         T = dum * ( Tinitial - T_in ) + T_in
+
+         rho = p / Rgas / T
+         e = (p/(gamma-one))/rho
+
+
+         ! Dump restart data here...
+         WRITE(iodir,'(2A,I4.4)') TRIM(jobdir),'/res',0
+         IF (world_id==master) WRITE(6,'(2A)') ' Writing data to ',TRIM(iodir)
+         CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
+         CALL restart('w',TRIM(iodir),iodata(:,:,:,1:nres))
+
+
+         ! Dump the viz, to test
+         WRITE(iodir,'(2A)') TRIM(jobdir),'/grid'
+         CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
+         CALL grid()
+
+
+         WRITE(iodir,'(2A,I4.4)') TRIM(jobdir),'/vis',0
+         IF (world_id==master) WRITE(6,'(2A)') ' Writing data to ',TRIM(iodir)
+         CALL newdir(LEN_TRIM(iodir),TRIM(iodir),isync)
+         CALL MPI_BARRIER(MPI_COMM_WORLD,mpierr)
+         CALL viz(TRIM(iodir),iodata)
+
+
+
 
       CASE('walls')
 
@@ -579,10 +620,13 @@ SUBROUTINE prob_plots(plotdir)
 
 END SUBROUTINE prob_plots
 
+SUBROUTINE prob_source()
+END SUBROUTINE
+
 
 SUBROUTINE get_corr(var,plotdir)
   USE mpi
-  USE globals, ONLY: flen
+  USE globals, ONLY: flen,jobdir
   USE inputs, ONLY: nz
   USE post_proc_data
   IMPLICIT NONE
@@ -590,24 +634,54 @@ SUBROUTINE get_corr(var,plotdir)
   CHARACTER(LEN=*), INTENT(IN) :: plotdir
   CHARACTER(LEN=flen) :: plotFile
   INTEGER, PARAMETER :: plotUnit=21
-  INTEGER :: i,k
+  INTEGER :: i,j,k
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: corr
   CHARACTER(LEN=flen) :: myformat
   DOUBLE PRECISION, DIMENSION(nz) :: corrT
-  INTEGER :: nxs,nys
+  DOUBLE PRECISION, DIMENSION(2*nz,ncorr) :: dtmp
+  DOUBLE PRECISION, DIMENSION(nz,ncorr) :: tmp,Scorr
+  DOUBLE PRECISION, DIMENSION(ncorr) :: ave
+  
+INTEGER :: nxs,nys
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! Compute a span averaged line of data for the given variable
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  IF (.NOT. ALLOCATED(corr_data)) THEN
+      ALLOCATE(corr_data(nz,ncorr))
+      corr_data = 0.0D0
+  END IF
+
+
   ALLOCATE(corr(nz,ncorr))
   DO i=1,ncorr
       nxs = corrX(i)
       nys = corrY(i)
       CALL get_span(corrT,nxs,nys,var)
       corr(:,i) = corrT
+      ave(i) = SUM(corr(:,i))/DBLE(nz)
+      tmp(:,i) = corr(:,i) - ave(i)
   END DO
 
-  WRITE(myformat,'(A,I2,A)') '(',1, 'ES12.4)'  
+  ! Periodic copy
+  dtmp(1:nz,:) = tmp(1:nz,:)
+  dtmp(nz+1:2*nz,:) = tmp(1:nz,:)
+
+  Scorr = 0.0D0
+  DO i=1,nz ! Loop over lengths  
+    DO j=1,nz
+        Scorr(i,:) = Scorr(i,:) + dtmp(j,:)*dtmp(j+i-1,:);        
+    END DO    
+  END DO
+
+  ! Normalize the plot
+  DO i=1,ncorr
+      Scorr(:,i) = Scorr(:,i) / Scorr(1,i)
+  END DO
+
+  corr_data = corr_data + Scorr
+
+  WRITE(myformat,'(A,I2,A)') '(', ncorr , 'ES12.4)'  
   ! master cpu writes plot file--------------------------------------------------------------------
   SELECT CASE(xyzcom_id)
   CASE(master)
@@ -623,6 +697,29 @@ SUBROUTINE get_corr(var,plotdir)
   END SELECT
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  
+  !! Also write the average of the corr_data to a file in jobdir
+  IF (T_iter == Tend) THEN
+      corr_data = corr_data / ( DBLE(Tend-Tcount+1) )
+
+      SELECT CASE(xyzcom_id)
+      CASE(master)
+         WRITE(plotFile,'(5A)') TRIM(jobdir),'/',TRIM(var),TRIM(cortag),'total.dat'
+         OPEN(UNIT=plotUnit,FILE=TRIM(plotFile),FORM='FORMATTED',STATUS='REPLACE')
+         WRITE(plotUnit,*) "%# Var=",TRIM(var),', pts=',ncorr
+         !DO i=1,ncorr
+            DO k=1,nz
+               WRITE(plotUnit,TRIM(myformat)) corr_data(k,:)
+            END DO
+         !END DO
+         CLOSE(plotUnit)
+      END SELECT
+
+  END IF
+  
+
+
 
 END SUBROUTINE
 
@@ -886,7 +983,7 @@ SUBROUTINE get_planes(plotdir)
   DOUBLE PRECISION, DIMENSION(50)     :: minvar,maxvar
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: mean,flc
   DOUBLE PRECISION, DIMENSION(SIZE(u,1),SIZE(u,2),SIZE(u,3)) :: vtmp,Lmean,Lflc,L1flc,L2flc,L3flc
-  DOUBLE PRECISION, DIMENSION(SIZE(u,1),SIZE(u,2),SIZE(u,3)) :: rho_grad,Ptot,Ma2
+  DOUBLE PRECISION, DIMENSION(SIZE(u,1),SIZE(u,2),SIZE(u,3)) :: rho_grad,Ptot
   CHARACTER(LEN=90), DIMENSION(:), ALLOCATABLE :: vars
   CHARACTER(LEN=90), DIMENSION(50) :: varstmp
   CHARACTER(LEN=90) :: griddir
@@ -896,9 +993,7 @@ SUBROUTINE get_planes(plotdir)
   !! Get the z-averaged planes and save them as *.mir format... these can be used for plotting in VisIt
   !! or used in matlab to get profiles.  The 2d files are written out on ONE proc.
 
-  !!Ptot = p + half*rho*(u*u + v*v + w*w)   ! Stagnation/Total pressure  ! NOPE... for incomp. you moron!
-  Ma2 = (u*u + v*v + w*w) / (p*gamma/rho)
-  Ptot = p * ( one + (gamma-one)/two * Ma2)**(gamma/(gamma-one))   ! Stagnation/Total pressure  
+  Ptot = p + half*rho*(u*u + v*v + w*w)   ! Stagnation/Total pressure
   CALL grad(rho,L1flc,L2flc,L3flc)
   rho_grad = sqrt( L1flc**2 + L2flc**2 + L3flc**2 )
   vtmp = rho_grad
@@ -1225,7 +1320,8 @@ SUBROUTINE get_span(corr,nxs,nys,var)
       CASE('p')
          cvar = p
       CASE('ptot')
-         cvar = p + half*rho*sqrt( u*u + v*v + w*w )
+         cvar = p + half*rho*sqrt( u*u + v*v + w*w )  !! Incompressible only
+         
   END SELECT   
 
   xline = zero
@@ -1358,7 +1454,7 @@ SUBROUTINE read_data(viz_num)
   y1off =  iy(1) - (j1p*Tay + 1) + 1
   ynoff = (jfp*Tay + 1) - iy(ay) + 1
   z1off =  iz(1) - (k1p*Taz + 1) + 1
-  xnoff = (kfp*Taz + 1) - iz(az) + 1
+  znoff = (kfp*Taz + 1) - iz(az) + 1
 
   SELECT CASE(ftype)
       CASE('res')
