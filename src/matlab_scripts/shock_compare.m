@@ -28,18 +28,23 @@ ii=1;
 % ii=ii+1;
 
 
-prob(ii).fname = '../data/shock_history/coarsev2.mat';
+prob(ii).fname = '../data/shock_history/fullcor.mat';
 prob(ii).side = top;
 prob(ii).Pcol = 'r';
-prob(ii).range = [1,1,4445];
+prob(ii).range = [1,100,1906-150];
 ii=ii+1;
 
 
-prob(ii).fname = '../data/shock_history/mediumv2.mat';
+prob(ii).fname = '../data/shock_history/fullucor.mat';
 prob(ii).side = mid;
 prob(ii).Pcol = 'b';
-prob(ii).range = [1,500,1500];
-prob(ii).range = [1,11,2254];
+prob(ii).range = [1,100,2310-150];
+ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/fullmed.mat';
+prob(ii).side = mid;
+prob(ii).Pcol = 'g';
+prob(ii).range = [1,100,471-100];
 ii=ii+1;
 
 %prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
