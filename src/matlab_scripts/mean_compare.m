@@ -26,10 +26,10 @@ f(2).name = 'WWplume';
 pfig(3) = 0;
 f(3).name = 'WWnoz';
 % Figure 4- Boundary layer profile, raw
-pfig(4) = 0;
+pfig(4) = 1;
 f(4).name = 'UBLmean';
 % Figure 5- Boundary layer profile, wall units
-pfig(5) = 0;
+pfig(5) = 1;
 f(5).name = 'UBLlog';
 % Figure 6- Artificial terms
 pfig(6) = 0;
@@ -38,22 +38,25 @@ f(6).name = 'artMU';
 pfig(7) = 0;
 f(7).name = 'reversed_flow';
 % Figure 8- Reversed flow
-pfig(8) = 1;
+pfig(8) = 0;
 f(8).name = 'pressure';
 
-%pfig(:) = 1;
+%pfig(:) = 0;
 
 % Load the 2 mesh sizes
-load('../data/2dmv2.mat');
-load('../data/2dcv2.mat');
+%load('../data/2dmv2.mat');
+%load('../data/2dcv2.mat');
+load('../data/fullcor2d.mat');
+load('../data/fullucor2d.mat');
+
 Ht = 1.78;
 Up = 32940*1.603;
 Pamb = 1e6;
 
 % Get some variables
 var_map
-uc = sqrt( dataC(:,:,U).^2 + dataC(:,:,U).^2) ;
-um = sqrt( dataM(:,:,U).^2 + dataM(:,:,U).^2 );
+uc = sqrt( dataC(:,:,U).^2 + dataC(:,:,V).^2) ;
+um = sqrt( dataM(:,:,U).^2 + dataM(:,:,V).^2 );
 xc = dataC(:,:,X);yc = dataC(:,:,Y);
 xm = dataM(:,:,X);ym = dataM(:,:,Y);
 
@@ -63,11 +66,11 @@ xm = dataM(:,:,X);ym = dataM(:,:,Y);
 if (pfig(1) == 1);
 % Contour plot
 figure(1);  
-cnts = linspace(5e5,5e7,16);
+%cnts = linspace(5e5,5e7,16);
 cnts = linspace(-.2,1.1,16);
-cnts = linspace(0,0.1,20);
+%cnts = linspace(0,0.1,20);
 %Up=1;
-contour(xc/Ht,yc/Ht,uc/Up,cnts,'color','black');
+contour(xc/Ht,yc/Ht,uc/Up,cnts,'k');
 hold on;
 contour(xm/Ht,-ym/Ht,um/Up,cnts,'color','blue');
 h=legend('Mesh A','Mesh B','Location','NorthWest');set(h,'Interpreter','latex','FontSize',FSn);
@@ -87,41 +90,41 @@ plot(xm(:,end)/Ht,ym(:,end)/Ht,'k--','Linewidth',LW);
 
 
 %corner pts
-cpts1 = [6.5356,.79471;
-        6.6132, .81168;
-        6.6569, .82266;
-        6.6885, .87709;
-        6.6875, .98059];
-cpts2 = [6.5496,.60948;
-        6.6373, .69778;
-        6.6997, .74755;
-        6.7966, .85447;
-        6.9299, .99889];
-    
-figure(11);hold all;
-for i=1:size(cpts1,1)
-    [val,xx,yy] = lineout(xc/Ht,yc/Ht,uc,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
-    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
-    
-    figure(11);subplot(3,2,i);hold on;
-    plot(dist,val/Up,'k');
-    
-    figure(1);hold on;
-    plot(xx,yy,'r')
-end
+%cpts1 = [6.5356,.79471;
+%        6.6132, .81168;
+%        6.6569, .82266;
+%        6.6885, .87709;
+%        6.6875, .98059];
+%cpts2 = [6.5496,.60948;
+%        6.6373, .69778;
+%        6.6997, .74755;
+%        6.7966, .85447;
+%        6.9299, .99889];
+%    
+%figure(11);hold all;
+%for i=1:size(cpts1,1)
+%    [val,xx,yy] = lineout(xc/Ht,yc/Ht,uc,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
+%    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
+%    
+%    figure(11);subplot(3,2,i);hold on;
+%    plot(dist,val/Up,'k');
+%    
+%    figure(1);hold on;
+%    plot(xx,yy,'r')
+%end
+%
+%for i=1:size(cpts1,1)
+%    [val,xx,yy] = lineout(xm/Ht,-ym/Ht,um,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
+%    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
+%    
+%    figure(11);subplot(3,2,i);hold on;
+%    plot(dist,val/Up,'b');
+%    
+%end
 
-for i=1:size(cpts1,1)
-    [val,xx,yy] = lineout(xm/Ht,-ym/Ht,um,[cpts1(i,1),cpts2(i,1)],[cpts1(i,2),cpts2(i,2)],50);
-    dist = sqrt( (xx(1)-xx).^2 + (yy(1)-yy).^2 );
-    
-    figure(11);subplot(3,2,i);hold on;
-    plot(dist,val/Up,'b');
-    
-end
-
-figure(1);
-xlim([6 7.5])
-ylim([.2 1.2])
+%figure(1);
+%xlim([6 7.5])
+%ylim([.2 1.2])
 
 
 if (pdfE)
@@ -264,29 +267,45 @@ yy = yy - yy(1);
 % Scaling
 mu_w = dataC(imC,1,MU);
 rho_w = dataC(imC,1,RHO);
-dudy = ( dataC(imC,2,U) - dataC(imC,1,U) )/ ( yc(imC,2) - yc(imC,1) );
+dudy = ( uc(imC,2) - uc(imC,1) )/ ( yc(imC,2) - yc(imC,1) );
 tauw = mu_w * dudy
 utau = sqrt( tauw / rho_w );
 del = mu_w / ( rho_w * utau );
 uu = uc(imC,1:ceil(end/2));
-semilogx( yy / del, uu / utau, 'k','LineWidth',LW);hold all;
+
+% Van Driest
+uvd(1) = 0;
+for i=2:max(size(uu))
+    dup = uu(i) - uu(i-1);
+    uvd(i) = uvd(i-1) + sqrt( dataC(imC,i,RHO) / rho_w) * dup;
+end
+
+semilogx( yy / del, uvd / utau, 'k','LineWidth',LW);hold all;
 
 yy = ym(imM,1:ceil(end/2));
 yy = yy - yy(1);
 % Scaling
 mu_w = dataM(imM,1,MU);
 rho_w = dataM(imM,1,RHO);
-dudy = ( dataM(imM,2,U) - dataM(imM,1,U) )/ ( ym(imM,2) - ym(imM,1) );
+dudy = ( um(imM,2) - um(imM,1) )/ ( ym(imM,2) - ym(imM,1) );
 tauw = mu_w * dudy
 utau = sqrt( tauw / rho_w );
 del = mu_w / ( rho_w * utau );
 uu = um(imM,1:ceil(end/2));
-semilogx( yy / del, uu / utau, 'b','LineWidth',LW);
+
+% Van Driest
+uvd(1) = 0;
+for i=2:max(size(uu))
+    dup = uu(i) - uu(i-1);
+    uvd(i) = uvd(i-1) + sqrt( dataM(imM,i,RHO) / rho_w) * dup;
+end
+
+semilogx( yy / del, uvd / utau, 'b','LineWidth',LW);
 %xlim([0 30])
 
 x1 = logspace(-.5,1.2,20);
 x2 = logspace(.8,3,20);
-k = .35;
+k = .39;
 C = 5.2;
 hold on;
 semilogx(x1,x1,'k--');hold on;
