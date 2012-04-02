@@ -36,15 +36,15 @@ ii=ii+1;
 
 
 prob(ii).fname = '../data/shock_history/fullucor.mat';
-prob(ii).side = mid;
+prob(ii).side = bot;
 prob(ii).Pcol = 'b';
 prob(ii).range = [1,100,2310-150];
 ii=ii+1;
 
 prob(ii).fname = '../data/shock_history/fullmed.mat';
-prob(ii).side = mid;
+prob(ii).side = top;
 prob(ii).Pcol = 'g';
-prob(ii).range = [1,100,471-100];
+prob(ii).range = [1,550,2367-150];
 ii=ii+1;
 
 %prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
@@ -92,7 +92,7 @@ for i=1:size(prob,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),prob(i).Pcol);
+    loglog(FXs(1,:),FXs(2,:),prob(i).Pcol,'Linewidth',2);
     hold all
     
     % Compensated spectra
@@ -122,7 +122,7 @@ end
 
 
 
-for i=1:size(expS,2)
+for i=1:0 %size(expS,2)
 
     lim = 20000;
     load(expS(i).fname);
@@ -136,12 +136,12 @@ for i=1:size(expS,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol);
+    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol,'Linewidth',2);
     hold all
     
     % Compensated spectra
     figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol);
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol,'Linewidth',2);
     hold all
     
     % Raw data
@@ -165,3 +165,18 @@ end
 
 figure(3);
 xlim([0 20])
+
+
+figure(1);
+xlim([10^-3 2.5])
+plt.fig=1;
+%plt.pdf=false;
+plt.AR = 1;
+plt.legend = {'Mesh A','Mesh B','Mesh C'};
+plt.xlabel = '$fH_t/U_p$';
+plt.ylabel = '$S_{xx}(m^2/Hz)$';
+plt.misc = 'box on;legend boxoff;';
+plt.file = 'spectraAB';
+
+pretty_plot(plt);
+
