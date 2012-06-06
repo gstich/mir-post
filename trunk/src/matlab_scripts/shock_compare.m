@@ -10,6 +10,7 @@ clear all;
 Ht = 1.78;
 Up = 32940*1.603;
 Fs = 200e3;
+LW = 1.5;
 
 top = 1;
 mid = 2;
@@ -27,25 +28,41 @@ ii=1;
 % prob(ii).Pcol = 'b';
 % ii=ii+1;
 
+%prob(ii).fname = '../data/shock_history/fullucor.mat';
+%prob(ii).side = bot;
+%prob(ii).Pcol = 'b';
+%prob(ii).range = [1,420,3465-250];
+%ii=ii+1;
 
-prob(ii).fname = '../data/shock_history/fullcor.mat';
-prob(ii).side = top;
-prob(ii).Pcol = 'r';
-prob(ii).range = [1,100,1906-150];
-ii=ii+1;
+%prob(ii).fname = '../data/shock_history/fullcor.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'r';
+%prob(ii).range = [1,600,3021-150];
+%ii=ii+1;
 
+%prob(ii).fname = '../data/shock_history/fullmed.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'g';
+%prob(ii).range = [1,600,3401-350];
+%ii=ii+1;
 
-prob(ii).fname = '../data/shock_history/fullucor.mat';
-prob(ii).side = bot;
-prob(ii).Pcol = 'b';
-prob(ii).range = [1,100,2310-150];
-ii=ii+1;
+%prob(ii).fname = '../data/shock_history/fullMU.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'c';
+%prob(ii).range = [1,1,1737];
+%ii=ii+1;
 
-prob(ii).fname = '../data/shock_history/fullmed.mat';
-prob(ii).side = top;
-prob(ii).Pcol = 'g';
-prob(ii).range = [1,550,2367-150];
-ii=ii+1;
+%prob(ii).fname = '../data/shock_history/full3xbl.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'c';
+%prob(ii).range = [1,1,1596];
+%ii=ii+1;
+
+%prob(ii).fname = '../data/shock_history/fullLam.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'g';
+%prob(ii).range = [1,1,2730];
+%ii=ii+1;
 
 %prob(ii).fname = '../data/shock_history/mediumNarrow.mat';
 %prob(ii).side = mid;
@@ -59,6 +76,41 @@ ii=ii+1;
 %prob(ii).range = [1,200-150,1151-150];
 %ii = ii + 1;
 
+prob(ii).fname = '../data/shock_history/fullucorInlet.mat';
+prob(ii).side = bot;
+prob(ii).Pcol = 'b--';
+prob(ii).range = [1,1,2600-50];
+ii=ii+1;
+
+%prob(ii).fname = '../data/shock_history/fullcorInlet.mat';
+%prob(ii).side = top;
+%prob(ii).Pcol = 'r--';
+%prob(ii).range = [1,1,780-50];
+%ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/fullucorAR1.5.mat';
+prob(ii).side = bot;
+prob(ii).Pcol = 'r-';
+prob(ii).range = [1,10,3254];
+ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/fullucorAR1.5NPR1.55.mat';
+prob(ii).side = bot;
+prob(ii).Pcol = 'g-';
+prob(ii).range = [1,10,3292];
+ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/fullucorAR1.7NPR1.70.mat';
+prob(ii).side = bot;
+prob(ii).Pcol = 'c-';
+prob(ii).range = [1,10,3185];
+ii=ii+1;
+
+prob(ii).fname = '../data/shock_history/fullucorAR1.7NPR1.90.mat';
+prob(ii).side = bot;
+prob(ii).Pcol = 'y-';
+prob(ii).range = [1,400,3157];
+ii=ii+1;
 
 
 
@@ -72,7 +124,7 @@ xx = linspace(-2,2,400);
 ssig = .1^2;
 
 for i=1:size(prob,2)
-
+	disp(prob(i).fname)
     load(prob(i).fname);
     Xs = XSS(:,prob(i).side);
     if (prob(i).range(1) == 1)
@@ -92,7 +144,7 @@ for i=1:size(prob,2)
     
     % Spectra
     figure(1)
-    loglog(FXs(1,:),FXs(2,:),prob(i).Pcol,'Linewidth',2);
+      loglog(FXs(1,:),FXs(2,:),prob(i).Pcol,'Linewidth',LW);
     hold all
     
     % Compensated spectra
@@ -124,14 +176,37 @@ end
 
 for i=1:0 %size(expS,2)
 
-    lim = 20000;
+    nbin = 20;
+    over = .5;
+    
     load(expS(i).fname);
+    nT = max(size(xnorm));
+    lim = nT/nbin;
     %Xs = xnorm';
     Xs = xnorm(1:lim)';
     timeT = time(1:lim);
+    mean(Xs)
     Xs = (Xs - mean(Xs))/Ht;
     FXs = compute_spectra(Xs);
     FXs(1,:) = FXs(1,:) * xFs *Ht/Up;
+    
+    
+    FXs(2,:) = 0;
+
+    % For loop to average bins
+
+    for j=1:nbin/over - 1
+      Xs = xnorm( (j*over-over)*lim+1:(j*over-over)*lim + lim  )';
+      Xs = (Xs-mean(Xs))/Ht;
+      FX = compute_spectra(Xs);
+      FXs(2,:) = FXs(2,:) + FX(2,:);
+    end
+    %FXs(1,:) = FXs(1,:)*nbin;
+    FXs(2,:) = FXs(2,:) / (nbin/over - 1);  % Average over bins
+    FXs(2,:) = FXs(2,:) * (xFs * (lim/xFs)^.5  ) *Ht/Up;
+
+
+
     
     
     % Spectra
@@ -141,15 +216,17 @@ for i=1:0 %size(expS,2)
     
     % Compensated spectra
     figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),expS(i).Pcol,'Linewidth',2);
+    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),'k*');
     hold all
     
-    % Raw data
+    % Raw data  (just of last bin)
     figure(3)
     plot(timeT,Xs,expS(i).Pcol);
     hold all
     
     % PDF (rms f(x))
+    %Xs = xnorm;
+    %Xs = (Xs - mean(Xs))/Ht;
     w = xx * 0.0;
     for j = 1:size(Xs,1)
         w = w + exp( -(xx-Xs(j)).^2/ssig );
@@ -167,16 +244,4 @@ figure(3);
 xlim([0 20])
 
 
-figure(1);
-xlim([10^-3 2.5])
-plt.fig=1;
-%plt.pdf=false;
-plt.AR = 1;
-plt.legend = {'Mesh A','Mesh B','Mesh C'};
-plt.xlabel = '$fH_t/U_p$';
-plt.ylabel = '$S_{xx}(m^2/Hz)$';
-plt.misc = 'box on;legend boxoff;';
-plt.file = 'spectraAB';
-
-pretty_plot(plt);
-
+figure(1)
