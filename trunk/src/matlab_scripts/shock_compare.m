@@ -78,7 +78,7 @@ ii=1;
 
 prob(ii).fname = '../data/shock_history/fullucorInlet.mat';
 prob(ii).side = bot;
-prob(ii).Pcol = 'b--';
+prob(ii).Pcol = 'b-';
 prob(ii).range = [1,1,2600-50];
 ii=ii+1;
 
@@ -90,29 +90,29 @@ ii=ii+1;
 
 prob(ii).fname = '../data/shock_history/fullucorAR1.5.mat';
 prob(ii).side = bot;
-prob(ii).Pcol = 'r-';
+prob(ii).Pcol = 'r--';
 prob(ii).range = [1,10,3254];
 ii=ii+1;
 
 prob(ii).fname = '../data/shock_history/fullucorAR1.5NPR1.55.mat';
 prob(ii).side = bot;
-prob(ii).Pcol = 'g-';
+prob(ii).Pcol = 'r-';
 prob(ii).range = [1,10,3292];
 ii=ii+1;
 
 prob(ii).fname = '../data/shock_history/fullucorAR1.7NPR1.70.mat';
 prob(ii).side = bot;
-prob(ii).Pcol = 'c-';
+prob(ii).Pcol = 'g--';
 prob(ii).range = [1,10,3185];
 ii=ii+1;
 
 prob(ii).fname = '../data/shock_history/fullucorAR1.7NPR1.90.mat';
 prob(ii).side = bot;
-prob(ii).Pcol = 'y-';
+prob(ii).Pcol = 'g-';
 prob(ii).range = [1,400,3157];
 ii=ii+1;
 
-
+lkey = {'$\textrm{Case 1}$','$\textrm{Case 2}$', '$\textrm{Case 3}$', '$\textrm{Case 4}$', '$\textrm{Case 5}$'};
 
 expS(1).fname = '../data/shock_history/exp.mat';
 expS(1).side = top;
@@ -166,7 +166,7 @@ for i=1:size(prob,2)
     w = w/size(Xs,1);
     
     figure(4);
-    plot(xx,w,prob(i).Pcol);
+    plot(xx,w,prob(i).Pcol,'Linewidth',LW);
     hold all;
     
 end
@@ -174,7 +174,7 @@ end
 
 
 
-for i=1:0 %size(expS,2)
+for i=1:size(expS,2)
 
     nbin = 20;
     over = .5;
@@ -210,14 +210,14 @@ for i=1:0 %size(expS,2)
     
     
     % Spectra
-    figure(1)
-    loglog(FXs(1,:),FXs(2,:),expS(i).Pcol,'Linewidth',2);
-    hold all
+    %figure(1)
+    %loglog(FXs(1,:),FXs(2,:),expS(i).Pcol,'Linewidth',2);
+    %hold all
     
     % Compensated spectra
-    figure(2)
-    semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),'k*');
-    hold all
+    %figure(2)
+    %semilogx(FXs(1,:),FXs(2,:).*FXs(1,:),'k*');
+    %hold all
     
     % Raw data  (just of last bin)
     figure(3)
@@ -234,14 +234,54 @@ for i=1:0 %size(expS,2)
     w = w/size(Xs,1);
     
     figure(4);
-    plot(xx,w,expS(i).Pcol);
+    plot(xx,w,expS(i).Pcol,'Linewidth',LW);
     hold all;
     
 end
+
+
+
+%% Make pretty for plots
 
 
 figure(3);
 xlim([0 20])
 
 
-figure(1)
+% Spectra
+figure(1);
+xlim([10^-3 1]);
+ylim([10^-5 1])
+plt.fig = 1;
+plt.file = 'shock_spectra_cases';
+plt.pdf = false;
+plt.legend = lkey;
+plt.ylabel = '$S_{xx}$';
+plt.xlabel = '$f H_t / U_{p,1}$';
+plt.misc = 'legend boxoff; box on;';
+%pretty_plot(plt)
+
+
+
+
+
+% PDF of the shock
+lkey = [lkey,'$\textrm{Exp}$'];
+figure(4);
+%xlim([10^-3 1]);
+%ylim([10^-5 1])
+plt.fig = 4;
+plt.file = 'shock_PDF_cases';
+plt.pdf = false;
+plt.legend = lkey;
+plt.ylabel = '$\textrm{PDF}$';
+plt.xlabel = '$X^\prime / H_t$';
+plt.misc = 'legend boxoff; box on;';
+%pretty_plot(plt)
+
+
+
+
+
+
+
